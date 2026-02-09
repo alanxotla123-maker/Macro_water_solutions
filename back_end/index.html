@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registro Aqua Clean</title>
+</head>
+<body>
+
+  <h2>Registro de usuario</h2>
+
+  <input id="nombre" placeholder="Nombre"><br><br>
+  <input id="direccion" placeholder="Dirección"><br><br>
+  <input id="correo" placeholder="Correo"><br><br>
+  <input id="password" type="password" placeholder="Contraseña"><br><br>
+
+  <button onclick="registrar()">Registrar</button>
+
+  <pre id="resultado"></pre>
+
+  <script>
+    async function registrar() {
+      const data = {
+        nombre: document.getElementById('nombre').value,
+        direccion: document.getElementById('direccion').value,
+        correo: document.getElementById('correo').value,
+        password: document.getElementById('password').value
+      };
+
+      const res = await fetch('http://localhost:3000/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+
+      const result = await res.json();
+      document.getElementById('resultado').textContent =
+        JSON.stringify(result, null, 2);
+    }
+  </script>
+
+</body>
+</html>
