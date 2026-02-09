@@ -16,7 +16,7 @@ app.use(express.json());
 
 // Ruta raíz (para evitar "Cannot GET /")
 app.get('/', (req, res) => {
-  res.send('Servidor Aqua Clean activo ');
+  res.send('Servidor Aqua Clean activo en localhost');
 });
 
 // Rutas de autenticación
