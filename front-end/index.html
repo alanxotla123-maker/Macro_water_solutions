@@ -5,7 +5,7 @@
     <title>Aqua Clean Pro</title>
     <link rel="stylesheet" href="index.css">
 
-    <!-- FONT AWESOME CDN REAL -->
+    <!-- FONT AWESOME -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
@@ -21,8 +21,8 @@
 
     <div class="icons">
         <i class="fas fa-magnifying-glass"></i>
-        <i class="fas fa-user" id="btnLogin"></i>
         <i class="fas fa-shopping-cart"></i>
+        <i class="fas fa-user" id="btnLogin"></i>
     </div>
 </header>
 
@@ -39,54 +39,98 @@
         </div>
     </div>
 </section>
-<!-- MODAL LOGIN PRO -->
+
+<!-- ================= LOGIN ================= -->
 <div class="modal-overlay" id="modal">
   <div class="modal">
     <span class="cerrar" onclick="cerrarModal()">×</span>
 
-    <h2>Iniciar Sesión</h2>
-    <p class="subtitle">Accede para gestionar tus compras.</p>
+    <form class="login-form" id="formLogin">
 
-    <form class="login-form">
+        <h2>Iniciar Sesión</h2>
+        <p class="subtitle">Accede para gestionar tus compras.</p>
 
-      <label>Correo Electrónico</label>
-      <input type="email" placeholder="ejemplo@gmail.com" required>
+        <label>Correo Electrónico</label>
+        <input type="email" placeholder="ejemplo@gmail.com" required>
 
-      <label>Contraseña</label>
-      <input type="password" placeholder="**********" required>
+        <label>Contraseña</label>
+        <input type="password" placeholder="**********" required>
 
-      <button type="submit" class="login-btn">Entrar</button>
+        <button type="submit" class="login-btn">Entrar</button>
 
-      <div class="divider">
-        <span>O continúa con</span>
-      </div>
+        <div class="divider">
+            <span>O continúa con</span>
+        </div>
 
-      <button type="button" class="google-btn">
-        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg" width="18">
-        Google
-      </button>
+        <button type="button" class="google-btn">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg" width="18">
+            Google
+        </button>
 
-      <p class="register-text">
-        ¿No tienes cuenta? <a href="#">Regístrate</a>
-      </p>
+        <p class="register-text">
+            ¿No tienes cuenta? <a href="#" id="Registrar">Regístrate</a>
+        </p>
 
     </form>
   </div>
 </div>
 
+<!-- ================= REGISTRO ================= -->
+<div class="modal-overlay" id="modal-registrar">
+  <div class="modal">
+    <span class="cerrar" onclick="cerrarModal()">×</span>
 
-<script>
-const btnLogin = document.getElementById("btnLogin");
-const modal = document.getElementById("modal");
+    <form class="login-form" id="formRegistrar">
 
-btnLogin.addEventListener("click", function() {
-    modal.classList.add("active");
-});
+        <h2>Crear cuenta</h2>
+        <p class="subtitle">Accede para gestionar tus compras.</p>
 
-function cerrarModal() {
-    modal.classList.remove("active");
-}
-</script>
+        <label>Nombre</label>
+        <input type="text" placeholder="Nombre" required>
+
+        <label>Dirección</label>
+        <input type="text" placeholder="Dirección" required>
+
+        <label>Correo</label>
+        <input type="email" placeholder="ejemplo@gmail.com" required>
+
+        <label>Contraseña</label>
+        <input type="password" placeholder="**********" required>
+
+        <button type="submit" class="login-btn">Entrar</button>
+
+        <div class="divider">
+            <span>O continúa con</span>
+        </div>
+
+        <button type="button" class="google-btn">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg" width="18">
+            Google
+        </button>
+
+        <p class="register-text">
+            ¿Ya tienes cuenta? <a href="#" id="Regresar">Regresar</a>
+        </p>
+
+    </form>
+  </div>
+</div>
+
+<!-- ================= MODAL MENSAJE ================= -->
+<div class="modal-overlay" id="modalMensaje">
+  <div class="modal mensaje">
+
+    <div class="icono" id="iconoMensaje"></div>
+
+    <h2 id="tituloMensaje"></h2>
+    <p id="textoMensaje"></p>
+
+    <button class="login-btn" onclick="cerrarMensaje()">Cerrar</button>
+
+  </div>
+</div>
+
+<script src="index.js"></script>
 
 </body>
 </html>
