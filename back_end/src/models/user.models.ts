@@ -12,7 +12,7 @@ export const crearUsuarios = async (
     VALUES (?, ?, ?, ?, ?)`;
     const [result] = await pool.execute(sql, [
         nombre,
-        direccion,
+        direccion,  
         correo,
         password,
         rol_id
@@ -22,6 +22,23 @@ export const crearUsuarios = async (
 
 export const buscarUsuariosPorCorreo = async (correo: string) => {
     const sql = `SELECT * FROM usuarios WHERE correo = ?`;
-    const [rows]: any = await pool.execute(sql, [correo]);
+    const [rows]: any = await pool.execute(sql  , [correo]);
     return rows[0];
 };
+export const ObtenerUsuarioId= async(id: number) => {
+    const sql = `SELECT * FROM usuarios WHERE id = ?`;
+    const [rows]: any = await pool.execute(sql, [id]);
+    return rows[0];
+}
+
+
+export const ActualizarUsuario = async (
+    id: number,
+    nombre: string,
+    direccion: string,
+) =>  {
+    await pool.query(
+        `UPDATE usuarios SET nombre = ?, direccion = ? WHERE id = ?`,
+        [nombre,direccion,id]
+    );
+}

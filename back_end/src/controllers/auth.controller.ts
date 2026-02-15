@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import {
   crearUsuarios,
   buscarUsuariosPorCorreo
+  
 } from '../models/user.models';
 
 export const register = async (req: Request, res: Response) => {
@@ -22,7 +23,7 @@ export const register = async (req: Request, res: Response) => {
     if (existe) {
       return res.status(400).json({ message: 'El usuario ya existe' });
     }
-
+    
     const hash = await bcrypt.hash(password, 10);
     await crearUsuarios(nombre, direccion, correo, hash);
 
