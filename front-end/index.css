@@ -1,4 +1,6 @@
-* {
+
+
+*{
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -307,4 +309,177 @@ nav a:hover {
 
 .icono.error {
   background: #f28b94;
+} /* ========================= */
+/* RESPONSIVE */
+/* ========================= */
+
+/* TABLETS */
+@media (max-width: 992px) {
+
+  header {
+    padding: 20px 30px;
+  }
+
+  .hero {
+    padding: 0 5%;
+  }
+
+  .hero h1 {
+    font-size: 38px;
+  }
+
+  .hero p {
+    font-size: 16px;
+  }
+
+  .modal {
+    width: 90%;
+    padding: 40px;
+  }
+
+}
+
+
+/* CELULARES */
+@media (max-width: 768px) {
+
+  header {
+    flex-direction: column;
+    gap: 15px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  nav {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  nav a {
+    margin: 5px 0;
+  }
+
+  .icons {
+    justify-content: center;
+  }
+
+  .hero {
+    text-align: center;
+    justify-content: center;
+    padding: 0 20px;
+  }
+
+  .hero h1 {
+    font-size: 30px;
+  }
+
+  .hero p {
+    font-size: 15px;
+  }
+
+  .buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .btn {
+    margin-right: 0;
+  }
+
+  .modal {
+    width: 95%;
+    padding: 30px 20px;
+    border-radius: 18px;
+  }
+
+  .modal h2 {
+    font-size: 26px;
+  }
+
+}
+
+
+/* CELULARES PEQUEÑOS */
+@media (max-width: 480px) {
+
+  .hero h1 {
+    font-size: 24px;
+  }
+
+  .hero p {
+    font-size: 14px;
+  }
+
+  .login-form input {
+    padding: 12px;
+  }
+
+  .login-btn,
+  .google-btn {
+    padding: 12px;
+    font-size: 14px;
+  }
+
+}
+/* ===== MODAL RESPONSIVE PERFECTO ===== */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(20,20,20,0.95);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 15px;
+  z-index: 9999;
+}
+
+.modal {
+  background: #eeeeee;
+  width: 100%;
+  max-width: 480px;
+  max-height: 95vh;
+  padding: 25px;
+  border-radius: 20px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Ajustes para que quepa todo */
+.modal h2 {
+  font-size: 26px;
+  margin-bottom: 5px;
+}
+
+.subtitle {
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.login-form label {
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+.login-form input {
+  padding: 12px;
+  font-size: 14px;
+}
+
+.login-btn {
+  margin-top: 18px;
+  padding: 12px;
+}
+
+.divider {
+  margin: 20px 0;
+}
+
+.register-text {
+  margin-top: 15px;
+  font-size: 12px;
 }
