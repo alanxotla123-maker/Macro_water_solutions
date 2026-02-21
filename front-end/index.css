@@ -346,3 +346,146 @@ nav a:hover {
   .hero p { font-size: 14px; }
 
 }
+
+
+.nosotros {
+    background: #f4f4f4;
+    padding: 100px 10%;
+}
+
+.nosotros-container {
+    display: flex;
+    align-items: center;
+    gap: 80px;
+}
+
+.nosotros-img img {
+    width: 400px; /* MÁS GRANDE */
+    border-radius: 20px;
+    background: #ddd;
+    padding: 40px;
+}
+
+.nosotros-texto h4 {
+    color: #2a9fd6;
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.nosotros-texto h2 {
+    font-size: 42px;  /* MÁS GRANDE */
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.nosotros-texto p {
+    font-size: 18px;
+    color: #555;
+    line-height: 1.7;
+    margin-bottom: 20px;
+}
+
+.nosotros-beneficios {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.beneficio {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: bold;
+    color: #222;
+}
+
+.beneficio i {
+    color: #2a9fd6;
+    font-size: 20px;
+}
+/* ========================= */
+/* CARRITO LATERAL */
+/* ========================= */
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.3s;
+    z-index: 998;
+}
+
+.overlay.activo {
+    opacity: 1;
+    visibility: visible;
+}
+
+.carrito-panel {
+    position: fixed;
+    top: 0;
+    right: -400px;
+    width: 380px;
+    height: 100vh;
+    background: #fff;
+    box-shadow: -5px 0 20px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    transition: 0.4s ease;
+    z-index: 999;
+}
+
+.carrito-panel.activo {
+    right: 0;
+}
+
+.carrito-header {
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.carrito-body {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.item-carrito {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.carrito-footer {
+    padding: 20px;
+    border-top: 1px solid #eee;
+    background: #f9f9f9;
+}
+
+.resumen div,
+.total {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.total {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.btn-pagar {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    background: #2a9fd6;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+}
