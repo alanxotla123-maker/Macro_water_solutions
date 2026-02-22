@@ -9,7 +9,7 @@ function AuthModal({ cerrarModal }) {
     const data = Object.fromEntries(formData.entries());
 
     const endpoint = esRegistro ? "/api/auth/register" : "/api/auth/login";
-    
+
     try {
       const res = await fetch(`http://localhost:3000${endpoint}`, {
         method: "POST",

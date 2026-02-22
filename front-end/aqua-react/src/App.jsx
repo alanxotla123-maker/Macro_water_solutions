@@ -1,144 +1,85 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
-// Componentes
 import Header from "./components/Header";
 import AuthModal from "./components/AuthModal";
-import MensajeModal from "./components/MensajeModal";
-
-// Páginas
+import Carrito from "./components/Carrito";
 import Home from "./pages/Home";
 import ProductosPage from "./pages/ProductosPage";
 import Nosotros from "./pages/Nosotros";
+import Adminagregar from "./pages/Adminagregar";
 
-// Estilos
-import "./index.css"; 
-
+import "./index.css";
+import "./styles/index.css";
+import "./productos.css";
+import "./styles/admin_agregar.css";
 function App() {
-  // --- ESTADOS ---
+  const [usuario, setUsuario] = useState(null);
+  const [loginAbierto, setLoginAbierto] = useState(false);
   const [carrito, setCarrito] = useState([]);
   const [carritoAbierto, setCarritoAbierto] = useState(false);
-  const [loginAbierto, setLoginAbierto] = useState(false);
-  const [mensaje, setMensaje] = useState(null); // Para los mensajes de éxito/error
 
-  // --- EFECTOS ---
   useEffect(() => {
-    // Recupera el carrito guardado al iniciar la app
-    const guardado = JSON.parse(localStorage.getItem("carrito")) || [];
-    setCarrito(guardado);
+    const sesion = JSON.parse(localStorage.getItem("usuario_sesion"));
+    if (sesion) setUsuario(sesion);
+    const cart = JSON.parse(localStorage.getItem("carrito_pro"));
+    if (cart) setCarrito(cart);
   }, []);
 
-  // --- LÓGICA DEL CARRITO ---
-  const abrirCarrito = () => setCarritoAbierto(true);
-  const cerrarCarrito = () => setCarritoAbierto(false);
+  // Guardar carrito en cada cambio
+  useEffect(() => {
+    localStorage.setItem("carrito_pro", JSON.stringify(carrito));
+  }, [carrito]);
 
   const agregarAlCarrito = (producto) => {
-    const nuevoCarrito = [...carrito, producto];
-    setCarrito(nuevoCarrito);
-    localStorage.setItem("carrito", JSON.stringify(nuevoCarrito));
-    abrirCarrito();
+    setCarrito([...carrito, producto]);
+    setCarritoAbierto(true); // <--- ESTO ABRE EL CARRITO AUTOMÁTICAMENTE
   };
 
-  const eliminarDelCarrito = (index) => {
-    const nuevoCarrito = carrito.filter((_, i) => i !== index);
-    setCarrito(nuevoCarrito);
-    localStorage.setItem("carrito", JSON.stringify(nuevoCarrito));
-  };
-
-  const calcularTotal = () => {
-    const subtotal = carrito.reduce((acc, item) => acc + item.precio, 0);
-    // Suma el envío de $59.99 solo si hay productos
-    return subtotal > 0 ? subtotal + 59.99 : 0;
-  };
-
-  // --- LÓGICA DE LOGIN Y MENSAJES ---
-  const abrirLogin = () => setLoginAbierto(true);
-  const cerrarLogin = () => setLoginAbierto(false);
-
-  const notificar = (tipo, titulo, texto) => {
-    setMensaje({ tipo, titulo, texto });
-    // Autocierre del mensaje después de 4 segundos
-    setTimeout(() => setMensaje(null), 4000);
+  const cerrarSesion = () => {
+    setUsuario(null);
+    setCarrito([]);
+    localStorage.clear();
+    alert("Sesión cerrada");
   };
 
   return (
     <BrowserRouter>
-      {/* HEADER: Recibe funciones para abrir modales y el conteo de items */}
       <Header 
-        abrirCarrito={abrirCarrito} 
-        abrirLogin={abrirLogin} 
+        usuario={usuario} 
+        abrirLogin={() => setLoginAbierto(true)} 
+        cerrarSesion={cerrarSesion}
+        abrirCarrito={() => setCarritoAbierto(true)}
         conteo={carrito.length}
       />
 
-      {/* MODAL DE LOGIN/REGISTRO */}
-      {loginAbierto && (
-        <AuthModal 
-          cerrarModal={cerrarLogin} 
-          notificar={notificar} 
-        />
-      )}
-
-      {/* MODAL DE MENSAJES (Éxito o Error) */}
-      {mensaje && (
-        <MensajeModal 
-          info={mensaje} 
-          cerrar={() => setMensaje(null)} 
-        />
-      )}
-
-      {/* PANEL DEL CARRITO Y OVERLAY */}
-      <div 
-        className={`overlay ${carritoAbierto ? "activo" : ""}`} 
-        onClick={cerrarCarrito}
+      {/* Fondo oscuro del carrito */}
+      <div className={`overlay ${carritoAbierto ? 'activo' : ''}`} onClick={() => setCarritoAbierto(false)}></div>
+      
+      <Carrito 
+        abierto={carritoAbierto} 
+        cerrar={() => setCarritoAbierto(false)} 
+        items={carrito} 
+        eliminar={(i) => setCarrito(carrito.filter((_, idx) => idx !== i))} 
       />
 
-      <div className={`carrito-panel ${carritoAbierto ? "activo" : ""}`}>
-        <div className="carrito-header">
-          <h2>🛒 Tu Carrito</h2>
-          <span onClick={cerrarCarrito} style={{cursor:"pointer", fontSize:"28px"}}>&times;</span>
-        </div>
+      {loginAbierto && (
+        <AuthModal 
+          cerrarModal={() => setLoginAbierto(false)} 
+          onLogin={(d) => { setUsuario(d); localStorage.setItem("usuario_sesion", JSON.stringify(d)); }} 
+        />
+      )}
 
-        <div className="carrito-body">
-          {carrito.length === 0 ? (
-            <p style={{textAlign: "center", marginTop: "20px"}}>Tu carrito está vacío</p>
-          ) : (
-            carrito.map((item, index) => (
-              <div key={index} className="item-carrito">
-                <div>
-                  <strong>{item.nombre}</strong>
-                  <p>${item.precio.toFixed(2)}</p>
-                </div>
-                <button onClick={() => eliminarDelCarrito(index)}>🗑️</button>
-              </div>
-            ))
-          )}
-        </div>
-
-        <div className="carrito-footer">
-          <div className="resumen">
-            <div style={{display: "flex", justifyContent: "space-between"}}>
-              <span>Envío</span>
-              <span>$59.99</span>
-            </div>
-          </div>
-          <div className="total">
-            <strong>Total</strong>
-            <strong>${calcularTotal().toFixed(2)}</strong>
-          </div>
-          <button className="btn-pagar" disabled={carrito.length === 0}>
-            Proceder al pago
-          </button>
-        </div>
-      </div>
-
-      {/* RUTAS PRINCIPALES */}
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route 
-          path="/productos" 
-          element={<ProductosPage agregarAlCarrito={agregarAlCarrito} />} 
-        />
+        <Route path="/productos" element={<ProductosPage agregarAlCarrito={agregarAlCarrito} />} />
         <Route path="/nosotros" element={<Nosotros />} />
+        
+        {/* PROTECCIÓN ADMIN: Si no es admin, lo manda al inicio */}
+        <Route 
+          path="/admin" 
+          element={usuario?.rol === "admin" ? <Adminagregar /> : <Navigate to="/" />} 
+        />
       </Routes>
     </BrowserRouter>
   );
