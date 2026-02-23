@@ -55,7 +55,7 @@ app.post('/api/productos', upload.single('imagen'), async (req, res) => {
 
         res.status(201).json({ message: "Producto guardado con éxito en AWS S3" });
     } catch (err) {
-        console.error("❌ ERROR S3:", err.message);
+        console.error("ERROR S3:", err.message);
         res.status(500).json({ error: "Fallo al subir imagen", details: err.message });
     }
 });
@@ -77,10 +77,10 @@ app.delete('/api/productos/:id', async (req, res) => {
                         Bucket: (process.env.AWS_BUCKET_NAME || 'aquacleanpro').trim(),
                         Key: key,
                     }));
-                    console.log(`✅ Imagen borrada de S3: ${key}`);
+                    console.log(` Imagen borrada de S3: ${key}`);
                 }
             } catch (s3Error) {
-                console.error("⚠️ Error S3 al borrar:", s3Error.message);
+                console.error(" Error S3 al borrar:", s3Error.message);
             }
         }
 
@@ -103,7 +103,7 @@ app.get('/api/productos', async (req, res) => {
 const authRoutes = require('./src/routes/auth.routes').default; 
 app.use('/api/auth', authRoutes);
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, "0.0.0.0", () => {
     console.log(`🚀 Aqua Clean Pro: Servidor activo en puerto ${PORT}`);
 });
