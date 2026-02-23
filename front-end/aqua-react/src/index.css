@@ -1,0 +1,485 @@
+/* RESET GENERAL - FUENTES ORIGINALES */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+html {
+    overflow-y: scroll;
+}
+
+body {
+    background-color: #f5f5f5;
+}
+
+/* HEADER: EL QUE SE PEGA A LAS ORILLAS */
+.main-header {
+    width: 100%;
+    background: white;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    display: flex;
+    justify-content: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    height: 85px;
+}
+
+.header-content {
+    width: 100%;
+    max-width: 1200px; /* Alineado con tus productos */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.logo-img {
+    height: 50px;
+    width: auto;
+    object-fit: contain;
+}
+
+.logo .pro { color: #0077cc; }
+
+.nav-menu {
+    display: flex;
+    gap: 25px;
+}
+
+.nav-menu a {
+    text-decoration: none;
+    color: #333;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.icons {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    font-size: 18px;
+}
+
+.icons i { cursor: pointer; }
+
+.badge-conteo {
+    position: absolute;
+    top: -8px;
+    right: -12px;
+    background: #ff4d4d;
+    color: white;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 50%;
+}
+
+.cart-container { position: relative; }
+
+/* HERO ORIGINAL */
+.hero {
+    position: relative;
+    min-height: 100vh;
+    width: 100%;
+    background: url('/imagenes/umbrella-chair.jpg') center/cover no-repeat;
+    display: flex;
+    align-items: center;
+    padding: 0 8%;
+}
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+}
+
+.hero-content { position: relative; color: white; max-width: 600px; }
+.hero h1 { font-size: 42px; font-weight: 700; }
+.highlight { color: #00bfff; }
+.btn.primary {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 12px 25px;
+    background: #00bfff;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 600;
+}
+/* ================= NOSOTROS ================= */
+.nosotros {
+    width: 100%;
+    background: #ffffff;
+    padding: 100px 0;
+    display: flex;
+    justify-content: center;
+}
+
+.nosotros-container {
+    width: 100%;
+    max-width: 1200px; /* ALINEADO CON HEADER Y PRODUCTOS */
+    display: flex;
+    align-items: center;
+    gap: 80px;
+    padding: 0 20px;
+}
+
+.nosotros-img {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.nosotros-img img {
+    max-width: 450px;
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1));
+}
+
+.nosotros-texto {
+    flex: 1.2;
+}
+
+.nosotros-texto h4 {
+    color: #0077cc;
+    font-size: 14px;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+}
+
+.nosotros-texto h2 {
+    font-size: 42px;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 25px;
+    color: #1a1a1a;
+}
+
+.nosotros-texto p {
+    font-size: 18px;
+    color: #666;
+    line-height: 1.7;
+    margin-bottom: 30px;
+}
+
+/* GRID DE BENEFICIOS */
+.nosotros-beneficios {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.beneficio {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 700;
+    color: #333;
+    font-size: 16px;
+}
+
+.beneficio i {
+    color: #0077cc;
+    font-size: 20px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 992px) {
+    .nosotros-container {
+        flex-direction: column;
+        text-align: center;
+        gap: 50px;
+    }
+    
+    .nosotros-beneficios {
+        justify-items: center;
+    }
+}
+/* ================= MODAL LOGIN (FIDELIDAD TOTAL) ================= */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    visibility: hidden;
+    opacity: 0;
+    transition: 0.3s;
+}
+
+.modal-overlay.active {
+    visibility: visible;
+    opacity: 1;
+}
+
+.modal {
+    background: #f1f3f4; /* Gris muy suave de tu imagen */
+    width: 90%;
+    max-width: 480px;
+    padding: 50px 40px;
+    border-radius: 28px; /* Bordes redondeados */
+    position: relative;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    text-align: center;
+}
+
+.cerrar {
+    position: absolute;
+    top: 25px;
+    right: 30px;
+    font-size: 28px;
+    cursor: pointer;
+    color: #9aa0a6;
+    transition: 0.2s;
+}
+
+.modal h2 {
+    font-size: 36px;
+    font-weight: 800;
+    color: #202124;
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    font-size: 16px;
+    color: #5f6368;
+    font-weight: 500;
+    margin-bottom: 35px;
+}
+
+.login-form {
+    text-align: left;
+}
+
+.login-form label {
+    font-weight: 700;
+    font-size: 15px;
+    color: #202124;
+    display: block;
+    margin-bottom: 8px;
+    margin-top: 18px;
+}
+
+.login-form input {
+    width: 100%;
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #dadce0;
+    background: #e8f0fe; /* Azul pálido de los inputs */
+    font-size: 15px;
+    color: #3c4043;
+}
+
+.login-btn {
+    width: 100%;
+    margin-top: 30px;
+    padding: 16px;
+    border: none;
+    border-radius: 12px;
+    background: #2196f3; /* Azul brillante */
+    color: white;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+/* DIVISOR CON TEXTO */
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 30px 0;
+}
+
+.divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #dadce0;
+}
+
+.divider span {
+    padding: 0 15px;
+    color: #70757a;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* BOTÓN GOOGLE */
+.google-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: 1px solid #dadce0;
+    background: #ffffff;
+    cursor: pointer;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-size: 16px;
+    color: #3c4043;
+}
+
+/* FOOTER CON SEPARACIÓN */
+.modal-footer {
+    margin-top: 25px;
+    display: flex;
+    justify-content: center;
+    gap: 8px; /* Espacio entre texto y link */
+    font-size: 14px;
+}
+
+.footer-text {
+    color: #5f6368;
+}
+
+.link-auth {
+    color: #2196f3;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.link-auth:hover {
+    text-decoration: underline;
+}
+
+/* Fondo oscuro que cubre toda la pantalla */
+.modal-overlay.active {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7); /* Oscurece el fondo */
+    backdrop-filter: blur(5px); /* Efecto de desenfoque */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* La tarjeta blanca del mensaje */
+.modal-diseno-nuevo {
+    background: white;
+    width: 90%;
+    max-width: 400px;
+    padding: 40px 30px;
+    border-radius: 24px;
+    text-align: center;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    animation: aparecer 0.3s ease-out;
+}
+
+/* Círculos de los iconos */
+.icono-circulo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 40px;
+}
+
+/* Colores según el tipo (info.tipo) */
+.icono-circulo.exito {
+    background-color: #dcfce7; /* Verde clarito */
+    color: #22c55e; /* Verde fuerte */
+}
+
+.icono-circulo.error {
+    background-color: #fee2e2; /* Rojo clarito */
+    color: #ef4444; /* Rojo fuerte */
+}
+
+/* Textos */
+.modal-titulo-nuevo {
+    font-size: 26px;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0;
+}
+
+.modal-texto-nuevo {
+    font-size: 16px;
+    color: #6b7280;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* Botón Azul */
+.btn-accion-azul {
+    width: 100%;
+    background-color: #00a2ff;
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 14px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-accion-azul:hover {
+    background-color: #0081cc;
+    transform: translateY(-2px);
+}
+
+/* Animación de entrada */
+@keyframes aparecer {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}/* Contenedor para cuando hay dos botones */
+.modal-acciones-dobles {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    margin-top: 25px;
+}
+
+/* Botón Cancelar */
+.btn-cancelar-gris {
+    flex: 1;
+    background: #f3f4f6;
+    color: #4b5563;
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Botón Confirmar Borrado */
+.btn-confirmar-rojo {
+    flex: 1;
+    background: #ef4444;
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Icono de pregunta/alerta */
+.icono-circulo.pregunta {
+    background-color: #fee2e2;
+    color: #ef4444;
+}

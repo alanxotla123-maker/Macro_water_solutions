@@ -1,0 +1,112 @@
+.productos-section {
+    padding: 80px 0;
+    background: #f5f5f5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.productos-titulo {
+    font-size: 36px;
+    font-weight: 800;
+    margin-bottom: 50px;
+    color: #1a1a1a;
+}
+
+.productos-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.producto-card {
+    background: #ffffff;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+}
+
+.producto-card img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+}
+
+.producto-info { padding: 25px; }
+.precio { color: #2a9fd6; font-weight: 800; font-size: 22px; }
+
+.btn-carrito {
+    width: 100%;
+    padding: 12px;
+    background: #2196f3;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 15px;
+}/* Contenedor de botones para que no choquen */
+.acciones-admin {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+/* Estilo base para los botones de acción */
+.btn-edit, .btn-delete {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+/* Botón Editar (Estilo suave en azul/gris) */
+.btn-edit {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.btn-edit:hover {
+    background: #1976d2;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(25, 118, 210, 0.2);
+}
+
+/* Botón Eliminar (Estilo suave en rojo) */
+.btn-delete {
+    background: #ffebee;
+    color: #d32f2f;
+}
+
+.btn-delete:hover {
+    background: #d32f2f;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(211, 47, 47, 0.2);
+}
+
+/* Ajuste al botón de carrito para que convivan bien */
+.btn-carrito {
+    margin-top: 0; /* Quitamos el margen superior para que lo controle el contenedor */
+    background: #2196f3;
+    transition: background 0.3s ease;
+}
+
+.btn-carrito:hover {
+    background: #1565c0;
+}
