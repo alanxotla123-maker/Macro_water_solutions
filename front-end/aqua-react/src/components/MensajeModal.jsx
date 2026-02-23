@@ -1,13 +1,40 @@
-function MensajeModal({ info, cerrar }) {
+import React from 'react';
+
+function MensajeModal({ info, cerrar, onConfirmar }) {
+  const esExito = info.tipo === "exito";
+  const esPregunta = info.tipo === "pregunta";
+
   return (
-    <div className="modal-overlay active" id="modalMensaje">
-      <div className="modal">
-        <span className="cerrar" onClick={cerrar}>×</span>
-        <div style={{ textAlign: "center", fontSize: "40px", marginBottom: "10px" }}>
-          {info.tipo === "exito" ? "✓" : "✕"}
+    <div className="modal-overlay active">
+      <div className="modal-diseno-nuevo">
+        {/* Círculo con Icono dinámico */}
+        <div className={`icono-circulo ${info.tipo}`}>
+          <i className={
+            esExito ? "fa-solid fa-check" : 
+            esPregunta ? "fa-solid fa-trash-can" : 
+            "fa-solid fa-xmark"
+          }></i>
         </div>
-        <h2 style={{ textAlign: "center" }}>{info.titulo}</h2>
-        <p style={{ textAlign: "center", marginTop: "10px" }}>{info.texto}</p>
+
+        <h2 className="modal-titulo-nuevo">{info.titulo}</h2>
+        <p className="modal-texto-nuevo">{info.texto}</p>
+
+        <div className="modal-acciones-dobles">
+          {esPregunta ? (
+            <>
+              <button className="btn-cancelar-gris" onClick={cerrar}>
+                Cancelar
+              </button>
+              <button className="btn-confirmar-rojo" onClick={onConfirmar}>
+                Sí, Eliminar
+              </button>
+            </>
+          ) : (
+            <button className="btn-accion-azul" onClick={cerrar}>
+              {esExito ? "Entendido" : "Intentar de nuevo"}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

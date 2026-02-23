@@ -1,61 +1,81 @@
 import React, { useState } from "react";
+import MensajeModal from "./MensajeModal";
 
 function AuthModal({ cerrarModal, onLogin }) {
   const [status, setStatus] = useState(null); 
   const [esRegistro, setEsRegistro] = useState(false);
+  const [infoModal, setInfoModal] = useState({ tipo: "", titulo: "", texto: "" });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
+    
+    // 1. CAMBIO VITAL: Usar la variable endpoint
     const endpoint = esRegistro ? '/api/auth/register' : '/api/auth/login';
     
     try {
+      // 2. CAMBIO VITAL: Cambiamos el string fijo por la variable endpoint
       const res = await fetch(`http://localhost:3000${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       });
 
+      const result = await res.json();
+
       if (res.ok) {
-        const result = await res.json();
+        // 3. REVISIÓN DE ESTRUCTURA: 
+        // Tu backend devuelve 'usuario', pero aquí buscabas 'result.user'
+        const usuarioFinal = result.usuario || result.user;
+
+        setInfoModal({
+          tipo: "exito",
+          titulo: "¡Excelente!",
+          texto: esRegistro 
+            ? "Cuenta creada con éxito. Ahora puedes iniciar sesión." 
+            : `Bienvenido, ${usuarioFinal?.nombre || 'Usuario'}`
+        });
         setStatus("exito");
+
         setTimeout(() => { 
             if(esRegistro) { 
-              setEsRegistro(false); 
-              setStatus(null); 
+                setEsRegistro(false); 
+                setStatus(null); 
             } else { 
-              onLogin(result.user); 
-              cerrarModal(); 
+                onLogin(usuarioFinal); 
+                cerrarModal(); 
             }
         }, 1500);
-      } else { setStatus("error"); }
-    } catch (err) {
-      console.error("Error de conexión:", err);
-      setStatus("error");
+      } else { 
+        setInfoModal({ 
+            tipo: "error", 
+            titulo: "Error", 
+            texto: result.message || "Credenciales incorrectas" 
+        });
+        setStatus("error"); 
+      }
+    } catch (error) { 
+        console.error("Error en la conexión:", error);
+        setInfoModal({ 
+            tipo: "error", 
+            titulo: "Error", 
+            texto: "No se pudo conectar al servidor de Aqua Clean Pro." 
+        });
+        setStatus("error");
     }
   };
 
-  if (status) {
-    return (
-      <div className="modal-overlay active">
-        <div className="modal">
-          <div className={`circle ${status}`}>
-            <i className={status === 'exito' ? "fa-solid fa-check" : "fa-solid fa-xmark"}></i>
-          </div>
-          <h2>{status === 'exito' ? '¡Éxito!' : 'Error'}</h2>
-          <button className="login-btn" onClick={() => setStatus(null)}>REGRESAR</button>
-        </div>
-      </div>
-    );
-  }
+  if (status) return <MensajeModal info={infoModal} cerrar={() => setStatus(null)} />;
 
   return (
     <div className="modal-overlay active">
       <div className="modal">
         <span className="cerrar" onClick={cerrarModal}>&times;</span>
-        <h2>{esRegistro ? 'Crea tu cuenta' : '¡Bienvenido!'}</h2>
-        <p className="subtitle">Aqua Clean Pro</p>
+        
+        <h2>{esRegistro ? 'Crear Cuenta' : 'Iniciar Sesión'}</h2>
+        <p className="subtitle">Accede para gestionar tus compras de limpieza.</p>
+
         <form className="login-form" onSubmit={handleSubmit}>
           {esRegistro && (
             <>
@@ -65,18 +85,34 @@ function AuthModal({ cerrarModal, onLogin }) {
               <input name="direccion" type="text" placeholder="Calle, Número, Colonia" required />
             </>
           )}
+          
           <label>Correo Electrónico</label>
-          <input name="correo" type="email" placeholder="ejemplo@aqua.pro" required />
+          <input name="correo" type="email" placeholder="ejemplo@gmail.com" required />
+          
           <label>Contraseña</label>
           <input name="password" type="password" placeholder="••••••••" required />
-          <button type="submit" className="login-btn">{esRegistro ? 'REGISTRARME' : 'INGRESAR'}</button>
-          <div className="divider">O</div>
-          <p className="register-text">
-            {esRegistro ? '¿Ya tienes cuenta?' : '¿No tienes cuenta?'} 
-            <span onClick={() => setEsRegistro(!esRegistro)} style={{color: '#2196f3', cursor: 'pointer', fontWeight: 'bold'}}>
-              {esRegistro ? ' Inicia Sesión' : ' Regístrate aquí'}
+          
+          <button type="submit" className="login-btn">
+            {esRegistro ? 'Registrarse' : 'Entrar'}
+          </button>
+
+          <div className="divider">
+            <span>O continúa con</span>
+          </div>
+          
+          <button type="button" className="google-btn">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" alt="Google" />
+            <span>Google</span>
+          </button>
+
+          <div className="modal-footer">
+            <span className="footer-text">
+              {esRegistro ? '¿Ya tienes cuenta?' : '¿No tienes cuenta?'}
             </span>
-          </p>
+            <span onClick={() => { setEsRegistro(!esRegistro); setStatus(null); }} className="link-auth">
+              {esRegistro ? 'Inicia Sesión' : 'Regístrate'}
+            </span>
+          </div>
         </form>
       </div>
     </div>

@@ -6,8 +6,8 @@ function Hero() {
     <section className="hero">
       <div className="hero-overlay"></div>
       <div className="hero-content">
-        <h1>Mantén tu alberca <span className="highlight">impecable</span></h1>
-        <p>Los mejores productos químicos y accesorios para el mantenimiento de tu piscina.</p>
+        <h1>Transforma tu piscina en un <span className="highlight">oasis, limpio y cristalino</span></h1>
+        <p>Productos premium en un solo lugar a tan solo un clik.</p>
         <div className="buttons">
           <Link to="/productos" className="btn primary">Ver Productos</Link>
         </div>

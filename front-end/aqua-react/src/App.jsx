@@ -8,43 +8,66 @@ import Home from "./pages/Home";
 import ProductosPage from "./pages/ProductosPage";
 import Nosotros from "./pages/Nosotros";
 import Adminagregar from "./pages/Adminagregar";
+import MensajeModal from "./components/MensajeModal";
 
+// LIMPIEZA DE CSS
 import "./index.css";
-import "./styles/index.css";
 import "./productos.css";
-import "./styles/admin_agregar.css";
+
 function App() {
-  const [usuario, setUsuario] = useState(null);
+  const [mostrarAvisoCierre, setMostrarAvisoCierre] = useState(false);
   const [loginAbierto, setLoginAbierto] = useState(false);
-  const [carrito, setCarrito] = useState([]);
   const [carritoAbierto, setCarritoAbierto] = useState(false);
 
-  useEffect(() => {
-    const sesion = JSON.parse(localStorage.getItem("usuario_sesion"));
-    if (sesion) setUsuario(sesion);
-    const cart = JSON.parse(localStorage.getItem("carrito_pro"));
-    if (cart) setCarrito(cart);
-  }, []);
+  // 1. USUARIO: Recuperar datos de sesión al cargar la app
+  const [usuario, setUsuario] = useState(() => {
+    const guardado = localStorage.getItem("usuario_aqua");
+    return guardado ? JSON.parse(guardado) : null;
+  });
 
-  // Guardar carrito en cada cambio
+  // 2. CARRITO: Recuperar items al cargar
+  const [carrito, setCarrito] = useState(() => {
+    const cartGuardado = localStorage.getItem("carrito_pro");
+    return cartGuardado ? JSON.parse(cartGuardado) : [];
+  });
+
+  // 3. EFECTO: Sincronizar carrito con LocalStorage automáticamente
   useEffect(() => {
     localStorage.setItem("carrito_pro", JSON.stringify(carrito));
   }, [carrito]);
 
+  const handleLogin = (datosUsuario) => {
+    setUsuario(datosUsuario);
+    localStorage.setItem("usuario_aqua", JSON.stringify(datosUsuario));
+    setLoginAbierto(false);
+  };
+
   const agregarAlCarrito = (producto) => {
     setCarrito([...carrito, producto]);
-    setCarritoAbierto(true); // <--- ESTO ABRE EL CARRITO AUTOMÁTICAMENTE
+    setCarritoAbierto(true);
   };
 
   const cerrarSesion = () => {
     setUsuario(null);
     setCarrito([]);
     localStorage.clear();
-    alert("Sesión cerrada");
+    setMostrarAvisoCierre(true);
   };
 
   return (
     <BrowserRouter>
+      {/* MODAL DE DESPEDIDA AL CERRAR SESIÓN */}
+      {mostrarAvisoCierre && (
+        <MensajeModal 
+          info={{
+            tipo: "exito",
+            titulo: "¡Hasta luego!",
+            texto: "Tu sesión en Aqua Clean Pro se ha cerrado correctamente."
+          }} 
+          cerrar={() => setMostrarAvisoCierre(false)} 
+        />
+      )}
+      
       <Header 
         usuario={usuario} 
         abrirLogin={() => setLoginAbierto(true)} 
@@ -53,33 +76,57 @@ function App() {
         conteo={carrito.length}
       />
 
-      {/* Fondo oscuro del carrito */}
-      <div className={`overlay ${carritoAbierto ? 'activo' : ''}`} onClick={() => setCarritoAbierto(false)}></div>
+      {/* OVERLAY PARA EL CARRITO LATERAL */}
+      <div 
+        className={`overlay ${carritoAbierto ? 'activo' : ''}`} 
+        onClick={() => setCarritoAbierto(false)}
+      ></div>
       
       <Carrito 
         abierto={carritoAbierto} 
         cerrar={() => setCarritoAbierto(false)} 
         items={carrito} 
+        usuario={usuario}
         eliminar={(i) => setCarrito(carrito.filter((_, idx) => idx !== i))} 
       />
 
+      {/* MODAL DE LOGIN / REGISTRO */}
       {loginAbierto && (
         <AuthModal 
           cerrarModal={() => setLoginAbierto(false)} 
-          onLogin={(d) => { setUsuario(d); localStorage.setItem("usuario_sesion", JSON.stringify(d)); }} 
+          onLogin={handleLogin} 
         />
       )}
 
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/productos" element={<ProductosPage agregarAlCarrito={agregarAlCarrito} />} />
         <Route path="/nosotros" element={<Nosotros />} />
-        
-        {/* PROTECCIÓN ADMIN: Si no es admin, lo manda al inicio */}
+      
+        <Route 
+          path="/productos" 
+          element={
+            <ProductosPage 
+              agregarAlCarrito={agregarAlCarrito} 
+              usuario={usuario} // Pasamos el usuario para mostrar botones de admin
+              abrirLogin={() => setLoginAbierto(true)} 
+            />
+          } 
+        />
+
+        {/* PROTECCIÓN DE RUTA ADMIN */}
         <Route 
           path="/admin" 
-          element={usuario?.rol === "admin" ? <Adminagregar /> : <Navigate to="/" />} 
+          element={
+            usuario?.rol === "admin" ? (
+              <Adminagregar usuario={usuario} /> // Pasamos el usuario como prop
+            ) : (
+              <Navigate to="/" /> // Si no es admin, redirige al Home
+            )
+          } 
         />
+
+        {/* REDIRECCIÓN POR DEFECTO */}
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </BrowserRouter>
   );
