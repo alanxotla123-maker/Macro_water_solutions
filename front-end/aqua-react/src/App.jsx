@@ -9,7 +9,7 @@ import ProductosPage from "./pages/ProductosPage";
 import Nosotros from "./pages/Nosotros";
 import Adminagregar from "./pages/Adminagregar";
 import MensajeModal from "./components/MensajeModal";
-
+import EditarProducto from './pages/AdminEditar';
 // LIMPIEZA DE CSS
 import "./index.css";
 import "./productos.css";
@@ -124,6 +124,16 @@ function App() {
             )
           } 
         />
+        <Route 
+  path="/admin/editar/:id" 
+  element={
+    usuario?.rol === "admin" ? (
+      <EditarProducto /> 
+    ) : (
+      <Navigate to="/" />
+    )
+  } 
+/>
 
         {/* REDIRECCIÓN POR DEFECTO */}
         <Route path="*" element={<Navigate to="/" />} />

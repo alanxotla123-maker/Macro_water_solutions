@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { buscarUsuariosPorCorreo, crearUsuarios } from '../models/user.models';
 
-export const register = async (req: Request, res: Response) => {
+const register = async (req: Request, res: Response) => {
     try {
         const { nombre, direccion, correo, password } = req.body;
         const hash = await bcrypt.hash(password, 10);
@@ -14,7 +14,7 @@ export const register = async (req: Request, res: Response) => {
     }
 };
 
-export const login = async (req: Request, res: Response) => {
+const login = async (req: Request, res: Response) => {
     try {
         const { correo, password } = req.body;
         const usuario = await buscarUsuariosPorCorreo(correo);
@@ -38,3 +38,6 @@ export const login = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Error en servidor', error: error.message });
     }
 };
+
+// EXPORTACIÓN ÚNICA (Quita los "export" de arriba para que no haya conflictos)
+module.exports = { register, login };

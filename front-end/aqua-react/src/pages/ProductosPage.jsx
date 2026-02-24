@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom"; // NUEVO: Para poder navegar
 import MensajeModal from "../components/MensajeModal";
 import "../productos.css";
 
@@ -8,8 +9,8 @@ function ProductosPage({ agregarAlCarrito, usuario }) {
     const [modal, setModal] = useState({ abierto: false, tipo: "", titulo: "", texto: "" });
     const [idAEliminar, setIdAEliminar] = useState(null);
 
-    // 1. VERIFICACIÓN DE SEGURIDAD
-    // Comprobamos si el objeto usuario existe y si su propiedad rol es 'admin'
+    const navigate = useNavigate(); // NUEVO: Inicializamos el navegador
+
     const esAdmin = usuario && usuario.rol === 'admin';
 
     const obtenerProductos = async () => {
@@ -47,7 +48,6 @@ function ProductosPage({ agregarAlCarrito, usuario }) {
 
     return (
         <section className="productos-section">
-            {/* Título dinámico según el rol */}
             <h2 className="productos-titulo">
                 {esAdmin ? "Panel de Gestión de Inventario" : "Nuestros Productos"}
             </h2>
@@ -62,19 +62,22 @@ function ProductosPage({ agregarAlCarrito, usuario }) {
                             <span className="precio">${prod.precio}</span>
                             
                             <div className="acciones-container">
-                                {/* BOTÓN DE CARRITO (Visible para todos si hay sesión) */}
                                 {usuario && (
                                     <button className="btn-carrito" onClick={() => agregarAlCarrito(prod)}>
                                         🛒 Agregar
                                     </button>
                                 )}
 
-                                {/* BOTONES DE ADMIN (Solo si esAdmin es true) */}
                                 {esAdmin && (
                                     <div className="acciones-admin">
-                                        <button className="btn-edit" onClick={() => alert("Editar...")}>
+                                        {/* CAMBIO AQUÍ: Ahora navega a la ruta de edición con el ID */}
+                                        <button 
+                                            className="btn-edit" 
+                                            onClick={() => navigate(`/admin/editar/${prod.id}`)}
+                                        >
                                             ✏️
                                         </button>
+                                        
                                         <button className="btn-delete" onClick={() => {
                                             setIdAEliminar(prod.id);
                                             setModal({ abierto: true, tipo: "pregunta", titulo: "¿Eliminar?", texto: "Esta acción quitará el producto de la base de datos." });
@@ -100,4 +103,4 @@ function ProductosPage({ agregarAlCarrito, usuario }) {
     );
 }
 
-export default ProductosPage;
+export default ProductosPage; 

@@ -1,25 +1,24 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+
+// 1. IMPORTACIONES DE AWS Y MULTER (Esto faltaba)
 const { S3Client, DeleteObjectCommand } = require("@aws-sdk/client-s3");
 const multer = require('multer');
 const multerS3 = require('multer-s3');
 
-// DIAGNÓSTICO DE CREDENCIALES (Mira esto en tu terminal al iniciar)
-console.log("--- CHEQUEO DE CONFIGURACIÓN ---");
-console.log("ID de AWS detectado:", process.env.AWS_ACCESS_KEY_ID ? "✅ SÍ" : "❌ NO");
-console.log("Región detectada:", process.env.AWS_REGION || "us-east-2 (Por defecto)");
-console.log("Bucket detectado:", process.env.AWS_BUCKET_NAME || "aquacleanpro (Por defecto)");
-console.log("--------------------------------");
-
-const app = express();
-
+// 2. REGISTRA TS-NODE PARA LEER ARCHIVOS .TS
 require('ts-node').register(); 
 
+const app = express();
 app.use(cors());
 app.use(express.json());
 
-// 3. CONFIGURACIÓN DE AWS S3 (Limpieza de strings forzada)
+// 3. IMPORTA TUS ARCHIVOS (Sin .ts al final)
+const { pool } = require('./src/config/db'); 
+const authRoutes = require('./src/routes/auth.routes'); 
+
+// 4. CONFIGURACIÓN DE AWS S3
 const s3 = new S3Client({
     region: (process.env.AWS_REGION || "us-east-2").trim(),
     credentials: {
@@ -28,82 +27,96 @@ const s3 = new S3Client({
     },
 });
 
-// 4. CONFIGURACIÓN DE MULTER PARA S3
+// 5. CONFIGURACIÓN DE MULTER
 const upload = multer({
     storage: multerS3({
         s3: s3,
         bucket: (process.env.AWS_BUCKET_NAME || 'aquacleanpro').trim(), 
-        metadata: (req, file, cb) => {
-            cb(null, { fieldName: file.fieldname });
-        },
         key: (req, file, cb) => {
             cb(null, `productos/${Date.now()}_${file.originalname}`);
         }
     })
 });
 
-const { pool } = require('./src/config/db');
+// ================= RUTAS =================
 
-// 5. RUTA: GUARDAR PRODUCTO
+// RUTAS DE AUTENTICACIÓN (Login y Registro)
+app.use('/api/auth', authRoutes);
+
+// OBTENER TODOS LOS PRODUCTOS
+app.get('/api/productos', async (req, res) => {
+    try {
+        const [rows] = await pool.execute("SELECT * FROM productos");
+        res.json(rows);
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// OBTENER UN PRODUCTO POR ID
+app.get('/api/productos/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const [rows] = await pool.execute("SELECT * FROM productos WHERE id = ?", [id]);
+        if (rows.length === 0) return res.status(404).json({ message: "No encontrado" });
+        res.json(rows[0]);
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// GUARDAR PRODUCTO NUEVO (POST)
 app.post('/api/productos', upload.single('imagen'), async (req, res) => {
     try {
         const { nombre, precio, descripcion, stock } = req.body;
         const imagenUrl = req.file ? req.file.location : ""; 
-
         const sql = `INSERT INTO productos (nombre, precio, descripcion, stock, imagen, categoria_id) VALUES (?, ?, ?, ?, ?, 1)`;
         await pool.execute(sql, [nombre, precio, descripcion, stock, imagenUrl]);
-
-        res.status(201).json({ message: "Producto guardado con éxito en AWS S3" });
-    } catch (err) {
-        console.error("ERROR S3:", err.message);
-        res.status(500).json({ error: "Fallo al subir imagen", details: err.message });
-    }
+        res.status(201).json({ message: "Guardado" });
+    } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 6. RUTA: ELIMINAR PRODUCTO
+// ACTUALIZAR PRODUCTO (PUT)
+app.put('/api/productos/:id', upload.single('imagen'), async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { nombre, precio, descripcion, stock, categoria_id } = req.body;
+        const [rows] = await pool.execute("SELECT imagen FROM productos WHERE id = ?", [id]);
+        const imagenVieja = rows[0]?.imagen;
+        let imagenNueva = imagenVieja;
+
+        if (req.file) {
+            imagenNueva = req.file.location;
+            if (imagenVieja && imagenVieja.includes('amazonaws.com')) {
+                const key = imagenVieja.split('.com/')[1];
+                await s3.send(new DeleteObjectCommand({
+                    Bucket: (process.env.AWS_BUCKET_NAME || 'aquacleanpro').trim(),
+                    Key: key,
+                }));
+            }
+        }
+        const query = `UPDATE productos SET nombre=?, precio=?, descripcion=?, stock=?, imagen=?, categoria_id=? WHERE id=?`;
+        await pool.execute(query, [nombre, precio, descripcion, stock, imagenNueva, categoria_id || 1, id]);
+        res.json({ mensaje: 'Actualizado' });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// ELIMINAR PRODUCTO (DELETE)
 app.delete('/api/productos/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const [rows] = await pool.execute("SELECT imagen FROM productos WHERE id = ?", [id]);
         const producto = rows[0];
-
-        if (producto && producto.imagen && producto.imagen.includes('amazonaws.com')) {
-            try {
-                const urlParts = producto.imagen.split('.com/');
-                const key = urlParts[1]; 
-
-                if (key) {
-                    await s3.send(new DeleteObjectCommand({
-                        Bucket: (process.env.AWS_BUCKET_NAME || 'aquacleanpro').trim(),
-                        Key: key,
-                    }));
-                    console.log(` Imagen borrada de S3: ${key}`);
-                }
-            } catch (s3Error) {
-                console.error(" Error S3 al borrar:", s3Error.message);
-            }
+        if (producto?.imagen?.includes('amazonaws.com')) {
+            const key = producto.imagen.split('.com/')[1];
+            await s3.send(new DeleteObjectCommand({
+                Bucket: (process.env.AWS_BUCKET_NAME || 'aquacleanpro').trim(),
+                Key: key,
+            }));
         }
-
         await pool.execute("DELETE FROM productos WHERE id = ?", [id]);
-        res.json({ message: "Eliminado de MySQL y AWS S3" });
-    } catch (err) {
-        res.status(500).json({ error: "Error al eliminar", details: err.message });
-    }
+        res.json({ message: "Eliminado" });
+    } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.get('/api/productos', async (req, res) => {
-    try {
-        const [rows] = await pool.execute("SELECT * FROM productos");
-        res.json(rows);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-const authRoutes = require('./src/routes/auth.routes').default; 
-app.use('/api/auth', authRoutes);
-
-const PORT = process.env.PORT || 8080;
+// ================= INICIO DEL SERVIDOR =================
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => {
     console.log(`🚀 Aqua Clean Pro: Servidor activo en puerto ${PORT}`);
 });

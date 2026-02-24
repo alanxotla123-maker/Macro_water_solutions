@@ -1,10 +1,10 @@
 import { Router } from 'express';
-import { register, login } from '../controllers/auth.controller';
+// Importamos con require porque el controlador usa module.exports
+const { register, login } = require('../controllers/auth.controller');
 
 const router = Router();
 
-// Rutas finales: /api/auth/register y /api/auth/login
 router.post('/register', register);
 router.post('/login', login);
 
-export default router;
+module.exports = router;
