@@ -1,15 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
+// COMPONENTES
 import Header from "./components/Header";
 import AuthModal from "./components/AuthModal";
 import Carrito from "./components/Carrito";
+import MensajeModal from "./components/MensajeModal";
+
+// PÁGINAS
+import Adminagregar from "./pages/AdminAgregar";
 import Home from "./pages/Home";
 import ProductosPage from "./pages/ProductosPage";
 import Nosotros from "./pages/Nosotros";
-import Adminagregar from "./pages/Adminagregar";
-import MensajeModal from "./components/MensajeModal";
+
+import UserProfile from "./pages/UserPerfil"; // Verifica que el archivo se llame exactamente UserPerfil.jsx
+
 import EditarProducto from './pages/AdminEditar';
+
 // LIMPIEZA DE CSS
 import "./index.css";
 import "./productos.css";
@@ -68,6 +75,7 @@ function App() {
         />
       )}
       
+      {/* HEADER: Ahora recibe la prop usuario para mostrar el icono de perfil */}
       <Header 
         usuario={usuario} 
         abrirLogin={() => setLoginAbierto(true)} 
@@ -102,12 +110,24 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/nosotros" element={<Nosotros />} />
       
+        {/* RUTA DE PERFIL: Protegida, solo si hay usuario */}
+        <Route 
+          path="/perfil" 
+          element={
+            usuario ? (
+              <UserProfile usuario={usuario} onCerrarSesion={cerrarSesion} />
+            ) : (
+              <Navigate to="/" />
+            )
+          } 
+        />
+
         <Route 
           path="/productos" 
           element={
             <ProductosPage 
               agregarAlCarrito={agregarAlCarrito} 
-              usuario={usuario} // Pasamos el usuario para mostrar botones de admin
+              usuario={usuario} 
               abrirLogin={() => setLoginAbierto(true)} 
             />
           } 
@@ -118,22 +138,23 @@ function App() {
           path="/admin" 
           element={
             usuario?.rol === "admin" ? (
-              <Adminagregar usuario={usuario} /> // Pasamos el usuario como prop
+              <Adminagregar usuario={usuario} /> 
             ) : (
-              <Navigate to="/" /> // Si no es admin, redirige al Home
+              <Navigate to="/" />
             )
           } 
         />
+
         <Route 
-  path="/admin/editar/:id" 
-  element={
-    usuario?.rol === "admin" ? (
-      <EditarProducto /> 
-    ) : (
-      <Navigate to="/" />
-    )
-  } 
-/>
+          path="/admin/editar/:id" 
+          element={
+            usuario?.rol === "admin" ? (
+              <EditarProducto /> 
+            ) : (
+              <Navigate to="/" />
+            )
+          } 
+        />
 
         {/* REDIRECCIÓN POR DEFECTO */}
         <Route path="*" element={<Navigate to="/" />} />

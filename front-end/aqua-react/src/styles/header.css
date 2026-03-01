@@ -1,0 +1,142 @@
+/* ================================================= */
+/* HEADER - AQUA CLEAN PRO               */
+/* ================================================= */
+
+.main-header {
+    background: white;
+    padding: 12px 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+}
+
+/* --- LOGO --- */
+.logo {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo-img {
+    height: 40px;
+    width: auto;
+}
+
+.pro {
+    color: #007bff; /* Azul Aqua */
+}
+
+/* --- NAVEGACIÓN --- */
+.nav-menu {
+    display: flex;
+    gap: 20px;
+}
+
+.nav-menu a {
+    text-decoration: none;
+    color: #444;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.nav-menu a:hover {
+    color: #007bff;
+}
+
+.link-admin {
+    color: #007bff !important;
+    font-weight: bold;
+}
+
+/* --- SECCIÓN DE ICONOS (DERECHA) --- */
+.icons {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+/* Cambio de MORADO a AZUL para todos los iconos */
+.icons i {
+    color: #007bff !important; /* Forzamos el azul */
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: transform 0.2s, color 0.2s;
+}
+
+.icons i:hover {
+    color: #0056b3 !important; /* Azul más oscuro al pasar el mouse */
+    transform: scale(1.1);
+}
+
+/* Icono de Agregar (+) específico */
+.icon-add {
+    color: #007bff !important;
+}
+
+/* --- CARRITO --- */
+.cart-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.badge-conteo {
+    position: absolute;
+    top: -8px;
+    right: -10px;
+    background: #ff4757; /* Mantenemos rojo para que resalte */
+    color: white;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+/* --- PERFIL CIRCULAR --- */
+.profile-link-header {
+    text-decoration: none;
+}
+
+.user-icon-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: #f0faff; /* Azul muy clarito de fondo */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #cce5ff;
+    transition: all 0.3s ease;
+}
+
+.user-icon-circle i {
+    font-size: 1rem !important;
+    color: #007bff !important;
+}
+
+.user-icon-circle:hover {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.user-icon-circle:hover i {
+    color: white !important; /* El ícono se vuelve blanco al hacer hover */
+}
+
+/* Icono de Login (cuando no hay sesión) */
+.login-icon {
+    color: #007bff !important;
+}

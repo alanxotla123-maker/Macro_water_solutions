@@ -36,13 +36,15 @@ function Header({ abrirCarrito, abrirLogin, usuario, cerrarSesion, conteo }) {
             {conteo > 0 && <span className="badge-conteo">{conteo}</span>}
           </div>
 
+          {/* CAMBIO AQUÍ: QUITAMOS NOMBRE Y LOGOUT, PONEMOS LINK A PERFIL */}
           {usuario ? (
-            <div className="user-info">
-              <span className="user-name">{usuario.nombre}</span>
-              <i className="fa-solid fa-right-from-bracket logout-icon" onClick={cerrarSesion}></i>
-            </div>
+            <Link to="/perfil" className="profile-link-header" title="Mi Perfil">
+              <div className="user-icon-circle">
+                 <i className="fa-regular fa-user"></i>
+              </div>
+            </Link>
           ) : (
-            <i className="fa-solid fa-user login-icon" onClick={abrirLogin}></i>
+            <i className="fa-solid fa-user login-icon" onClick={abrirLogin} title="Iniciar Sesión"></i>
           )}
         </div>
       </div>

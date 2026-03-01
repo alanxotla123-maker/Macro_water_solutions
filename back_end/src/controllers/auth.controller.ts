@@ -1,20 +1,31 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { buscarUsuariosPorCorreo, crearUsuarios } from '../models/user.models';
+import { buscarUsuariosPorCorreo, crearUsuarios, ActualizarUsuario } from '../models/user.models';
+import { pool } from '../config/db';
 
-const register = async (req: Request, res: Response) => {
+// 1. REGISTRO (Con dirección automática)
+export const register = async (req: Request, res: Response) => {
     try {
-        const { nombre, direccion, correo, password } = req.body;
+        // Ignoramos 'direccion' del req.body porque la pondremos automática
+        const { nombre, correo, password } = req.body;
+        
+        // VALOR POR DEFECTO ACORDADO
+        const direccionDefault = "Dirección no ingresada";
+
         const hash = await bcrypt.hash(password, 10);
-        await crearUsuarios(nombre, direccion, correo, hash);
+        
+        // Enviamos los datos al modelo
+        await crearUsuarios(nombre, direccionDefault, correo, hash);
+        
         res.status(201).json({ message: 'Usuario creado con éxito' });
     } catch (error: any) {
         res.status(500).json({ message: 'Error en registro', error: error.message });
     }
 };
 
-const login = async (req: Request, res: Response) => {
+// 2. LOGIN (Enviando la dirección al frontend)
+export const login = async (req: Request, res: Response) => {
     try {
         const { correo, password } = req.body;
         const usuario = await buscarUsuariosPorCorreo(correo);
@@ -30,7 +41,9 @@ const login = async (req: Request, res: Response) => {
             token,
             usuario: {
                 id: usuario.id,
-                nombre: usuario.nombre,
+                nombre: usuario.nombre || "Usuario",
+                correo: usuario.correo,
+                direccion: usuario.direccion, // Aquí llegará "Dirección no ingresada" la primera vez
                 rol: usuario.rol_id === 1 ? 'admin' : 'user'
             }
         });
@@ -39,5 +52,36 @@ const login = async (req: Request, res: Response) => {
     }
 };
 
-// EXPORTACIÓN ÚNICA (Quita los "export" de arriba para que no haya conflictos)
-module.exports = { register, login };
+// 3. OBTENER PERFIL
+export const ObtenerPerfil = async (req: any, res: any) => {
+    try {
+        const userId = req.params.id;
+        const [rows]: any = await pool.execute(
+            "SELECT id, nombre, correo, direccion, rol_id FROM usuarios WHERE id = ?", 
+            [userId]
+        );
+        
+        if (rows.length === 0) return res.status(404).json({ message: "Usuario no encontrado" });
+        
+        res.json(rows[0]);
+    } catch (error: any) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// 4. ACTUALIZAR PERFIL (Lo que faltaba para meter la dirección después)
+export const updateProfile = async (req: Request, res: Response) => {
+    try {
+        const { id, nombre, direccion } = req.body;
+
+        if (!id || !nombre || !direccion) {
+            return res.status(400).json({ message: "Faltan datos para actualizar" });
+        }
+
+        await ActualizarUsuario(id, nombre, direccion);
+        
+        res.json({ message: "Perfil actualizado correctamente", direccion });
+    } catch (error: any) {
+        res.status(500).json({ message: "Error al actualizar", error: error.message });
+    }
+};

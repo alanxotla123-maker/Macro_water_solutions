@@ -11,18 +11,20 @@ function AuthModal({ cerrarModal, onLogin }) {
         const formData = new FormData(e.target);
         const data = Object.fromEntries(formData.entries());
         
-        // El prefijo /api/auth ya lo tiene el server, aquí solo elegimos el final
+        // Si es registro, enviamos el valor por defecto que acordamos
+        if (esRegistro) {
+            data.direccion = "Dirección no ingresada";
+        }
+
         const endpoint = esRegistro ? '/api/auth/register' : '/api/auth/login';
         
         try {
-            // CAMBIO CLAVE: Puerto 8080
             const res = await fetch(`http://localhost:3000${endpoint}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });
 
-            // Si el res.ok es falso, atrapamos el error antes de que truene el JSON
             const result = await res.json();
 
             if (res.ok) {
@@ -59,7 +61,7 @@ function AuthModal({ cerrarModal, onLogin }) {
             setInfoModal({ 
                 tipo: "error", 
                 titulo: "Error de Servidor", 
-                texto: "Asegúrate de que el servidor en el puerto 8080 esté encendido." 
+                texto: "Asegúrate de que el servidor esté encendido." 
             });
             setStatus("error");
         }
@@ -79,8 +81,7 @@ function AuthModal({ cerrarModal, onLogin }) {
                         <>
                             <label>Nombre Completo</label>
                             <input name="nombre" type="text" placeholder="Tu nombre" required />
-                            <label>Dirección</label>
-                            <input name="direccion" type="text" placeholder="Tu dirección" required />
+                            {/* Dirección eliminada de aquí, se envía automáticamente */}
                         </>
                     )}
                     

@@ -1,4 +1,6 @@
-/* RESET GENERAL - FUENTES ORIGINALES */
+/* ================================================= */
+/* 1. RESET Y CONFIGURACIÓN GENERAL                  */
+/* ================================================= */
 * {
     margin: 0;
     padding: 0;
@@ -6,15 +8,12 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-html {
-    overflow-y: scroll;
-}
+html { overflow-y: scroll; }
+body { background-color: #f5f5f5; }
 
-body {
-    background-color: #f5f5f5;
-}
-
-/* HEADER: EL QUE SE PEGA A LAS ORILLAS */
+/* ================================================= */
+/* 2. HEADER (LUPA, CARRITO Y USER EN NEGRO)         */
+/* ================================================= */
 .main-header {
     width: 100%;
     background: white;
@@ -29,7 +28,7 @@ body {
 
 .header-content {
     width: 100%;
-    max-width: 1200px; /* Alineado con tus productos */
+    max-width: 1200px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -42,6 +41,8 @@ body {
     gap: 12px;
     font-size: 24px;
     font-weight: 700;
+    text-decoration: none;
+    color: #1a1a1a;
 }
 
 .logo-img {
@@ -52,27 +53,58 @@ body {
 
 .logo .pro { color: #0077cc; }
 
-.nav-menu {
-    display: flex;
-    gap: 25px;
-}
-
+.nav-menu { display: flex; gap: 25px; }
 .nav-menu a {
     text-decoration: none;
     color: #333;
     font-weight: 600;
     font-size: 16px;
+    transition: color 0.3s;
 }
+.nav-menu a:hover { color: #0077cc; }
 
+/* ICONOS LADO DERECHO */
 .icons {
     display: flex;
     align-items: center;
     gap: 20px;
     font-size: 18px;
 }
+/* 1. LUPA Y CARRITO EN NEGRO */
+.icons i.fa-magnifying-glass,
+.icons i.fa-cart-shopping {
+    color: #000000 !important;
+}
 
-.icons i { cursor: pointer; }
+/* 2. ICONO DE AGREGAR (+) EN AZUL */
+.icons i.fa-circle-plus,
+.icons i.icon-add {
+    color: #0077cc !important;
+}
 
+/* 3. ICONO DE PERFIL (DENTRO DEL CÍRCULO) EN AZUL */
+.user-icon-circle i {
+    color: #0077cc !important;
+}
+
+/* 4. ESTILO DEL CÍRCULO DEL PERFIL (Transparente, se nota al pasar el mouse) */
+.user-icon-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.user-icon-circle:hover {
+    background-color: #f0f7ff;
+    border-color: #cce5ff;
+}
+.cart-container { position: relative; }
 .badge-conteo {
     position: absolute;
     top: -8px;
@@ -84,9 +116,27 @@ body {
     border-radius: 50%;
 }
 
-.cart-container { position: relative; }
+/* PERFIL CIRCULAR (SIN FONDO) */
+.user-icon-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: transparent; /* Quitamos el fondo azul */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid transparent; /* Sin borde */
+    transition: all 0.3s ease;
+}
 
-/* HERO ORIGINAL */
+.user-icon-circle:hover {
+    background-color: #f0f7ff; /* Aparece fondo azul claro al pasar el mouse */
+    border-color: #cce5ff;
+}
+
+/* ================================================= */
+/* 3. HERO SECTION (RESTABLECIDO)                    */
+/* ================================================= */
 .hero {
     position: relative;
     min-height: 100vh;
@@ -116,7 +166,10 @@ body {
     border-radius: 6px;
     font-weight: 600;
 }
-/* ================= NOSOTROS ================= */
+
+/* ================================================= */
+/* 4. SECCIÓN NOSOTROS (RESTABLECIDO)                */
+/* ================================================= */
 .nosotros {
     width: 100%;
     background: #ffffff;
@@ -127,17 +180,11 @@ body {
 
 .nosotros-container {
     width: 100%;
-    max-width: 1200px; /* ALINEADO CON HEADER Y PRODUCTOS */
+    max-width: 1200px;
     display: flex;
     align-items: center;
     gap: 80px;
     padding: 0 20px;
-}
-
-.nosotros-img {
-    flex: 1;
-    display: flex;
-    justify-content: center;
 }
 
 .nosotros-img img {
@@ -147,74 +194,179 @@ body {
     filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1));
 }
 
-.nosotros-texto {
-    flex: 1.2;
-}
+.nosotros-texto h4 { color: #0077cc; font-size: 14px; letter-spacing: 2px; margin-bottom: 10px; }
+.nosotros-texto h2 { font-size: 42px; font-weight: 800; color: #1a1a1a; margin-bottom: 25px; }
+.nosotros-texto p { font-size: 18px; color: #666; line-height: 1.7; margin-bottom: 30px; }
 
-.nosotros-texto h4 {
-    color: #0077cc;
-    font-size: 14px;
-    letter-spacing: 2px;
-    margin-bottom: 10px;
-}
+.nosotros-beneficios { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+.beneficio { display: flex; align-items: center; gap: 12px; font-weight: 700; color: #333; }
+.beneficio i { color: #0077cc; font-size: 20px; }
 
-.nosotros-texto h2 {
-    font-size: 42px;
-    font-weight: 800;
-    line-height: 1.2;
-    margin-bottom: 25px;
-    color: #1a1a1a;
-}
-
-.nosotros-texto p {
-    font-size: 18px;
-    color: #666;
-    line-height: 1.7;
-    margin-bottom: 30px;
-}
-
-/* GRID DE BENEFICIOS */
-.nosotros-beneficios {
+/* ================================================= */
+/* 5. PRODUCTOS (RESTABLECIDO)                       */
+/* ================================================= */
+.productos-section { padding: 80px 0; background: #f5f5f5; display: flex; flex-direction: column; align-items: center; }
+.productos-titulo { font-size: 36px; font-weight: 800; margin-bottom: 50px; color: #1a1a1a; }
+.productos-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+    width: 100%;
+    max-width: 1200px;
+    padding: 0 20px;
 }
+.producto-card { background: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); }
+.producto-card img { width: 100%; height: 250px; object-fit: cover; }
+.producto-info { padding: 25px; }
+.precio { color: #2a9fd6; font-weight: 800; font-size: 22px; }
 
-.beneficio {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-weight: 700;
-    color: #333;
-    font-size: 16px;
-}
-
-.beneficio i {
-    color: #0077cc;
-    font-size: 20px;
-}
-
-/* RESPONSIVE */
-@media (max-width: 992px) {
-    .nosotros-container {
-        flex-direction: column;
-        text-align: center;
-        gap: 50px;
-    }
-    
-    .nosotros-beneficios {
-        justify-items: center;
-    }
-}
-/* ================= MODAL LOGIN (FIDELIDAD TOTAL) ================= */
+/* ================================================= */
+/* 6. MODALES Y MENSAJES (RESTABLECIDO)             */
+/* ================================================= */
 .modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.85);
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 9999;
+    z-index: 1000;
+}
+.modal-diseno-nuevo {
+    background: white;
+    width: 90%;
+    max-width: 400px;
+    padding: 40px 30px;
+    border-radius: 24px;
+    text-align: center;
+}
+.icono-circulo.exito { background-color: #dcfce7; color: #22c55e; }
+.icono-circulo.error { background-color: #fee2e2; color: #ef4444; }
+
+/* ================================================= */
+/* 7. USER PERFIL PANEL (RESTABLECIDO)              */
+/* ================================================= */
+.user-panel-container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+.profile-header-card, .account-menu-card, .history-card {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+.profile-header-card { text-align: center; background: linear-gradient(to bottom, #cae9ff 45%, white 45%); }
+.avatar-circle {
+    width: 90px; height: 90px; background: white; border-radius: 50%;
+    margin: 0 auto 15px; display: flex; align-items: center; justify-content: center;
+    font-size: 40px; color: #0077cc; border: 4px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+.menu-list { list-style: none; padding: 0; }
+.menu-item {
+    padding: 15px; border-radius: 12px; cursor: pointer;
+    display: flex; align-items: center; gap: 15px;
+    color: #444; font-weight: 600; transition: all 0.3s ease;
+}
+.menu-item:hover { background-color: #f0f7ff; color: #0077cc; padding-left: 20px; }
+.menu-item.active { background-color: #0077cc; color: white; }
+/* ================================================= */
+/* 3. MODALES DE ÉXITO Y ERROR (ESTILO CAPTURA)     */
+/* ================================================= */
+.modal-overlay.active {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.modal-diseno-nuevo {
+    background: white;
+    width: 90%;
+    max-width: 420px;
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.icono-circulo {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+}
+
+/* Verde para Éxito */
+.icono-circulo.exito {
+    background-color: #a7f3d0;
+    color: #059669;
+}
+
+/* Rojo para Error */
+.icono-circulo.error {
+    background-color: #fecaca;
+    color: #dc2626;
+}
+
+/* BOTONES AZULES REDONDEADOS (Como en la imagen) */
+.btn-accion-azul {
+    width: 100%;
+    background-color: #1fb0ff; /* Azul brillante de tu captura */
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+.btn-accion-azul:hover {
+    background-color: #0099ff;
+}
+
+/* ================================================= */
+/* 4. SECCIONES RESTANTES (HERO, NOSOTROS, ETC.)     */
+/* ================================================= */
+.hero {
+    position: relative;
+    min-height: 100vh;
+    background: url('/imagenes/umbrella-chair.jpg') center/cover no-repeat;
+    display: flex;
+    align-items: center;
+    padding: 0 8%;
+}
+
+.hero-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.45); }
+.hero-content { position: relative; color: white; }
+
+.nosotros-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    gap: 80px;
+    padding: 100px 20px;
+}
+/* ================================================= */
+/* 8. MODAL DE LOGIN / REGISTRO (FIDELIDAD TOTAL)    */
+/* ================================================= */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 3000;
     visibility: hidden;
     opacity: 0;
     transition: 0.3s;
@@ -226,11 +378,11 @@ body {
 }
 
 .modal {
-    background: #f1f3f4; /* Gris muy suave de tu imagen */
+    background: #f1f3f4; /* Gris suave del fondo del modal */
     width: 90%;
     max-width: 480px;
     padding: 50px 40px;
-    border-radius: 28px; /* Bordes redondeados */
+    border-radius: 28px;
     position: relative;
     box-shadow: 0 20px 40px rgba(0,0,0,0.3);
     text-align: center;
@@ -260,6 +412,7 @@ body {
     margin-bottom: 35px;
 }
 
+/* FORMULARIO */
 .login-form {
     text-align: left;
 }
@@ -276,11 +429,17 @@ body {
 .login-form input {
     width: 100%;
     padding: 15px;
-    border-radius: 10px;
+    border-radius: 12px;
     border: 1px solid #dadce0;
-    background: #e8f0fe; /* Azul pálido de los inputs */
+    background: #e8f0fe; /* El azul pálido clásico de tus inputs */
     font-size: 15px;
     color: #3c4043;
+    outline: none;
+}
+
+.login-form input:focus {
+    border-color: #2196f3;
+    box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
 }
 
 .login-btn {
@@ -289,7 +448,7 @@ body {
     padding: 16px;
     border: none;
     border-radius: 12px;
-    background: #2196f3; /* Azul brillante */
+    background: #2196f3; /* Azul brillante del botón */
     color: white;
     font-size: 18px;
     font-weight: 700;
@@ -297,7 +456,11 @@ body {
     transition: 0.3s;
 }
 
-/* DIVISOR CON TEXTO */
+.login-btn:hover {
+    background: #1976d2;
+}
+
+/* DIVISOR "O" */
 .divider {
     display: flex;
     align-items: center;
@@ -335,12 +498,12 @@ body {
     color: #3c4043;
 }
 
-/* FOOTER CON SEPARACIÓN */
+
 .modal-footer {
     margin-top: 25px;
     display: flex;
     justify-content: center;
-    gap: 8px; /* Espacio entre texto y link */
+    gap: 8px;
     font-size: 14px;
 }
 
@@ -352,134 +515,59 @@ body {
     color: #2196f3;
     font-weight: 800;
     cursor: pointer;
+    text-decoration: none;
 }
 
 .link-auth:hover {
     text-decoration: underline;
 }
 
-/* Fondo oscuro que cubre toda la pantalla */
-.modal-overlay.active {
-    position: fixed;
-    top: 0;
+.sugerencias-lista {
+    position: absolute;
+    top: 100%;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7); /* Oscurece el fondo */
-    backdrop-filter: blur(5px); /* Efecto de desenfoque */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-/* La tarjeta blanca del mensaje */
-.modal-diseno-nuevo {
+    right: 0;
     background: white;
-    width: 90%;
-    max-width: 400px;
-    padding: 40px 30px;
-    border-radius: 24px;
-    text-align: center;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-    animation: aparecer 0.3s ease-out;
+    border: 1px solid #dadce0;
+    border-radius: 10px;
+    list-style: none;
+    padding: 0;
+    margin: 5px 0 0;
+    z-index: 1000;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    max-height: 150px;
+    overflow-y: auto;
 }
 
-/* Círculos de los iconos */
-.icono-circulo {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    margin: 0 auto 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 40px;
+.sugerencias-lista li {
+    padding: 10px 15px;
+    font-size: 13px;
+    color: #3c4043;
+    cursor: pointer;
+    border-bottom: 1px solid #f1f3f4;
 }
 
-/* Colores según el tipo (info.tipo) */
-.icono-circulo.exito {
-    background-color: #dcfce7; /* Verde clarito */
-    color: #22c55e; /* Verde fuerte */
+.sugerencias-lista li:hover {
+    background-color: #f8f9fa;
+    color: #0077cc;
 }
-
-.icono-circulo.error {
-    background-color: #fee2e2; /* Rojo clarito */
-    color: #ef4444; /* Rojo fuerte */
-}
-
-/* Textos */
-.modal-titulo-nuevo {
-    font-size: 26px;
-    font-weight: 700;
-    color: #1f2937;
-    margin: 0;
-}
-
-.modal-texto-nuevo {
-    font-size: 16px;
-    color: #6b7280;
-    line-height: 1.5;
-    margin: 0;
-}
-
-/* Botón Azul */
-.btn-accion-azul {
+.input-gps-container {
+    position: relative;
     width: 100%;
-    background-color: #00a2ff;
-    color: white;
-    border: none;
-    padding: 15px;
-    border-radius: 14px;
+}
+
+.gps-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #0077cc;
+    cursor: pointer;
     font-size: 18px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
 }
 
-.btn-accion-azul:hover {
-    background-color: #0081cc;
-    transform: translateY(-2px);
-}
-
-/* Animación de entrada */
-@keyframes aparecer {
-    from { transform: scale(0.8); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-}/* Contenedor para cuando hay dos botones */
-.modal-acciones-dobles {
-    display: flex;
-    gap: 12px;
-    width: 100%;
-    margin-top: 25px;
-}
-
-/* Botón Cancelar */
-.btn-cancelar-gris {
-    flex: 1;
-    background: #f3f4f6;
-    color: #4b5563;
-    border: none;
-    padding: 14px;
-    border-radius: 12px;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-/* Botón Confirmar Borrado */
-.btn-confirmar-rojo {
-    flex: 1;
-    background: #ef4444;
-    color: white;
-    border: none;
-    padding: 14px;
-    border-radius: 12px;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-/* Icono de pregunta/alerta */
-.icono-circulo.pregunta {
-    background-color: #fee2e2;
-    color: #ef4444;
+.gps-icon:hover {
+    color: #0056b3;
+    transform: translateY(-50%) scale(1.2);
 }
