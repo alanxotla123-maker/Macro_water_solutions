@@ -67,8 +67,35 @@ export const ObtenerPerfil = async (req: any, res: any) => {
     } catch (error: any) {
         res.status(500).json({ error: error.message });
     }
-};
+};export const ActualizarDireccion = async (req: any, res: any) => {
+    try {
+        // ERROR 1 CORREGIDO: El ID viene de req.params.id directamente
+        const id = req.params.id; 
+        const { direccion } = req.body;
 
+        if (!direccion) {
+            return res.status(400).json({ message: "La dirección es requerida" });
+        }
+
+        // ERROR 2 CORREGIDO: Sintaxis SQL correcta: UPDATE tabla SET columna = ? WHERE id = ?
+        const [result]: any = await pool.execute(
+            "UPDATE usuarios SET direccion = ? WHERE id = ?", 
+            [direccion, id]
+        );
+
+        // Verificamos si realmente se actualizó alguien
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "Usuario no encontrado" });
+        }
+
+        res.json({ message: "Dirección guardada con éxito", direccion });
+
+    } catch (error: any) {
+        // Esto te dirá el error real en la consola si algo falla
+        console.error("Error en SQL:", error.message);
+        res.status(500).json({ error: error.message });
+    }
+}
 // 4. ACTUALIZAR PERFIL (Lo que faltaba para meter la dirección después)
 export const updateProfile = async (req: Request, res: Response) => {
     try {
