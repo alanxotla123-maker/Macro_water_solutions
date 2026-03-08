@@ -9,7 +9,7 @@ const multerS3 = require('multer-s3');
 
 // 2. REGISTRA TS-NODE
 require('ts-node').register(); 
-
+app.use(express.static(path.join(__dirname, 'public')));
 const app = express();
 
 // --- AJUSTE DE CORS PARA PRODUCCIÓN ---

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-
 // COMPONENTES
 import Header from "./components/Header";
 import AuthModal from "./components/AuthModal";
@@ -165,7 +164,7 @@ function App() {
         <Route 
           path="/admin" 
           element={
-            usuario?.rol === "admin" ? (
+            usuario?.rol === "1" ? (
               <Adminagregar usuario={usuario} /> 
             ) : (
               <Navigate to="/" />
