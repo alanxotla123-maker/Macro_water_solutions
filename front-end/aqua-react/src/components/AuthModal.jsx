@@ -19,14 +19,14 @@ function AuthModal({ cerrarModal, onLogin }) {
         const endpoint = esRegistro ? '/api/auth/register' : '/api/auth/login';
         
         try {
-            const res = await fetch(`http://localhost:3000${endpoint}`, {
+            const res = await fetch(`https://macrowatersolutions.com${endpoint}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });
 
             const result = await res.json();
-
+            onLogin(result.usuario || result.user); // Esto conecta con tu App.js
             if (res.ok) {
                 const usuarioFinal = result.usuario || result.user;
 

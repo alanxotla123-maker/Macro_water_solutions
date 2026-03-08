@@ -58,7 +58,7 @@ function Adminagregar({ usuario }) {
         formData.append("imagen", imagen);
 
         try {
-            const res = await fetch("http://localhost:3000/api/productos", {
+            const res = await fetch("https://macrowatersolutions.com/api/productos", {
                 method: "POST",
                 body: formData
             });

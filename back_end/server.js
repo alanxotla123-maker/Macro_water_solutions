@@ -2,19 +2,26 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 
-// 1. IMPORTACIONES DE AWS Y MULTER (Esto faltaba)
+// 1. IMPORTACIONES DE AWS Y MULTER
 const { S3Client, DeleteObjectCommand } = require("@aws-sdk/client-s3");
 const multer = require('multer');
 const multerS3 = require('multer-s3');
 
-// 2. REGISTRA TS-NODE PARA LEER ARCHIVOS .TS
+// 2. REGISTRA TS-NODE
 require('ts-node').register(); 
 
 const app = express();
-app.use(cors());
+
+// --- AJUSTE DE CORS PARA PRODUCCIÓN ---
+app.use(cors({
+    origin: ['https://macrowatersolutions.com', 'http://macrowatersolutions.com'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true
+}));
+
 app.use(express.json());
 
-// 3. IMPORTA TUS ARCHIVOS (Sin .ts al final)
+// 3. IMPORTACIONES
 const { pool } = require('./src/config/db'); 
 const authRoutes = require('./src/routes/auth.routes'); 
 
@@ -40,10 +47,13 @@ const upload = multer({
 
 // ================= RUTAS =================
 
-// RUTAS DE AUTENTICACIÓN (Login y Registro)
+// Ruta de prueba para verificar si el backend responde en el dominio
+app.get('/api/health', (req, res) => {
+    res.json({ status: "ok", message: "Servidor activo en Namecheap" });
+});
+
 app.use('/api/auth', authRoutes);
 
-// OBTENER TODOS LOS PRODUCTOS
 app.get('/api/productos', async (req, res) => {
     try {
         const [rows] = await pool.execute("SELECT * FROM productos");
@@ -51,7 +61,6 @@ app.get('/api/productos', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// OBTENER UN PRODUCTO POR ID
 app.get('/api/productos/:id', async (req, res) => {
     try {
         const { id } = req.params;
@@ -61,7 +70,6 @@ app.get('/api/productos/:id', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// GUARDAR PRODUCTO NUEVO (POST)
 app.post('/api/productos', upload.single('imagen'), async (req, res) => {
     try {
         const { nombre, precio, descripcion, stock } = req.body;
@@ -72,7 +80,6 @@ app.post('/api/productos', upload.single('imagen'), async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// ACTUALIZAR PRODUCTO (PUT)
 app.put('/api/productos/:id', upload.single('imagen'), async (req, res) => {
     try {
         const { id } = req.params;
@@ -97,7 +104,6 @@ app.put('/api/productos/:id', upload.single('imagen'), async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// ELIMINAR PRODUCTO (DELETE)
 app.delete('/api/productos/:id', async (req, res) => {
     try {
         const { id } = req.params;
@@ -116,7 +122,8 @@ app.delete('/api/productos/:id', async (req, res) => {
 });
 
 // ================= INICIO DEL SERVIDOR =================
+// En Namecheap, el puerto se asigna dinámicamente o se usa el Passenger
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, "0.0.0.0", () => {
-    console.log(`🚀 Aqua Clean Pro: Servidor activo en puerto ${PORT}`);
+app.listen(PORT, () => {
+    console.log(`🚀 Servidor activo en macrowatersolutions.com`);
 });

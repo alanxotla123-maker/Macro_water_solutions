@@ -6,18 +6,16 @@ import Header from "./components/Header";
 import AuthModal from "./components/AuthModal";
 import Carrito from "./components/Carrito";
 import MensajeModal from "./components/MensajeModal";
-
+import Checkout from "./components/CheckOut";
 // PÁGINAS
 import Adminagregar from "./pages/AdminAgregar";
 import Home from "./pages/Home";
 import ProductosPage from "./pages/ProductosPage";
 import Nosotros from "./pages/Nosotros";
-
-import UserProfile from "./pages/UserPerfil"; // Verifica que el archivo se llame exactamente UserPerfil.jsx
-
+import UserProfile from "./pages/UserPerfil";
 import EditarProducto from './pages/AdminEditar';
 
-// LIMPIEZA DE CSS
+// ESTILOS
 import "./index.css";
 import "./productos.css";
 
@@ -26,19 +24,19 @@ function App() {
   const [loginAbierto, setLoginAbierto] = useState(false);
   const [carritoAbierto, setCarritoAbierto] = useState(false);
 
-  // 1. USUARIO: Recuperar datos de sesión al cargar la app
+  // 1. USUARIO: Recuperar datos de sesión
   const [usuario, setUsuario] = useState(() => {
     const guardado = localStorage.getItem("usuario_aqua");
     return guardado ? JSON.parse(guardado) : null;
   });
 
-  // 2. CARRITO: Recuperar items al cargar
+  // 2. CARRITO: Recuperar items
   const [carrito, setCarrito] = useState(() => {
     const cartGuardado = localStorage.getItem("carrito_pro");
     return cartGuardado ? JSON.parse(cartGuardado) : [];
   });
 
-  // 3. EFECTO: Sincronizar carrito con LocalStorage automáticamente
+  // 3. EFECTO: Sincronizar con LocalStorage
   useEffect(() => {
     localStorage.setItem("carrito_pro", JSON.stringify(carrito));
   }, [carrito]);
@@ -49,9 +47,40 @@ function App() {
     setLoginAbierto(false);
   };
 
+  // FUNCIONES DEL CARRITO (Lógica de Stock y Cantidad)
   const agregarAlCarrito = (producto) => {
-    setCarrito([...carrito, producto]);
-    setCarritoAbierto(true);
+    setCarrito((prev) => {
+      const existe = prev.find((item) => item.id === producto.id);
+      if (existe) {
+        if (existe.cantidad < producto.stock) {
+          return prev.map((item) =>
+            item.id === producto.id ? { ...item, cantidad: item.cantidad + 1 } : item
+          );
+        } else {
+          alert("¡Ups! No hay más stock disponible.");
+          return prev;
+        }
+      }
+      return [...prev, { ...producto, cantidad: 1 }];
+    });
+  };
+
+  const actualizarCantidad = (id, cambio) => {
+    setCarrito((prev) =>
+      prev.map((item) => {
+        if (item.id === id) {
+          const nuevaCantidad = item.cantidad + cambio;
+          if (nuevaCantidad > 0 && nuevaCantidad <= item.stock) {
+            return { ...item, cantidad: nuevaCantidad };
+          }
+        }
+        return item;
+      })
+    );
+  };
+
+  const eliminarDelCarrito = (id) => {
+    setCarrito((prev) => prev.filter((item) => item.id !== id));
   };
 
   const cerrarSesion = () => {
@@ -63,7 +92,6 @@ function App() {
 
   return (
     <BrowserRouter>
-      {/* MODAL DE DESPEDIDA AL CERRAR SESIÓN */}
       {mostrarAvisoCierre && (
         <MensajeModal 
           info={{
@@ -75,16 +103,14 @@ function App() {
         />
       )}
       
-      {/* HEADER: Ahora recibe la prop usuario para mostrar el icono de perfil */}
       <Header 
         usuario={usuario} 
         abrirLogin={() => setLoginAbierto(true)} 
         cerrarSesion={cerrarSesion}
         abrirCarrito={() => setCarritoAbierto(true)}
-        conteo={carrito.length}
+        conteo={carrito.reduce((acc, item) => acc + item.cantidad, 0)} // Conteo total de piezas
       />
 
-      {/* OVERLAY PARA EL CARRITO LATERAL */}
       <div 
         className={`overlay ${carritoAbierto ? 'activo' : ''}`} 
         onClick={() => setCarritoAbierto(false)}
@@ -95,10 +121,10 @@ function App() {
         cerrar={() => setCarritoAbierto(false)} 
         items={carrito} 
         usuario={usuario}
-        eliminar={(i) => setCarrito(carrito.filter((_, idx) => idx !== i))} 
+        actualizarCantidad={actualizarCantidad} // ¡Importante pasar esto!
+        eliminar={eliminarDelCarrito} // Usamos la función por ID
       />
 
-      {/* MODAL DE LOGIN / REGISTRO */}
       {loginAbierto && (
         <AuthModal 
           cerrarModal={() => setLoginAbierto(false)} 
@@ -108,9 +134,12 @@ function App() {
 
       <Routes>
         <Route path="/" element={<Home />} />
+        
+        {/* CORRECCIÓN AQUÍ: Se usa 'carrito' en lugar de 'items' y 'usuario' en lugar de 'user' */}
+        <Route path="/checkout" element={<Checkout carrito={carrito} usuario={usuario} />} />
+        
         <Route path="/nosotros" element={<Nosotros />} />
       
-        {/* RUTA DE PERFIL: Protegida, solo si hay usuario */}
         <Route 
           path="/perfil" 
           element={
@@ -133,7 +162,6 @@ function App() {
           } 
         />
 
-        {/* PROTECCIÓN DE RUTA ADMIN */}
         <Route 
           path="/admin" 
           element={
@@ -156,7 +184,6 @@ function App() {
           } 
         />
 
-        {/* REDIRECCIÓN POR DEFECTO */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </BrowserRouter>

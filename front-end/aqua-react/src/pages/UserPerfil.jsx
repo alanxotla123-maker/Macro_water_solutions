@@ -23,7 +23,7 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
         setCargando(true);
         try {
             // CAMBIO AQUÍ: Usamos direccionFinal en el body
-            const res = await fetch(`http://localhost:3000/api/auth/UpdateD/${usuario.id}`, {
+            const res = await fetch(`https://macrowatersolutions.com/api/auth/UpdateD/${usuario.id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ direccion: direccionFinal }) 

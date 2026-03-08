@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import MensajeModal from '../components/MensajeModal'; // NUEVO
+import MensajeModal from '../components/MensajeModal'; 
 import '../styles/Admin_editar_productos.css';
 
 const EditarProducto = () => {
@@ -18,24 +18,23 @@ const EditarProducto = () => {
 
   const [archivo, setArchivo] = useState(null);
   const [preview, setPreview] = useState("");
-  // NUEVO: Estado para controlar el modal
   const [modal, setModal] = useState({ abierto: false, tipo: "", titulo: "", texto: "" });
 
+  // 1. CARGAR DATOS DEL PRODUCTO AL INICIAR
   useEffect(() => {
     const obtenerProducto = async () => {
       try {
-        const res = await fetch(`http://localhost:3000/api/productos/${id}`);
+        const res = await fetch(`https://macrowatersolutions.com/api/productos/${id}`);
         if (res.ok) {
           const data = await res.json();
           setProducto(data);
           setPreview(data.imagen);
         } else {
-          // En lugar de alert, usamos modal de error
           setModal({
             abierto: true,
             tipo: "error",
             titulo: "Error",
-            texto: "No se encontró el producto en la base de datos."
+            texto: "No se pudo cargar el producto. Es posible que no exista."
           });
         }
       } catch (error) {
@@ -44,6 +43,43 @@ const EditarProducto = () => {
     };
     obtenerProducto();
   }, [id]);
+
+  // 2. FUNCIÓN PARA ELIMINAR REALMENTE (FETCH DELETE)
+  const eliminarProductoReal = async () => {
+    try {
+      const res = await fetch(`https://macrowatersolutions.com/api/productos/${id}`, {
+        method: "DELETE"
+      });
+
+      if (res.ok) {
+        setModal({
+          abierto: true,
+          tipo: "exito",
+          titulo: "¡Eliminado!",
+          texto: "El producto ha sido borrado de la base de datos correctamente."
+        });
+      } else {
+        throw new Error();
+      }
+    } catch (error) {
+      setModal({
+        abierto: true,
+        tipo: "error",
+        titulo: "Error",
+        texto: "No se pudo eliminar el producto del servidor."
+      });
+    }
+  };
+
+  // 3. DISPARAR PREGUNTA DE ELIMINACIÓN
+  const preguntarEliminar = () => {
+    setModal({
+      abierto: true,
+      tipo: "pregunta", // Activa los dos botones en tu MensajeModal
+      titulo: "¿Estás seguro?",
+      texto: `Vas a eliminar definitivamente "${producto.nombre}". Esta acción no se puede deshacer.`
+    });
+  };
 
   const handleChange = (e) => {
     const { id, value, type } = e.target;
@@ -62,6 +98,7 @@ const EditarProducto = () => {
     }
   };
 
+  // 4. GUARDAR CAMBIOS (PUT)
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
@@ -76,55 +113,68 @@ const EditarProducto = () => {
     }
 
     try {
-      const res = await fetch(`http://localhost:3000/api/productos/${id}`, {
+      const res = await fetch(`https://macrowatersolutions.com/api/productos/${id}`, {
         method: "PUT",
         body: formData 
       });
 
       if (res.ok) {
-        // EN LUGAR DE ALERT: Mostramos éxito
         setModal({
           abierto: true,
           tipo: "exito",
-          titulo: "¡Actualización Exitosa!",
-          texto: `El producto "${producto.nombre}" ha sido actualizado correctamente en S3 y MySQL.`
+          titulo: "¡Guardado!",
+          texto: "Los cambios se aplicaron correctamente en el servidor."
         });
       } else {
-        setModal({
-          abierto: true,
-          tipo: "error",
-          titulo: "Fallo al Guardar",
-          texto: "Hubo un problema al procesar los cambios en el servidor."
-        });
+        throw new Error();
       }
     } catch (error) {
-      setModal({
-        abierto: true,
-        tipo: "error",
-        titulo: "Error de Conexión",
-        texto: "No se pudo conectar con el servidor de Aqua Clean Pro."
+      setModal({ 
+        abierto: true, 
+        tipo: "error", 
+        titulo: "Error", 
+        texto: "Hubo un problema al intentar guardar los cambios." 
       });
     }
   };
 
-  // Función para cerrar el modal y navegar si fue éxito
-  const cerrarYSalir = () => {
-    const salir = modal.tipo === "exito";
+  // 5. CERRAR MODAL Y REDIRIGIR SI ES NECESARIO
+  const cerrarModal = () => {
+    const redirigir = modal.tipo === "exito" || modal.titulo === "¡Eliminado!";
     setModal({ ...modal, abierto: false });
-    if (salir) navigate('/productos');
+    if (redirigir) {
+      navigate('/productos');
+    }
   };
 
   return (
     <div className="admin-page">
       <main className="admin-layout">
         <section className="formulario-col">
-          <div className="header-admin">
+          <div className="header-admin" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <nav className="breadcrumb">Admin ▸ <span>ID: {id}</span></nav>
-            <h1>Editar Producto</h1>
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                <h1>Editar Producto</h1>
+                <button 
+                type="button" 
+                onClick={preguntarEliminar}
+                className="btn-eliminar-simple"
+                style={{ 
+                    background: '#ff4d4d', 
+                    color: 'white', 
+                    border: 'none', 
+                    padding: '8px 15px', 
+                    borderRadius: '6px', 
+                    cursor: 'pointer',
+                    fontWeight: '600'
+                }}
+                >
+                Eliminar
+                </button>
+            </div>
           </div>
 
           <form className="caja-formulario" onSubmit={handleSubmit}>
-            {/* ... tus campos de input se mantienen igual ... */}
             <div className="campo">
               <label htmlFor="nombre">Nombre del producto</label>
               <input type="text" id="nombre" value={producto.nombre} onChange={handleChange} required />
@@ -163,25 +213,32 @@ const EditarProducto = () => {
         </section>
 
         <aside className="preview-col">
-          <h3>VISTA PREVIA</h3>
-          <div className="card-preview">
-            <div className="img-container">
-              <img src={preview || "https://via.placeholder.com/300"} alt="Preview" />
-            </div>
-            <div className="preview-content">
-              <h2>{producto.nombre || "Nombre"}</h2>
-              <span>${producto.precio || "0.00"}</span>
-              <p>{producto.descripcion || "Sin descripción"}</p>
+          <div className="sticky-preview">
+            <h3>VISTA PREVIA</h3>
+            <div className="card-preview">
+                <div className="img-container">
+                    <img 
+                        src={preview || "https://placehold.co/300x300?text=Sin+Imagen"} 
+                        alt="Preview" 
+                        onError={(e) => { e.target.src = "https://placehold.co/300x300?text=Error+Imagen"; }}
+                    />
+                </div>
+                <div className="preview-content">
+                    <h2>{producto.nombre || "Nombre del Producto"}</h2>
+                    <span className="precio-tag">${producto.precio || "0.00"}</span>
+                    <p>{producto.descripcion || "Aquí aparecerá la descripción de tu producto..."}</p>
+                </div>
             </div>
           </div>
         </aside>
       </main>
 
-      {/* RENDERIZADO DEL MODAL */}
+      {/* CONEXIÓN CON TU COMPONENTE MENSAJEMODAL */}
       {modal.abierto && (
         <MensajeModal 
           info={modal} 
-          cerrar={cerrarYSalir} 
+          cerrar={cerrarModal} 
+          onConfirmar={eliminarProductoReal} 
         />
       )}
     </div>

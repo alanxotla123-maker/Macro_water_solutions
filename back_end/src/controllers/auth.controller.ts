@@ -111,4 +111,12 @@ export const updateProfile = async (req: Request, res: Response) => {
     } catch (error: any) {
         res.status(500).json({ message: "Error al actualizar", error: error.message });
     }
+    // Asegúrate de que esto esté al final de tu archivo si usas require en las rutas
+module.exports = {
+    register,
+    login,
+    ObtenerPerfil,
+    ActualizarDireccion,
+    updateProfile
+};
 };

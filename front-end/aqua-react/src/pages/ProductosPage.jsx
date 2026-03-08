@@ -15,7 +15,7 @@ function ProductosPage({ agregarAlCarrito, usuario }) {
 
     const obtenerProductos = async () => {
         try {
-            const res = await fetch("http://localhost:3000/api/productos");
+            const res = await fetch("https://macrowatersolutions.com/api/productos");
             const data = await res.json();
             setProductos(data);
         } catch (error) {
@@ -32,7 +32,7 @@ function ProductosPage({ agregarAlCarrito, usuario }) {
     const ejecutarEliminado = async () => {
         setModal({ ...modal, abierto: false });
         try {
-            const res = await fetch(`http://localhost:3000/api/productos/${idAEliminar}`, {
+            const res = await fetch(`https://macrowatersolutions.com/api/productos/${idAEliminar}`, {
                 method: "DELETE"
             });
             if (res.ok) {

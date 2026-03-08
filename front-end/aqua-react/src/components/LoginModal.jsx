@@ -11,7 +11,7 @@ function AuthModal({ cerrarModal }) {
     const endpoint = esRegistro ? "/api/auth/register" : "/api/auth/login";
 
     try {
-      const res = await fetch(`http://localhost:3000${endpoint}`, {
+      const res = await fetch(`https://macrowatersolutions.com${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),

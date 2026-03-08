@@ -110,3 +110,47 @@
 .btn-carrito:hover {
     background: #1565c0;
 }
+/* Estilos para el diseño que pusiste en tu componente */
+.modal-overlay.active {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex; justify-content: center; align-items: center;
+  z-index: 1000;
+}
+
+.modal-diseno-nuevo {
+  background: white;
+  padding: 40px;
+  border-radius: 20px;
+  max-width: 450px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.icono-circulo.pregunta {
+  color: #fa5252;
+  font-size: 50px;
+  margin-bottom: 20px;
+}
+
+.btn-confirmar-rojo {
+  background-color: #fa5252;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.btn-cancelar-gris {
+  background-color: #e9ecef;
+  color: #495057;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+}
