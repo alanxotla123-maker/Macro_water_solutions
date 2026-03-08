@@ -8,7 +8,7 @@ function Nosotros() {
         </div>
 
         <div className="nosotros-texto">
-          <h4>Sobre Nosotros</h4>
+          <h4>Sobre Nosotross</h4>
           <h2>Expertos en Limpieza Profesional</h2>
           <p>
             En Aqua Clean Pro ofrecemos productos de limpieza de alta calidad

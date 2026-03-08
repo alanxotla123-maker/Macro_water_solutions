@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const path = require('path'); // <-- CORREGIDO: Importación faltante
 
 // 1. IMPORTACIONES DE AWS Y MULTER
 const { S3Client, DeleteObjectCommand } = require("@aws-sdk/client-s3");
@@ -9,8 +10,12 @@ const multerS3 = require('multer-s3');
 
 // 2. REGISTRA TS-NODE
 require('ts-node').register(); 
+
+const app = express(); // <-- CORREGIDO: Definido antes de usarse
+
+// --- AJUSTE DE ESTATICOS Y PARSERS ---
 app.use(express.static(path.join(__dirname, 'public')));
-const app = express();
+app.use(express.json());
 
 // --- AJUSTE DE CORS PARA PRODUCCIÓN ---
 app.use(cors({
@@ -18,8 +23,6 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
 }));
-
-app.use(express.json());
 
 // 3. IMPORTACIONES
 const { pool } = require('./src/config/db'); 
@@ -47,7 +50,6 @@ const upload = multer({
 
 // ================= RUTAS =================
 
-// Ruta de prueba para verificar si el backend responde en el dominio
 app.get('/api/health', (req, res) => {
     res.json({ status: "ok", message: "Servidor activo en Namecheap" });
 });
@@ -72,10 +74,10 @@ app.get('/api/productos/:id', async (req, res) => {
 
 app.post('/api/productos', upload.single('imagen'), async (req, res) => {
     try {
-        const { nombre, precio, descripcion, stock } = req.body;
+        const { nombre, precio, descripcion, stock, categoria_id } = req.body; // <-- Acepta categoria_id del front
         const imagenUrl = req.file ? req.file.location : ""; 
-        const sql = `INSERT INTO productos (nombre, precio, descripcion, stock, imagen, categoria_id) VALUES (?, ?, ?, ?, ?, 1)`;
-        await pool.execute(sql, [nombre, precio, descripcion, stock, imagenUrl]);
+        const sql = `INSERT INTO productos (nombre, precio, descripcion, stock, imagen, categoria_id) VALUES (?, ?, ?, ?, ?, ?)`;
+        await pool.execute(sql, [nombre, precio, descripcion, stock, imagenUrl, categoria_id || 1]);
         res.status(201).json({ message: "Guardado" });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
@@ -84,7 +86,10 @@ app.put('/api/productos/:id', upload.single('imagen'), async (req, res) => {
     try {
         const { id } = req.params;
         const { nombre, precio, descripcion, stock, categoria_id } = req.body;
+        
         const [rows] = await pool.execute("SELECT imagen FROM productos WHERE id = ?", [id]);
+        if (rows.length === 0) return res.status(404).json({ message: "Producto no existe" });
+        
         const imagenVieja = rows[0]?.imagen;
         let imagenNueva = imagenVieja;
 
@@ -92,12 +97,15 @@ app.put('/api/productos/:id', upload.single('imagen'), async (req, res) => {
             imagenNueva = req.file.location;
             if (imagenVieja && imagenVieja.includes('amazonaws.com')) {
                 const key = imagenVieja.split('.com/')[1];
-                await s3.send(new DeleteObjectCommand({
-                    Bucket: (process.env.AWS_BUCKET_NAME || 'aquacleanpro').trim(),
-                    Key: key,
-                }));
+                try {
+                    await s3.send(new DeleteObjectCommand({
+                        Bucket: (process.env.AWS_BUCKET_NAME || 'aquacleanpro').trim(),
+                        Key: key,
+                    }));
+                } catch (e) { console.log("Error borrando imagen vieja en S3"); }
             }
         }
+        
         const query = `UPDATE productos SET nombre=?, precio=?, descripcion=?, stock=?, imagen=?, categoria_id=? WHERE id=?`;
         await pool.execute(query, [nombre, precio, descripcion, stock, imagenNueva, categoria_id || 1, id]);
         res.json({ mensaje: 'Actualizado' });
@@ -108,22 +116,24 @@ app.delete('/api/productos/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const [rows] = await pool.execute("SELECT imagen FROM productos WHERE id = ?", [id]);
+        if (rows.length === 0) return res.status(404).json({ message: "No encontrado" });
+
         const producto = rows[0];
         if (producto?.imagen?.includes('amazonaws.com')) {
             const key = producto.imagen.split('.com/')[1];
-            await s3.send(new DeleteObjectCommand({
-                Bucket: (process.env.AWS_BUCKET_NAME || 'aquacleanpro').trim(),
-                Key: key,
-            }));
+            try {
+                await s3.send(new DeleteObjectCommand({
+                    Bucket: (process.env.AWS_BUCKET_NAME || 'aquacleanpro').trim(),
+                    Key: key,
+                }));
+            } catch (e) { console.log("Error borrando en S3"); }
         }
         await pool.execute("DELETE FROM productos WHERE id = ?", [id]);
         res.json({ message: "Eliminado" });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// ================= INICIO DEL SERVIDOR =================
-// En Namecheap, el puerto se asigna dinámicamente o se usa el Passenger
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`🚀 Servidor activo en macrowatersolutions.com`);
+    console.log(`🚀 Servidor activo en macrowatersolutions.com puerto ${PORT}`);
 });

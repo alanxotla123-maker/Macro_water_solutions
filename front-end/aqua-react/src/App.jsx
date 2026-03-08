@@ -160,11 +160,11 @@ function App() {
             />
           } 
         />
-
-        <Route 
+<Route 
           path="/admin" 
           element={
-            usuario?.rol === "1" ? (
+            // Validamos que sea 1 (número) o "1" (texto) para estar seguros
+            usuario?.rol == 1 || usuario?.rol === "admin" || usuario?.rol_id == 1 ? (
               <Adminagregar usuario={usuario} /> 
             ) : (
               <Navigate to="/" />
@@ -175,7 +175,7 @@ function App() {
         <Route 
           path="/admin/editar/:id" 
           element={
-            usuario?.rol === "admin" ? (
+            usuario?.rol == 1 ||usuario?.rol === "admin"|| usuario?.rol_id == 1 ? (
               <EditarProducto /> 
             ) : (
               <Navigate to="/" />

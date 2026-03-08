@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import MensajeModal from "../components/MensajeModal";
-import "../admin_agregar.css"; // Asegúrate de que este CSS tenga los estilos del HTML que pasaste
+import "../admin_agregar.css";
 
 function Adminagregar({ usuario }) {
     const [producto, setProducto] = useState({
@@ -15,14 +15,21 @@ function Adminagregar({ usuario }) {
     const [cargando, setCargando] = useState(false);
     const [modal, setModal] = useState({ abierto: false, tipo: "", titulo: "", texto: "" });
 
-    const esAdmin = usuario && usuario.rol === 'admin';
+    // 🔑 VALIDACIÓN MAESTRA: Acepta texto 'admin', número 1 o propiedad rol_id
+    const esAdmin = usuario && (
+        usuario.rol === "admin" || 
+        usuario.rol == 1 || 
+        usuario.rol_id == 1 || 
+        usuario.rol_id == '1'
+    );
 
     if (!esAdmin) {
         return (
             <div className="acceso-denegado">
                 <div className="caja-error">
                     <h1>🚫 Acceso Restringido</h1>
-                    <p>Lo sentimos, solo el administrador puede añadir nuevos productos.</p>
+                    <p>Tu rol detectado: <strong>{usuario?.rol || usuario?.rol_id || "Ninguno"}</strong></p>
+                    <p>Necesitas permisos de administrador para ver esta página.</p>
                     <button onClick={() => window.location.href = "/"}>Volver al Inicio</button>
                 </div>
             </div>
@@ -44,7 +51,7 @@ function Adminagregar({ usuario }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!imagen) {
-            setModal({ abierto: true, tipo: "error", titulo: "Falta imagen", texto: "Selecciona una imagen." });
+            setModal({ abierto: true, tipo: "error", titulo: "Falta imagen", texto: "Por favor selecciona una imagen." });
             return;
         }
 
@@ -54,7 +61,11 @@ function Adminagregar({ usuario }) {
         formData.append("precio", producto.precio);
         formData.append("descripcion", producto.descripcion);
         formData.append("stock", producto.stock);
-        formData.append("categoria_id", 1); 
+        
+        // Mapeo dinámico de categorías
+        const catId = producto.categoria === "Piscinas" ? 2 : producto.categoria === "Accesorios" ? 3 : 1;
+        formData.append("categoria_id", catId); 
+        
         formData.append("imagen", imagen);
 
         try {
@@ -68,14 +79,16 @@ function Adminagregar({ usuario }) {
                     abierto: true,
                     tipo: "exito",
                     titulo: "¡Producto Añadido!",
-                    texto: `El producto "${producto.nombre}" se guardó en AWS S3.`
+                    texto: `El producto "${producto.nombre}" se guardó correctamente.`
                 });
                 setProducto({ nombre: "", precio: "", descripcion: "", categoria: "Cuidado General", stock: "10" });
                 setImagen(null);
                 setPreview(null);
+            } else {
+                setModal({ abierto: true, tipo: "error", titulo: "Error", texto: "El servidor rechazó la solicitud." });
             }
         } catch (error) {
-            setModal({ abierto: true, tipo: "error", titulo: "Error", texto: "No se pudo conectar con el servidor." });
+            setModal({ abierto: true, tipo: "error", titulo: "Error", texto: "No hay conexión con el servidor." });
         } finally {
             setCargando(false);
         }
@@ -83,24 +96,22 @@ function Adminagregar({ usuario }) {
 
     return (
         <main className="admin-layout">
-            {/* COLUMNA IZQUIERDA: FORMULARIO */}
             <section className="formulario-col">
                 <div className="header-admin">
                     <nav className="breadcrumb">Admin ▸ <span>Agregar Producto</span></nav>
-                    <h1>Nuevo Producto</h1>
-                    <p className="subtitulo">Agrega un nuevo ítem a tu catálogo de piscinas.</p>
+                    <h1>Nuevo Producto -prueba</h1>
                 </div>
 
                 <form onSubmit={handleSubmit} className="caja-formulario">
                     <div className="campo">
                         <label>Nombre del producto</label>
-                        <input name="nombre" type="text" onChange={handleChange} value={producto.nombre} placeholder="Ej. AquaBot x200" required />
+                        <input name="nombre" type="text" onChange={handleChange} value={producto.nombre} required />
                     </div>
 
                     <div className="fila-campos">
                         <div className="campo">
-                            <label>Precio</label>
-                            <input name="precio" type="number" step="0.01" onChange={handleChange} value={producto.precio} placeholder="0.00" required />
+                            <label>Precio ($)</label>
+                            <input name="precio" type="number" step="0.01" onChange={handleChange} value={producto.precio} required />
                         </div>
                         <div className="campo">
                             <label>Categoría</label>
@@ -111,36 +122,22 @@ function Adminagregar({ usuario }) {
                             </select>
                         </div>
                         <div className="campo">
-                            <label>Stock Disponible</label>
+                            <label>Stock</label>
                             <input name="stock" type="number" onChange={handleChange} value={producto.stock} />
                         </div>
                     </div>
 
-                    <div className="seccion-divisora">
-                        <h3>Multimedia</h3>
-                        <hr />
-                    </div>
-
                     <div className="campo">
                         <label>Imagen del Producto</label>
-                        <div className="input-con-icono">
-                            <input type="file" accept="image/*" onChange={handleImageChange} required={!preview} />
-                        </div>
-                        <small>Las imágenes se subirán automáticamente a AWS S3.</small>
-                    </div>
-
-                    <div className="seccion-divisora">
-                        <h3>Detalles</h3>
-                        <hr />
+                        <input type="file" accept="image/*" onChange={handleImageChange} required={!preview} />
                     </div>
 
                     <div className="campo">
                         <label>Descripción Corta</label>
-                        <textarea name="descripcion" rows="3" onChange={handleChange} value={producto.descripcion} placeholder="Limpieza automatizada inteligente..."></textarea>
+                        <textarea name="descripcion" rows="3" onChange={handleChange} value={producto.descripcion}></textarea>
                     </div>
 
                     <div className="acciones-form">
-                        <button type="button" className="btn-text" onClick={() => window.location.href = "/"}>Cancelar</button>
                         <button type="submit" className="btn-guardar" disabled={cargando}>
                             {cargando ? "Guardando..." : "+ Guardar Producto"}
                         </button>
@@ -148,21 +145,13 @@ function Adminagregar({ usuario }) {
                 </form>
             </section>
 
-            {/* COLUMNA DERECHA: VISTA PREVIA */}
             <aside className="preview-col">
-                <h3>VISTA PREVIA</h3>
                 <div className="card-preview">
                     <div className="img-container">
-                        {preview ? <img src={preview} alt="Preview" /> : <div id="placeholder-text">Imagen del producto</div>}
+                        {preview ? <img src={preview} alt="Preview" /> : "Imagen"}
                     </div>
-                    <div className="preview-content">
-                        <div className="preview-header">
-                            <h2>{producto.nombre || "Nombre del producto"}</h2>
-                            <span>${producto.precio || "0.00"}</span>
-                        </div>
-                        <p>{producto.descripcion || "Descripción breve del producto..."}</p>
-                        <button type="button" className="btn-add-preview">Añadir al carrito</button>
-                    </div>
+                    <h2>{producto.nombre || "Nombre"}</h2>
+                    <span>${producto.precio || "0.00"}</span>
                 </div>
             </aside>
 

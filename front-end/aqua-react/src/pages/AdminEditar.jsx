@@ -12,7 +12,6 @@ const EditarProducto = () => {
     precio: '',
     categoria_id: 1,
     stock: 0,
-    imagen: '',
     descripcion: ''
   });
 
@@ -44,7 +43,7 @@ const EditarProducto = () => {
     obtenerProducto();
   }, [id]);
 
-  // 2. FUNCIÓN PARA ELIMINAR REALMENTE (FETCH DELETE)
+  // 2. FUNCIÓN PARA ELIMINAR REALMENTE
   const eliminarProductoReal = async () => {
     try {
       const res = await fetch(`https://macrowatersolutions.com/api/productos/${id}`, {
@@ -56,7 +55,7 @@ const EditarProducto = () => {
           abierto: true,
           tipo: "exito",
           titulo: "¡Eliminado!",
-          texto: "El producto ha sido borrado de la base de datos correctamente."
+          texto: "El producto ha sido borrado correctamente."
         });
       } else {
         throw new Error();
@@ -71,23 +70,25 @@ const EditarProducto = () => {
     }
   };
 
-  // 3. DISPARAR PREGUNTA DE ELIMINACIÓN
   const preguntarEliminar = () => {
     setModal({
       abierto: true,
-      tipo: "pregunta", // Activa los dos botones en tu MensajeModal
+      tipo: "pregunta",
       titulo: "¿Estás seguro?",
-      texto: `Vas a eliminar definitivamente "${producto.nombre}". Esta acción no se puede deshacer.`
+      texto: `Vas a eliminar definitivamente "${producto.nombre}".`
     });
   };
 
+  // 3. MANEJADOR DE CAMBIOS (CORREGIDO)
   const handleChange = (e) => {
-    const { id, value, type } = e.target;
+    const { name, value, type } = e.target;
     let valorFinal = value;
-    if (type === 'number' || id === 'categoria_id') {
+    
+    if (type === 'number' || name === 'categoria_id' || name === 'stock') {
       valorFinal = value === '' ? 0 : Number(value);
     }
-    setProducto({ ...producto, [id]: valorFinal });
+    
+    setProducto({ ...producto, [name]: valorFinal });
   };
 
   const handleFileChange = (e) => {
@@ -123,7 +124,7 @@ const EditarProducto = () => {
           abierto: true,
           tipo: "exito",
           titulo: "¡Guardado!",
-          texto: "Los cambios se aplicaron correctamente en el servidor."
+          texto: "Los cambios se aplicaron correctamente."
         });
       } else {
         throw new Error();
@@ -138,7 +139,6 @@ const EditarProducto = () => {
     }
   };
 
-  // 5. CERRAR MODAL Y REDIRIGIR SI ES NECESARIO
   const cerrarModal = () => {
     const redirigir = modal.tipo === "exito" || modal.titulo === "¡Eliminado!";
     setModal({ ...modal, abierto: false });
@@ -153,56 +153,46 @@ const EditarProducto = () => {
         <section className="formulario-col">
           <div className="header-admin" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <nav className="breadcrumb">Admin ▸ <span>ID: {id}</span></nav>
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '10px' }}>
                 <h1>Editar Producto</h1>
-                <button 
-                type="button" 
-                onClick={preguntarEliminar}
-                className="btn-eliminar-simple"
-                style={{ 
-                    background: '#ff4d4d', 
-                    color: 'white', 
-                    border: 'none', 
-                    padding: '8px 15px', 
-                    borderRadius: '6px', 
-                    cursor: 'pointer',
-                    fontWeight: '600'
-                }}
-                >
-                Eliminar
-                </button>
+                
             </div>
           </div>
 
           <form className="caja-formulario" onSubmit={handleSubmit}>
             <div className="campo">
-              <label htmlFor="nombre">Nombre del producto</label>
-              <input type="text" id="nombre" value={producto.nombre} onChange={handleChange} required />
+              <label>Nombre del producto</label>
+              <input type="text" name="nombre" value={producto.nombre} onChange={handleChange} required />
             </div>
 
             <div className="fila-campos">
               <div className="campo">
-                <label htmlFor="precio">Precio ($)</label>
-                <input type="number" id="precio" value={producto.precio} onChange={handleChange} required />
+                <label>Precio ($)</label>
+                <input type="number" name="precio" value={producto.precio} onChange={handleChange} required />
               </div>
               <div className="campo">
-                <label htmlFor="categoria_id">Categoría</label>
-                <select id="categoria_id" value={producto.categoria_id} onChange={handleChange}>
+                <label>Categoría</label>
+                <select name="categoria_id" value={producto.categoria_id} onChange={handleChange}>
                   <option value="1">Cuidado General</option>
                   <option value="2">Piscinas</option>
                   <option value="3">Accesorios</option>
                 </select>
               </div>
+              <div className="campo">
+                <label>Stock</label>
+                <input type="number" name="stock" value={producto.stock} onChange={handleChange} required />
+              </div>
             </div>
 
             <div className="campo">
-              <label>Imagen del Producto</label>
+              <label>Imagen del Producto (Opcional)</label>
               <input type="file" accept="image/*" onChange={handleFileChange} />
+              <small>Deja vacío para mantener la imagen actual.</small>
             </div>
 
             <div className="campo">
-              <label htmlFor="descripcion">Descripción</label>
-              <textarea id="descripcion" rows="4" value={producto.descripcion} onChange={handleChange}></textarea>
+              <label>Descripción</label>
+              <textarea name="descripcion" rows="4" value={producto.descripcion} onChange={handleChange}></textarea>
             </div>
 
             <div className="acciones-form">
@@ -220,20 +210,17 @@ const EditarProducto = () => {
                     <img 
                         src={preview || "https://placehold.co/300x300?text=Sin+Imagen"} 
                         alt="Preview" 
-                        onError={(e) => { e.target.src = "https://placehold.co/300x300?text=Error+Imagen"; }}
                     />
                 </div>
                 <div className="preview-content">
-                    <h2>{producto.nombre || "Nombre del Producto"}</h2>
+                    <h2>{producto.nombre || "Nombre"}</h2>
                     <span className="precio-tag">${producto.precio || "0.00"}</span>
-                    <p>{producto.descripcion || "Aquí aparecerá la descripción de tu producto..."}</p>
                 </div>
             </div>
           </div>
         </aside>
       </main>
 
-      {/* CONEXIÓN CON TU COMPONENTE MENSAJEMODAL */}
       {modal.abierto && (
         <MensajeModal 
           info={modal} 
