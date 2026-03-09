@@ -8,7 +8,7 @@ const Header = ({ usuario, abrirLogin, abrirCarrito, conteo }) => {
             <div className="header-container">
                 {/* LOGO */}
                 <Link to="/" className="logo">
-                    <i className="fa-solid fa-droplet"></i> Aqua Clean Pro
+                    <i className="fa-solid fa-droplet"></i> Macro Water Solutions
                 </Link>
 
                 {/* NAVEGACIÓN CENTRAL */}

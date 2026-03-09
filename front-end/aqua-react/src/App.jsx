@@ -13,7 +13,7 @@ import ProductosPage from "./pages/ProductosPage";
 import Nosotros from "./pages/Nosotros";
 import UserProfile from "./pages/UserPerfil";
 import EditarProducto from './pages/AdminEditar';
-
+import Contacto from "./pages/Contacto";
 // ESTILOS
 import "./index.css";
 import "./productos.css";
@@ -138,6 +138,8 @@ function App() {
         <Route path="/checkout" element={<Checkout carrito={carrito} usuario={usuario} />} />
         
         <Route path="/nosotros" element={<Nosotros />} />
+
+        <Route path="/contacto" element={<Contacto />} />
       
         <Route 
           path="/perfil" 

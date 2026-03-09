@@ -4,14 +4,14 @@ function Nosotros() {
       <div className="nosotros-container">
 
         <div className="nosotros-img">
-          <img src="/imagenes/logo.png" alt="Nosotros" />
+          <img src="/imagenes/logo1.1.png" alt="Nosotros" />
         </div>
 
         <div className="nosotros-texto">
-          <h4>Sobre Nosotross</h4>
+          <h4>Sobre Nosotros</h4>
           <h2>Expertos en Limpieza Profesional</h2>
           <p>
-            En Aqua Clean Pro ofrecemos productos de limpieza de alta calidad
+            En Macro Water Solutions ofrecemos productos de limpieza de alta calidad
             diseñados para resultados profesionales. Nuestra misión es brindar
             soluciones eficientes, ecológicas y accesibles.
           </p>

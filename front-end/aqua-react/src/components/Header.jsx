@@ -6,8 +6,8 @@ function Header({ abrirCarrito, abrirLogin, usuario, cerrarSesion, conteo }) {
       <div className="header-content">
         {/* LADO IZQUIERDO: LOGO */}
         <div className="logo">
-          <img src="/imagenes/logo.png" className="logo-img" alt="Logo" />
-          <span>Aqua <span className="pro">Clean Pro</span></span>
+          <img src="/imagenes/logo1.1.png" className="logo-img" alt="Logo" />
+          <span>Macro <span className="pro">Water Solutions</span></span>
         </div>
 
         {/* CENTRO: NAVEGACIÓN */}
@@ -15,7 +15,7 @@ function Header({ abrirCarrito, abrirLogin, usuario, cerrarSesion, conteo }) {
           <Link to="/">Inicio</Link>
           <Link to="/productos">Productos</Link>
           <Link to="/nosotros">Nosotros</Link>
-          <Link to="/">Contacto</Link>
+          <Link to="/contacto">Contacto</Link>
           {usuario?.rol === 'admin' && (
             <Link to="/admin" className="link-admin">Gestionar</Link>
           )}

@@ -74,7 +74,7 @@ function AuthModal({ cerrarModal, onLogin }) {
             <div className="modal">
                 <span className="cerrar" onClick={cerrarModal}>&times;</span>
                 <h2>{esRegistro ? 'Crear Cuenta' : 'Iniciar Sesión'}</h2>
-                <p className="subtitle">Accede a Aqua Clean Pro</p>
+                <p className="subtitle">Accede a Macro Water Solutions</p>
 
                 <form className="login-form" onSubmit={handleSubmit}>
                     {esRegistro && (

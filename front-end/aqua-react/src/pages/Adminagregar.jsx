@@ -99,7 +99,7 @@ function Adminagregar({ usuario }) {
             <section className="formulario-col">
                 <div className="header-admin">
                     <nav className="breadcrumb">Admin ▸ <span>Agregar Producto</span></nav>
-                    <h1>Nuevo Producto -prueba</h1>
+                    <h1>Nuevo Producto</h1>
                 </div>
 
                 <form onSubmit={handleSubmit} className="caja-formulario">
