@@ -11,8 +11,14 @@ function ProductosPage({ agregarAlCarrito, usuario }) {
     const [cargando, setCargando] = useState(true);
     const [modal, setModal] = useState({ abierto: false, tipo: "", titulo: "", texto: "" });
     const [idAEliminar, setIdAEliminar] = useState(null);
+    const [toast, setToast] = useState({ mostrar: false, mensaje: "", esError: false });
 
-    const navigate = useNavigate(); // NUEVO: Inicializamos el navegador
+    const navigate = useNavigate();
+
+    const mostrarToast = (mensaje, esError = false) => {
+        setToast({ mostrar: true, mensaje, esError });
+        setTimeout(() => setToast(t => ({ ...t, mostrar: false })), 2500);
+    }; //Inicializamos el navegador
 
     const esAdmin = usuario && usuario.rol === 'admin';
 
@@ -87,7 +93,7 @@ function ProductosPage({ agregarAlCarrito, usuario }) {
                             
                             <div className="acciones-container">
                                 {usuario && (
-                                    <button className="btn-carrito" onClick={() => agregarAlCarrito(prod)}>
+                                    <button className="btn-carrito" onClick={() => agregarAlCarrito(prod, (ok, msg) => mostrarToast(msg, !ok))}>
                                         🛒 Agregar
                                     </button>
                                 )}
@@ -123,8 +129,15 @@ function ProductosPage({ agregarAlCarrito, usuario }) {
                     onConfirmar={ejecutarEliminado} 
                 />
             )}
+
+            {toast.mostrar && (
+                <div className={`toast-agregado ${toast.esError ? 'toast-error' : ''}`}>
+                    <i className={`fa-solid ${toast.esError ? 'fa-triangle-exclamation' : 'fa-check-circle'}`}></i>
+                    <span>{toast.mensaje}</span>
+                </div>
+            )}
         </section>
     );
 }
 
-export default ProductosPage;
+export default ProductosPage; 

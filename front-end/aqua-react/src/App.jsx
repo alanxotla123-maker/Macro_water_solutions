@@ -47,19 +47,22 @@ function App() {
   };
 
   // FUNCIONES DEL CARRITO (Lógica de Stock y Cantidad)
-  const agregarAlCarrito = (producto) => {
+  const agregarAlCarrito = (producto, onResult) => {
     setCarrito((prev) => {
       const existe = prev.find((item) => item.id === producto.id);
       if (existe) {
         if (existe.cantidad < producto.stock) {
+          if (onResult) onResult(true, "Producto agregado al carrito");
           return prev.map((item) =>
             item.id === producto.id ? { ...item, cantidad: item.cantidad + 1 } : item
           );
         } else {
-          alert("¡Ups! No hay más stock disponible.");
+          if (onResult) onResult(false, "No hay más stock disponible");
+          else alert("¡Ups! No hay más stock disponible.");
           return prev;
         }
       }
+      if (onResult) onResult(true, "Producto agregado al carrito");
       return [...prev, { ...producto, cantidad: 1 }];
     });
   };
@@ -162,7 +165,7 @@ function App() {
             />
           } 
         />
-        <Route 
+<Route 
           path="/admin" 
           element={
             // Validamos que sea 1 (número) o "1" (texto) para estar seguros

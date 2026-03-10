@@ -25,6 +25,48 @@
     margin-bottom: 30px;
 }
 
+/* Toast no intrusivo al agregar al carrito */
+.toast-agregado {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 20px;
+    background: #1a1a1a;
+    color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    z-index: 9999;
+    font-size: 0.95rem;
+    font-weight: 500;
+    animation: toastSlide 0.3s ease;
+}
+
+.toast-agregado i {
+    color: #22c55e;
+}
+
+.toast-agregado.toast-error {
+    background: #991b1b;
+}
+
+.toast-agregado.toast-error i {
+    color: #fecaca;
+}
+
+@keyframes toastSlide {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .productos-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -122,7 +164,7 @@
 .btn-carrito:hover {
     background: #1565c0;
 }
-/* Estilos para el diseño de componente */
+/* Estilos para el diseño que pusiste en tu componente */
 .modal-overlay.active {
   position: fixed;
   top: 0; left: 0; width: 100%; height: 100%;
