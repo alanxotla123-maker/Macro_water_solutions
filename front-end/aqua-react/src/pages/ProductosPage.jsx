@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom"; // NUEVO: Para poder navegar
+import { useNavigate, useSearchParams } from "react-router-dom";
 import MensajeModal from "../components/MensajeModal";
 import "../productos.css";
 
 function ProductosPage({ agregarAlCarrito, usuario }) {
+    const [searchParams] = useSearchParams();
+    const queryBusqueda = searchParams.get("q") || "";
     const [productos, setProductos] = useState([]);
+    const [productosOriginales, setProductosOriginales] = useState([]);
     const [cargando, setCargando] = useState(true);
     const [modal, setModal] = useState({ abierto: false, tipo: "", titulo: "", texto: "" });
     const [idAEliminar, setIdAEliminar] = useState(null);
@@ -17,7 +20,8 @@ function ProductosPage({ agregarAlCarrito, usuario }) {
         try {
             const res = await fetch("https://macrowatersolutions.com/api/productos");
             const data = await res.json();
-            setProductos(data);
+            setProductosOriginales(data || []);
+            setProductos(data || []);
         } catch (error) {
             console.error("Error cargando productos:", error);
         } finally {
@@ -29,6 +33,18 @@ function ProductosPage({ agregarAlCarrito, usuario }) {
         obtenerProductos();
     }, []);
 
+    useEffect(() => {
+        const q = (queryBusqueda || "").trim().toLowerCase();
+        if (!q) {
+            setProductos(productosOriginales);
+            return;
+        }
+        const filtrados = productosOriginales.filter(
+            (p) => p.nombre && p.nombre.toLowerCase().includes(q)
+        );
+        setProductos(filtrados);
+    }, [queryBusqueda, productosOriginales]);
+
     const ejecutarEliminado = async () => {
         setModal({ ...modal, abierto: false });
         try {
@@ -37,7 +53,8 @@ function ProductosPage({ agregarAlCarrito, usuario }) {
             });
             if (res.ok) {
                 setModal({ abierto: true, tipo: "exito", titulo: "¡Borrado!", texto: "Producto eliminado correctamente." });
-                setProductos(productos.filter(p => p.id !== idAEliminar));
+                setProductos(prev => prev.filter(p => p.id !== idAEliminar));
+                setProductosOriginales(prev => prev.filter(p => p.id !== idAEliminar));
             }
         } catch (error) {
             setModal({ abierto: true, tipo: "error", titulo: "Error", texto: "No se pudo conectar con el servidor." });
@@ -50,7 +67,14 @@ function ProductosPage({ agregarAlCarrito, usuario }) {
         <section className="productos-section">
             <h2 className="productos-titulo">
                 {esAdmin ? "Panel de Gestión de Inventario" : "Nuestros Productos"}
+                {queryBusqueda && (
+                    <span className="search-badge"> Buscando: "{queryBusqueda}"</span>
+                )}
             </h2>
+            
+            {queryBusqueda && productos.length === 0 && !cargando && (
+                <p className="no-resultados">No se encontraron productos para "{queryBusqueda}"</p>
+            )}
             
             <div className="productos-grid">
                 {productos.map((prod) => (
@@ -103,4 +127,4 @@ function ProductosPage({ agregarAlCarrito, usuario }) {
     );
 }
 
-export default ProductosPage; 
+export default ProductosPage;

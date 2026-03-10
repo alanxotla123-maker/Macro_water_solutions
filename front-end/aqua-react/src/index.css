@@ -69,6 +69,110 @@ body { background-color: #f5f5f5; }
     align-items: center;
     gap: 20px;
     font-size: 18px;
+    position: relative;
+}
+
+/* Búsqueda expandible tipo Amazon/Mercado Libre */
+.search-container {
+    position: relative;
+}
+
+.search-container.open {
+    min-width: 280px;
+}
+
+.search-icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #000;
+    font-size: 18px;
+}
+
+.search-icon-btn:hover {
+    color: #0077cc;
+}
+
+.search-bar-wrapper {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    width: 280px;
+    z-index: 1001;
+}
+
+.search-bar {
+    display: flex;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.search-input {
+    flex: 1;
+    padding: 10px 14px;
+    border: none;
+    font-size: 14px;
+    outline: none;
+}
+
+.search-btn {
+    padding: 10px 14px;
+    background: #ff9800;
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.search-btn:hover {
+    background: #f57c00;
+}
+
+.search-sugerencias {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    max-height: 280px;
+    overflow-y: auto;
+}
+
+.search-sugerencias li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.search-sugerencias li i {
+    color: #999 !important;
+    font-size: 12px !important;
+}
+
+.search-sugerencias li:hover {
+    background: #f5f5f5;
 }
 /* 1. LUPA Y CARRITO EN NEGRO */
 .icons i.fa-magnifying-glass,

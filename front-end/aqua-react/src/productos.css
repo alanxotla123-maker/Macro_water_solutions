@@ -13,6 +13,18 @@
     color: #1a1a1a;
 }
 
+.search-badge {
+    font-size: 0.5em;
+    font-weight: 600;
+    color: #0077cc;
+}
+
+.no-resultados {
+    color: #666;
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+}
+
 .productos-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
