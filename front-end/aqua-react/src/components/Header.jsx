@@ -96,14 +96,14 @@ function Header({ abrirCarrito, abrirLogin, usuario, cerrarSesion, conteo }) {
                   <input
                     type="text"
                     className="search-input"
-                    placeholder="Buscar productos..."
+                    placeholder="Buscar productos, marcas y más..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyDown={handleKeyDown}
                     onFocus={() => sugerencias.length > 0 && setMostrarSugerencias(true)}
                     autoFocus
                   />
-                  <button type="button" className="search-btn" onClick={handleBuscar} aria-label="Buscar">
+                  <button type="button" className="search-lupa-inner" onClick={handleBuscar} aria-label="Buscar">
                     <i className="fa-solid fa-magnifying-glass"></i>
                   </button>
                 </div>
