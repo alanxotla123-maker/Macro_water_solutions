@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 function Header({ abrirCarrito, abrirLogin, usuario, cerrarSesion, conteo }) {
-  const [searchOpen, setSearchOpen] = useState(false);
+  // La barra de búsqueda ahora siempre está visible (tipo Amazon/Mercado Libre)
+  const [searchOpen, setSearchOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [sugerencias, setSugerencias] = useState([]);
   const [productos, setProductos] = useState([]);
@@ -74,62 +75,61 @@ function Header({ abrirCarrito, abrirLogin, usuario, cerrarSesion, conteo }) {
       <div className="header-content">
         <div className="logo">
           <img src="/imagenes/logo1.1.png" className="logo-img" alt="Logo" />
-          <span>Macro <span className="pro">Water Solutions</span></span>
+          <span>
+            Macro <span className="pro">Water Solutions</span>
+          </span>
         </div>
 
-        <nav className="nav-menu">
-          <Link to="/">Inicio</Link>
-          <Link to="/productos">Productos</Link>
-          <Link to="/nosotros">Nosotros</Link>
-          <Link to="/contacto">Contacto</Link>
-          {(usuario?.rol === "admin" || usuario?.rol == 1 || usuario?.rol_id == 1) && (
-            <Link to="/admin" className="link-admin">Gestionar</Link>
-          )}
-        </nav>
-
-        <div className="icons" ref={searchRef}>
-          {/* Búsqueda expandible */}
-          <div className={`search-container ${searchOpen ? "open" : ""}`}>
-            {searchOpen ? (
-              <div className="search-bar-wrapper">
-                <div className="search-bar">
-                  <input
-                    type="text"
-                    className="search-input"
-                    placeholder="Buscar productos, marcas y más..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    onFocus={() => sugerencias.length > 0 && setMostrarSugerencias(true)}
-                    autoFocus
-                  />
-                  <button type="button" className="search-lupa-inner" onClick={handleBuscar} aria-label="Buscar">
-                    <i className="fa-solid fa-magnifying-glass"></i>
-                  </button>
-                </div>
-                {mostrarSugerencias && sugerencias.length > 0 && (
-                  <ul className="search-sugerencias">
-                    {sugerencias.map((s, i) => (
-                      <li key={i} onClick={() => handleSugerenciaClick(s)}>
-                        <i className="fa-solid fa-magnifying-glass"></i>
-                        <span>{s}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
+        {/* Centro: barra de búsqueda siempre visible arriba y menú abajo */}
+        <div className="middle-header" ref={searchRef}>
+          <div className="search-container open">
+            <div className="search-bar-wrapper">
+              <div className="search-bar">
+                <input
+                  type="text"
+                  className="search-input"
+                  placeholder="Buscar productos, marcas y más..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  onFocus={() => sugerencias.length > 0 && setMostrarSugerencias(true)}
+                />
+                <button
+                  type="button"
+                  className="search-lupa-inner"
+                  onClick={handleBuscar}
+                  aria-label="Buscar"
+                >
+                  <i className="fa-solid fa-magnifying-glass"></i>
+                </button>
               </div>
-            ) : (
-              <button
-                type="button"
-                className="search-icon-btn"
-                onClick={() => setSearchOpen(true)}
-                aria-label="Abrir búsqueda"
-              >
-                <i className="fa-solid fa-magnifying-glass"></i>
-              </button>
-            )}
+              {mostrarSugerencias && sugerencias.length > 0 && (
+                <ul className="search-sugerencias">
+                  {sugerencias.map((s, i) => (
+                    <li key={i} onClick={() => handleSugerenciaClick(s)}>
+                      <i className="fa-solid fa-magnifying-glass"></i>
+                      <span>{s}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
 
+          <nav className="nav-menu">
+            <Link to="/">Inicio</Link>
+            <Link to="/productos">Productos</Link>
+            <Link to="/nosotros">Nosotros</Link>
+            <Link to="/contacto">Contacto</Link>
+            {(usuario?.rol === "admin" || usuario?.rol == 1 || usuario?.rol_id == 1) && (
+              <Link to="/admin" className="link-admin">
+                Gestionar
+              </Link>
+            )}
+          </nav>
+        </div>
+
+        <div className="icons">
           {(usuario?.rol === "admin" || usuario?.rol == 1 || usuario?.rol_id == 1) && (
             <Link to="/admin" title="Agregar Producto">
               <i className="fa-solid fa-circle-plus icon-add"></i>
