@@ -11,6 +11,14 @@
 html { overflow-y: scroll; }
 body { background-color: #f5f5f5; }
 
+/* Layout principal: header + contenido + footer */
+.app-layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+.app-main { flex: 1; }
+
 /* ================================================= */
 /* 2. HEADER (LUPA, CARRITO Y USER EN NEGRO)         */
 /* ================================================= */
@@ -246,6 +254,23 @@ body { background-color: #f5f5f5; }
 .user-icon-circle:hover {
     background-color: #f0f7ff; /* Aparece fondo azul claro al pasar el mouse */
     border-color: #cce5ff;
+}
+
+/* ================================================= */
+/* FOOTER - Derechos reservados                      */
+/* ================================================= */
+.main-footer {
+    width: 100%;
+    background: #1a1a1a;
+    border-top: 1px solid #444;
+    padding: 24px 20px;
+    text-align: center;
+    color: #fff;
+    font-size: 14px;
+}
+.main-footer p {
+    margin: 0;
+    color: rgba(255,255,255,0.9);
 }
 
 /* ================================================= */

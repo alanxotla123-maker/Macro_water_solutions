@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 // COMPONENTES
 import Header from "./components/Header";
+import Footer from "./components/Footer";
 import AuthModal from "./components/AuthModal";
 import Carrito from "./components/Carrito";
 import MensajeModal from "./components/MensajeModal";
@@ -105,6 +106,7 @@ function App() {
         />
       )}
       
+      <div className="app-layout">
       <Header 
         usuario={usuario} 
         abrirLogin={() => setLoginAbierto(true)} 
@@ -113,6 +115,7 @@ function App() {
         conteo={carrito.reduce((acc, item) => acc + item.cantidad, 0)} // Conteo total de piezas
       />
 
+      <main className="app-main">
       <div 
         className={`overlay ${carritoAbierto ? 'activo' : ''}`} 
         onClick={() => setCarritoAbierto(false)}
@@ -190,6 +193,10 @@ function App() {
 
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
+      </main>
+
+      <Footer />
+      </div>
     </BrowserRouter>
   );
 }
