@@ -211,15 +211,24 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
             )}
 
             <div className="account-menu-card">
-                <h4>Mi cuenta</h4>
-                <ul className="menu-list">
-                    <li className="menu-item"><i className="fa-solid fa-box"></i> Mis Pedidos</li>
-                    <li className="menu-item"><i className="fa-regular fa-clock"></i> Historial de compras</li>
-                    <li className="menu-item"><i className="fa-solid fa-gear"></i> Configuración</li>
-                    <li className="menu-item logout-item" onClick={onCerrarSesion}>
-                        <i className="fa-solid fa-arrow-right-from-bracket"></i> Cerrar sesión
-                    </li>
-                </ul>
+                {esAdmin ? (
+                    <ul className="menu-list">
+                        <li className="menu-item logout-item" onClick={onCerrarSesion}>
+                            <i className="fa-solid fa-arrow-right-from-bracket"></i> Cerrar sesión
+                        </li>
+                    </ul>
+                ) : (
+                    <>
+                        <h4>Mi cuenta</h4>
+                        <ul className="menu-list">
+                            <li className="menu-item"><i className="fa-solid fa-box"></i> Mis Pedidos</li>
+                            <li className="menu-item"><i className="fa-regular fa-clock"></i> Historial de compras</li>
+                            <li className="menu-item logout-item" onClick={onCerrarSesion}>
+                                <i className="fa-solid fa-arrow-right-from-bracket"></i> Cerrar sesión
+                            </li>
+                        </ul>
+                    </>
+                )}
             </div>
 
             {modal.abierto && <MensajeModal info={modal} cerrar={() => setModal(m => ({ ...m, abierto: false }))} onConfirmar={ejecutarEliminado} />}
