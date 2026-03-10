@@ -162,7 +162,7 @@ function App() {
             />
           } 
         />
-<Route 
+        <Route 
           path="/admin" 
           element={
             // Validamos que sea 1 (número) o "1" (texto) para estar seguros

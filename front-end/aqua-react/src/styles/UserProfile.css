@@ -71,6 +71,17 @@
     margin-bottom: 10px;
 }
 
+.badge-admin {
+    background: #0d9488 !important;
+    color: white !important;
+    padding: 3px 15px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: bold;
+    display: inline-block;
+    margin-bottom: 10px;
+}
+
 .user-email-text {
     display: block;
     color: #666;
@@ -202,3 +213,181 @@
     from { opacity: 0; transform: translateY(-10px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+/* ================================================= */
+/* PANEL DE CONTROL (solo para admin)                */
+/* ================================================= */
+.control-panel-card {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.control-panel-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.icon-panel {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    background: #cae9ff;
+    color: #0077cc;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+.control-panel-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.control-panel-desc {
+    font-size: 0.9rem;
+    color: #888;
+}
+
+.control-panel-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 25px;
+}
+
+.tab-item {
+    background: none;
+    border: none;
+    padding: 12px 20px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #999;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s;
+}
+
+.tab-item:hover { color: #0077cc; }
+.tab-item.active { color: #0077cc; }
+
+.tab-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #0077cc;
+    border-radius: 2px 2px 0 0;
+}
+
+.inventario-content { text-align: left; }
+
+.inventario-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.inventario-subtitle {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #333;
+}
+
+.btn-agregar-nuevo {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: #cae9ff;
+    color: #0077cc;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.btn-agregar-nuevo:hover { background: #a8d8ff; color: #0066b3; }
+
+.inventario-loading { color: #666; padding: 20px 0; }
+
+.productos-list-inventario { display: flex; flex-direction: column; gap: 15px; }
+
+.producto-item-inventario {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 15px;
+    background: #fafafa;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    transition: box-shadow 0.2s;
+}
+
+.producto-item-inventario:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+
+.producto-item-img {
+    width: 70px;
+    height: 70px;
+    min-width: 70px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #e5e5e5;
+}
+
+.producto-item-img img { width: 100%; height: 100%; object-fit: cover; }
+
+.producto-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #bbb;
+    font-size: 24px;
+}
+
+.producto-item-info { flex: 1; min-width: 0; }
+
+.producto-item-nombre { font-size: 1rem; font-weight: 700; color: #333; margin-bottom: 4px; }
+
+.producto-item-precio { display: block; font-size: 0.9rem; color: #666; margin-bottom: 4px; }
+
+.producto-item-stock { font-size: 0.85rem; font-weight: 600; }
+.stock-ok { color: #22c55e; }
+.stock-bajo { color: #f59e0b; }
+.stock-agotado { color: #ef4444; }
+
+.producto-item-acciones { display: flex; gap: 10px; }
+
+.btn-icon-edit, .btn-icon-delete {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-icon-edit { background: #e8f4fd; color: #0077cc; }
+.btn-icon-edit:hover { background: #cae9ff; }
+.btn-icon-delete { background: #fef2f2; color: #ef4444; }
+.btn-icon-delete:hover { background: #fee2e2; }
+
+.pedidos-content { padding: 20px 0; }
+.pedidos-empty { color: #888; font-size: 0.95rem; }

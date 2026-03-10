@@ -315,6 +315,19 @@ body { background-color: #f5f5f5; }
     color: #dc2626;
 }
 
+/* Título y texto del modal: mejor espaciado */
+.modal-titulo-nuevo {
+    letter-spacing: 0.02em;
+    line-height: 1.4;
+    margin-bottom: 12px;
+}
+
+.modal-texto-nuevo {
+    letter-spacing: 0.03em;
+    line-height: 1.6;
+    margin-bottom: 24px;
+}
+
 /* BOTONES AZULES REDONDEADOS (Como en la imagen) */
 .btn-accion-azul {
     width: 100%;
