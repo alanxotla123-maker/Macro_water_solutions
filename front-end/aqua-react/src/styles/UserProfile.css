@@ -391,3 +391,21 @@
 
 .pedidos-content { padding: 20px 0; }
 .pedidos-empty { color: #888; font-size: 0.95rem; }
+
+/* Cerrar sesión en rojo */
+.menu-item.logout-item {
+    color: #dc2626 !important;
+}
+
+.menu-item.logout-item i {
+    color: #dc2626 !important;
+}
+
+.menu-item.logout-item:hover {
+    background-color: #fef2f2 !important;
+    color: #b91c1c !important;
+}
+
+.menu-item.logout-item:hover i {
+    color: #b91c1c !important;
+}
