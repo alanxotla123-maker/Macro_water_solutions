@@ -46,20 +46,37 @@ body { background-color: #f5f5f5; }
 .logo {
     display: flex;
     align-items: center;
-    gap: 12px;
-    font-size: 24px;
+    gap: 8px;
+    font-size: 1rem;
     font-weight: 700;
     text-decoration: none;
     color: #1a1a1a;
+    white-space: nowrap;
 }
 
 .logo-img {
-    height: 50px;
+    height: 38px;
     width: auto;
     object-fit: contain;
 }
 
 .logo .pro { color: #0077cc; }
+
+/* Logo responsive: se reduce al ajustar la página */
+@media (max-width: 992px) {
+    .logo { font-size: 0.9rem; gap: 6px; }
+    .logo-img { height: 34px; }
+}
+@media (max-width: 768px) {
+    .logo { font-size: 0.8rem; gap: 5px; }
+    .logo-img { height: 30px; }
+}
+@media (max-width: 480px) {
+    .logo { font-size: 0.7rem; gap: 4px; }
+    .logo-img { height: 28px; }
+    /* En pantallas muy pequeñas mostrar solo "Macro" para no amontonar */
+    .logo .logo-ws { display: none; }
+}
 
 .middle-header {
     display: flex;
@@ -762,15 +779,35 @@ body { background-color: #f5f5f5; }
 .logo {
     display: flex;
     align-items: center;
-    gap: 12px;
-    font-size: 24px;
+    gap: 8px;
+    font-size: 1rem;
     font-weight: 700;
     text-decoration: none;
     color: #1a1a1a;
+    white-space: nowrap;
 }
 
-.logo-img { height: 50px; width: auto; object-fit: contain; }
+.logo-img { height: 38px; width: auto; object-fit: contain; }
 .logo .pro { color: #0077cc; }
+
+/* Logo más compacto en pantallas medianas */
+@media (max-width: 992px) {
+    .logo { font-size: 0.9rem; gap: 6px; }
+    .logo-img { height: 34px; }
+}
+
+/* Logo más pequeño en tablets/móviles */
+@media (max-width: 768px) {
+    .logo { font-size: 0.8rem; gap: 5px; }
+    .logo-img { height: 30px; }
+}
+
+/* En pantallas muy pequeñas: texto mínimo para evitar amontonamiento */
+@media (max-width: 480px) {
+    .logo { font-size: 0.7rem; gap: 4px; }
+    .logo-img { height: 28px; }
+    .logo .logo-ws { display: none; }
+}
 
 .nav-menu { display: flex; gap: 25px; }
 .nav-menu a {

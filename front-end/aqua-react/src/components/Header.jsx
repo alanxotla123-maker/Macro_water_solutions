@@ -75,8 +75,8 @@ function Header({ abrirCarrito, abrirLogin, usuario, cerrarSesion, conteo }) {
       <div className="header-content">
         <div className="logo">
           <img src="/imagenes/logo1.1.png" className="logo-img" alt="Logo" />
-          <span>
-            Macro <span className="pro">Water Solutions</span>
+          <span className="logo-text">
+            Macro <span className="pro logo-ws">Water Solutions</span>
           </span>
         </div>
 
