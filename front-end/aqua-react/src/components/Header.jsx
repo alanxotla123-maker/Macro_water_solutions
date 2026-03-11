@@ -70,6 +70,8 @@ function Header({ abrirCarrito, abrirLogin, usuario, cerrarSesion, conteo }) {
     if (e.key === "Enter") handleBuscar();
   };
 
+  const esAdmin = usuario?.rol === "admin" || usuario?.rol == 1 || usuario?.rol_id == 1;
+
   return (
     <header className="main-header">
       <div className="header-content">
@@ -121,7 +123,7 @@ function Header({ abrirCarrito, abrirLogin, usuario, cerrarSesion, conteo }) {
             <Link to="/productos">Productos</Link>
             <Link to="/nosotros">Nosotros</Link>
             <Link to="/contacto">Contacto</Link>
-            {(usuario?.rol === "admin" || usuario?.rol == 1 || usuario?.rol_id == 1) && (
+            {esAdmin && (
               <Link to="/admin" className="link-admin">
                 Gestionar
               </Link>
@@ -130,7 +132,7 @@ function Header({ abrirCarrito, abrirLogin, usuario, cerrarSesion, conteo }) {
         </div>
 
         <div className="icons">
-          {(usuario?.rol === "admin" || usuario?.rol == 1 || usuario?.rol_id == 1) && (
+          {esAdmin && (
             <Link to="/admin" title="Agregar Producto">
               <i className="fa-solid fa-circle-plus icon-add"></i>
             </Link>

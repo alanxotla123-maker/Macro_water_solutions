@@ -52,6 +52,7 @@ body { background-color: #f5f5f5; }
     text-decoration: none;
     color: #1a1a1a;
     white-space: nowrap;
+    margin-right: 24px;
 }
 
 .logo-img {
@@ -85,7 +86,13 @@ body { background-color: #f5f5f5; }
     gap: 6px;
 }
 
-.nav-menu { display: flex; gap: 25px; }
+.nav-menu {
+    display: flex;
+    gap: 25px;
+    align-items: center;
+    margin-top: -4px; /* sube ligeramente el menú bajo la búsqueda */
+    padding-bottom: 4px; /* deja aire con el borde inferior del header */
+}
 .nav-menu a {
     text-decoration: none;
     color: #333;
@@ -809,7 +816,13 @@ body { background-color: #f5f5f5; }
     .logo .logo-ws { display: none; }
 }
 
-.nav-menu { display: flex; gap: 25px; }
+.nav-menu {
+    display: flex;
+    gap: 25px;
+    align-items: center;
+    margin-top: -4px;
+    padding-bottom: 4px;
+}
 .nav-menu a {
     text-decoration: none;
     color: #333;
