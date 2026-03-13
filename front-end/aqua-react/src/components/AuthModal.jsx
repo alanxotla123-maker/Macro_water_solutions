@@ -11,7 +11,6 @@ function AuthModal({ cerrarModal, onLogin }) {
         const formData = new FormData(e.target);
         const data = Object.fromEntries(formData.entries());
         
-        // Si es registro, enviamos el valor por defecto que acordamos
         if (esRegistro) {
             data.direccion = "Dirección no ingresada";
         }
@@ -26,28 +25,32 @@ function AuthModal({ cerrarModal, onLogin }) {
             });
 
             const result = await res.json();
-            onLogin(result.usuario || result.user); // Esto conecta con tu App.js
+
             if (res.ok) {
                 const usuarioFinal = result.usuario || result.user;
 
+                // 1. Mostramos el mensaje de éxito primero
                 setInfoModal({
                     tipo: "exito",
-                    titulo: "¡Excelente!",
+                    titulo: esRegistro ? "¡Excelente!" : "¡Inicio de Sesión Exitoso!",
                     texto: esRegistro 
                         ? "Cuenta creada con éxito. Ya puedes iniciar sesión." 
-                        : `Bienvenido de nuevo, ${usuarioFinal?.nombre || 'Usuario'}`
+                        : `Bienvenido de nuevo, ${usuarioFinal?.nombre || 'Usuario'}.`
                 });
                 setStatus("exito");
 
+                // 2. Esperamos 1.5 segundos para que el usuario lea el mensaje
                 setTimeout(() => { 
                     if(esRegistro) { 
                         setEsRegistro(false); 
                         setStatus(null); 
                     } else { 
+                        // 3. AQUÍ es donde disparamos el login y cerramos
                         onLogin(usuarioFinal); 
                         cerrarModal(); 
                     }
                 }, 1500);
+                
             } else { 
                 setInfoModal({ 
                     tipo: "error", 
@@ -67,7 +70,10 @@ function AuthModal({ cerrarModal, onLogin }) {
         }
     };
 
-    if (status) return <MensajeModal info={infoModal} cerrar={() => setStatus(null)} />;
+    // Si hay un estado (exito o error), mostramos el MensajeModal
+    if (status) {
+        return <MensajeModal info={infoModal} cerrar={() => setStatus(null)} />;
+    }
 
     return (
         <div className="modal-overlay active">
@@ -81,7 +87,6 @@ function AuthModal({ cerrarModal, onLogin }) {
                         <>
                             <label>Nombre Completo</label>
                             <input name="nombre" type="text" placeholder="Tu nombre" required />
-                            {/* Dirección eliminada de aquí, se envía automáticamente */}
                         </>
                     )}
                     
