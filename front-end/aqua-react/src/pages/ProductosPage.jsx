@@ -92,11 +92,11 @@ function ProductosPage({ agregarAlCarrito, usuario }) {
                             <span className="precio">${prod.precio}</span>
                             
                             <div className="acciones-container">
-                                {usuario && (
+                               
                                     <button className="btn-carrito" onClick={() => agregarAlCarrito(prod, (ok, msg) => mostrarToast(msg, !ok))}>
                                         🛒 Agregar
                                     </button>
-                                )}
+                            
 
                                 {esAdmin && (
                                     <div className="acciones-admin">
