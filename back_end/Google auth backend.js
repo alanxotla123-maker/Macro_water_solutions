@@ -21,7 +21,6 @@ router.post("/google", async (req, res) => {
         const { email, name, sub: googleId } = payload;
  
         // 2. Buscar si el usuario ya existe en la BD
-        // ✅ Con mysql2, db.query devuelve [rows, fields] — hay que desestructurar
         const [rows] = await db.query(
             "SELECT * FROM usuarios WHERE correo = ? LIMIT 1",
             [email]
