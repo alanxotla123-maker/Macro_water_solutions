@@ -158,6 +158,18 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
   
+  .form-group input.input-error {
+    border-color: #dc3545;
+    background: #fff5f5;
+  }
+
+  .email-error-msg {
+    font-size: 0.8rem;
+    color: #dc3545;
+    margin-top: 6px;
+    display: block;
+  }
+
   .btn-enviar {
     padding: 14px 28px;
     background: #0077cc;

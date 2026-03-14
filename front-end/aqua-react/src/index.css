@@ -8,8 +8,10 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+
 html { overflow-y: scroll; }
 body { background-color: #f5f5f5; }
+
 
 /* Layout principal: header + contenido + footer */
 .app-layout {
@@ -18,6 +20,7 @@ body { background-color: #f5f5f5; }
     min-height: 100vh;
 }
 .app-main { flex: 1; }
+
 
 /* ================================================= */
 /* 2. HEADER (LUPA, CARRITO Y USER EN NEGRO)         */
@@ -34,14 +37,17 @@ body { background-color: #f5f5f5; }
     height: 85px;
 }
 
+
 .header-content {
     width: 100%;
     max-width: 1200px;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    padding: 0 20px;
+    padding: 0 24px;
+    gap: 40px;
 }
+
 
 .logo {
     display: flex;
@@ -52,8 +58,8 @@ body { background-color: #f5f5f5; }
     text-decoration: none;
     color: #1a1a1a;
     white-space: nowrap;
-    margin-right: 24px;
 }
+
 
 .logo-img {
     height: 38px;
@@ -61,7 +67,9 @@ body { background-color: #f5f5f5; }
     object-fit: contain;
 }
 
+
 .logo .pro { color: #0077cc; }
+
 
 /* Logo responsive: se reduce al ajustar la página */
 @media (max-width: 992px) {
@@ -79,19 +87,23 @@ body { background-color: #f5f5f5; }
     .logo .logo-ws { display: none; }
 }
 
+
 .middle-header {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
+    justify-content: center;
+    gap: 8px;
+    max-width: 560px;
 }
+
 
 .nav-menu {
     display: flex;
-    gap: 25px;
+    gap: 28px;
     align-items: center;
-    margin-top: -4px; /* sube ligeramente el menú bajo la búsqueda */
-    padding-bottom: 4px; /* deja aire con el borde inferior del header */
+    margin-top: 2px;
+    padding-bottom: 4px;
 }
 .nav-menu a {
     text-decoration: none;
@@ -102,6 +114,7 @@ body { background-color: #f5f5f5; }
 }
 .nav-menu a:hover { color: #0077cc; }
 
+
 /* ICONOS LADO DERECHO */
 .icons {
     display: flex;
@@ -111,23 +124,27 @@ body { background-color: #f5f5f5; }
     position: relative;
 }
 
+
 /* Búsqueda expandible tipo Amazon/Mercado Libre */
 .search-container {
     position: relative;
 }
 
+
 .search-container.open {
     width: 100%;
 }
+
 
 .search-bar-wrapper {
     position: static;
     transform: none;
     width: 100%;
-    max-width: 520px; /* aprox. desde Inicio hasta Contacto */
-    margin-bottom: 6px; /* deja espacio para que se vean las letras de abajo */
+    max-width: 540px;
+    margin-bottom: 8px;
     z-index: 1001;
 }
+
 
 .search-bar {
     display: flex;
@@ -139,28 +156,34 @@ body { background-color: #f5f5f5; }
     transition: border-color 0.2s, box-shadow 0.2s;
 }
 
+
 .search-bar:focus-within {
     border-color: #0077cc;
     background: white;
     box-shadow: 0 0 0 1px #0077cc;
 }
 
+
 .search-input {
     flex: 1;
-    padding: 10px 12px 10px 14px;
+    padding: 10px 20px 10px 16px;
     border: none;
     background: transparent;
     font-size: 14px;
     outline: none;
+    letter-spacing: 0.02em;
 }
+
 
 .search-input::placeholder {
     color: #9e9e9e;
 }
 
+
 /* Lupa integrada dentro de la barra (estilo Mercado Libre) */
 .search-lupa-inner {
-    padding: 10px 14px;
+    padding: 10px 16px 10px 12px;
+    margin-left: 4px;
     background: transparent;
     border: none;
     cursor: pointer;
@@ -171,14 +194,17 @@ body { background-color: #f5f5f5; }
     transition: color 0.2s;
 }
 
+
 .search-lupa-inner:hover,
 .search-lupa-inner:focus {
     color: #0077cc;
 }
 
+
 .search-lupa-inner i {
     font-size: 16px;
 }
+
 
 .search-sugerencias {
     position: absolute;
@@ -197,6 +223,7 @@ body { background-color: #f5f5f5; }
     overflow-y: auto;
 }
 
+
 .search-sugerencias li {
     display: flex;
     align-items: center;
@@ -208,10 +235,12 @@ body { background-color: #f5f5f5; }
     transition: background 0.2s;
 }
 
+
 .search-sugerencias li i {
     color: #999 !important;
     font-size: 12px !important;
 }
+
 
 .search-sugerencias li:hover {
     background: #f5f5f5;
@@ -222,16 +251,19 @@ body { background-color: #f5f5f5; }
     color: #000000 !important;
 }
 
+
 /* 2. ICONO DE AGREGAR (+) EN AZUL */
 .icons i.fa-circle-plus,
 .icons i.icon-add {
     color: #0077cc !important;
 }
 
+
 /* 3. ICONO DE PERFIL (DENTRO DEL CÍRCULO) EN AZUL */
 .user-icon-circle i {
     color: #0077cc !important;
 }
+
 
 /* 4. ESTILO DEL CÍRCULO DEL PERFIL (Transparente, se nota al pasar el mouse) */
 .user-icon-circle {
@@ -245,6 +277,7 @@ body { background-color: #f5f5f5; }
     border: 1px solid transparent;
     transition: all 0.3s ease;
 }
+
 
 .user-icon-circle:hover {
     background-color: #f0f7ff;
@@ -262,6 +295,7 @@ body { background-color: #f5f5f5; }
     border-radius: 50%;
 }
 
+
 /* PERFIL CIRCULAR (SIN FONDO) */
 .user-icon-circle {
     width: 40px;
@@ -275,10 +309,12 @@ body { background-color: #f5f5f5; }
     transition: all 0.3s ease;
 }
 
+
 .user-icon-circle:hover {
     background-color: #f0f7ff; /* Aparece fondo azul claro al pasar el mouse */
     border-color: #cce5ff;
 }
+
 
 /* ================================================= */
 /* FOOTER - Derechos reservados                      */
@@ -297,6 +333,7 @@ body { background-color: #f5f5f5; }
     color: rgba(255,255,255,0.9);
 }
 
+
 /* ================================================= */
 /* 3. HERO SECTION (RESTABLECIDO)                    */
 /* ================================================= */
@@ -310,11 +347,13 @@ body { background-color: #f5f5f5; }
     padding: 0 8%;
 }
 
+
 .hero-overlay {
     position: absolute;
     inset: 0;
     background: rgba(0,0,0,0.45);
 }
+
 
 .hero-content { position: relative; color: white; max-width: 600px; }
 .hero h1 { font-size: 42px; font-weight: 700; }
@@ -330,6 +369,7 @@ body { background-color: #f5f5f5; }
     font-weight: 600;
 }
 
+
 /* ================================================= */
 /* 4. SECCIÓN NOSOTROS (RESTABLECIDO)                */
 /* ================================================= */
@@ -341,6 +381,7 @@ body { background-color: #f5f5f5; }
     justify-content: center;
 }
 
+
 .nosotros-container {
     width: 100%;
     max-width: 1200px;
@@ -350,6 +391,7 @@ body { background-color: #f5f5f5; }
     padding: 0 20px;
 }
 
+
 .nosotros-img img {
     max-width: 450px;
     width: 100%;
@@ -357,13 +399,16 @@ body { background-color: #f5f5f5; }
     filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1));
 }
 
+
 .nosotros-texto h4 { color: #0077cc; font-size: 14px; letter-spacing: 2px; margin-bottom: 10px; }
 .nosotros-texto h2 { font-size: 42px; font-weight: 800; color: #1a1a1a; margin-bottom: 25px; }
 .nosotros-texto p { font-size: 18px; color: #666; line-height: 1.7; margin-bottom: 30px; }
 
+
 .nosotros-beneficios { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
 .beneficio { display: flex; align-items: center; gap: 12px; font-weight: 700; color: #333; }
 .beneficio i { color: #0077cc; font-size: 20px; }
+
 
 /* ================================================= */
 /* 5. PRODUCTOS (RESTABLECIDO)                       */
@@ -382,6 +427,7 @@ body { background-color: #f5f5f5; }
 .producto-card img { width: 100%; height: 250px; object-fit: cover; }
 .producto-info { padding: 25px; }
 .precio { color: #2a9fd6; font-weight: 800; font-size: 22px; }
+
 
 /* ================================================= */
 /* 6. MODALES Y MENSAJES (RESTABLECIDO)             */
@@ -406,6 +452,7 @@ body { background-color: #f5f5f5; }
 }
 .icono-circulo.exito { background-color: #dcfce7; color: #22c55e; }
 .icono-circulo.error { background-color: #fee2e2; color: #ef4444; }
+
 
 /* ================================================= */
 /* 7. USER PERFIL PANEL (RESTABLECIDO)              */
@@ -445,6 +492,7 @@ body { background-color: #f5f5f5; }
     z-index: 2000;
 }
 
+
 .modal-diseno-nuevo {
     background: white;
     width: 90%;
@@ -454,6 +502,7 @@ body { background-color: #f5f5f5; }
     text-align: center;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
 }
+
 
 .icono-circulo {
     width: 70px;
@@ -466,17 +515,20 @@ body { background-color: #f5f5f5; }
     font-size: 30px;
 }
 
+
 /* Verde para Éxito */
 .icono-circulo.exito {
     background-color: #a7f3d0;
     color: #059669;
 }
 
+
 /* Rojo para Error */
 .icono-circulo.error {
     background-color: #fecaca;
     color: #dc2626;
 }
+
 
 /* Título y texto del modal: mejor espaciado */
 .modal-titulo-nuevo {
@@ -485,11 +537,13 @@ body { background-color: #f5f5f5; }
     margin-bottom: 12px;
 }
 
+
 .modal-texto-nuevo {
     letter-spacing: 0.03em;
     line-height: 1.6;
     margin-bottom: 24px;
 }
+
 
 /* BOTONES AZULES REDONDEADOS (Como en la imagen) */
 .btn-accion-azul {
@@ -505,9 +559,11 @@ body { background-color: #f5f5f5; }
     margin-top: 20px;
 }
 
+
 .btn-accion-azul:hover {
     background-color: #0099ff;
 }
+
 
 /* ================================================= */
 /* 4. SECCIONES RESTANTES (HERO, NOSOTROS, ETC.)     */
@@ -521,8 +577,10 @@ body { background-color: #f5f5f5; }
     padding: 0 8%;
 }
 
+
 .hero-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.45); }
 .hero-content { position: relative; color: white; }
+
 
 .nosotros-container {
     max-width: 1200px;
@@ -534,6 +592,7 @@ body { background-color: #f5f5f5; }
 /* ================================================= */
 /* 8. MODAL DE LOGIN / REGISTRO (FIDELIDAD TOTAL)    */
 /* ================================================= */
+
 
 .modal-overlay {
     position: fixed;
@@ -548,10 +607,12 @@ body { background-color: #f5f5f5; }
     transition: 0.3s;
 }
 
+
 .modal-overlay.active {
     visibility: visible;
     opacity: 1;
 }
+
 
 .modal {
     background: #f1f3f4; /* Gris suave del fondo del modal */
@@ -564,6 +625,7 @@ body { background-color: #f5f5f5; }
     text-align: center;
 }
 
+
 .cerrar {
     position: absolute;
     top: 25px;
@@ -574,12 +636,14 @@ body { background-color: #f5f5f5; }
     transition: 0.2s;
 }
 
+
 .modal h2 {
     font-size: 36px;
     font-weight: 800;
     color: #202124;
     margin-bottom: 8px;
 }
+
 
 .subtitle {
     font-size: 16px;
@@ -588,10 +652,12 @@ body { background-color: #f5f5f5; }
     margin-bottom: 35px;
 }
 
+
 /* FORMULARIO */
 .login-form {
     text-align: left;
 }
+
 
 .login-form label {
     font-weight: 700;
@@ -601,6 +667,7 @@ body { background-color: #f5f5f5; }
     margin-bottom: 8px;
     margin-top: 18px;
 }
+
 
 .login-form input {
     width: 100%;
@@ -613,10 +680,12 @@ body { background-color: #f5f5f5; }
     outline: none;
 }
 
+
 .login-form input:focus {
     border-color: #2196f3;
     box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
 }
+
 
 .login-btn {
     width: 100%;
@@ -632,9 +701,11 @@ body { background-color: #f5f5f5; }
     transition: 0.3s;
 }
 
+
 .login-btn:hover {
     background: #1976d2;
 }
+
 
 /* DIVISOR "O" */
 .divider {
@@ -644,11 +715,13 @@ body { background-color: #f5f5f5; }
     margin: 30px 0;
 }
 
+
 .divider::before, .divider::after {
     content: '';
     flex: 1;
     border-bottom: 1px solid #dadce0;
 }
+
 
 .divider span {
     padding: 0 15px;
@@ -656,6 +729,7 @@ body { background-color: #f5f5f5; }
     font-size: 13px;
     font-weight: 600;
 }
+
 
 /* BOTÓN GOOGLE */
 .google-btn {
@@ -675,6 +749,8 @@ body { background-color: #f5f5f5; }
 }
 
 
+
+
 .modal-footer {
     margin-top: 25px;
     display: flex;
@@ -683,9 +759,11 @@ body { background-color: #f5f5f5; }
     font-size: 14px;
 }
 
+
 .footer-text {
     color: #5f6368;
 }
+
 
 .link-auth {
     color: #2196f3;
@@ -694,9 +772,11 @@ body { background-color: #f5f5f5; }
     text-decoration: none;
 }
 
+
 .link-auth:hover {
     text-decoration: underline;
 }
+
 
 .sugerencias-lista {
     position: absolute;
@@ -715,6 +795,7 @@ body { background-color: #f5f5f5; }
     overflow-y: auto;
 }
 
+
 .sugerencias-lista li {
     padding: 10px 15px;
     font-size: 13px;
@@ -722,6 +803,7 @@ body { background-color: #f5f5f5; }
     cursor: pointer;
     border-bottom: 1px solid #f1f3f4;
 }
+
 
 .sugerencias-lista li:hover {
     background-color: #f8f9fa;
@@ -731,6 +813,7 @@ body { background-color: #f5f5f5; }
     position: relative;
     width: 100%;
 }
+
 
 .gps-icon {
     position: absolute;
@@ -742,6 +825,7 @@ body { background-color: #f5f5f5; }
     font-size: 18px;
     transition: all 0.3s ease;
 }
+
 
 .gps-icon:hover {
     color: #0056b3;
@@ -756,8 +840,10 @@ body { background-color: #f5f5f5; }
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+
 html { overflow-y: scroll; }
 body { background-color: #f5f5f5; }
+
 
 /* ================================================= */
 /* 2. HEADER (LUPA, CARRITO Y USER)                  */
@@ -774,14 +860,17 @@ body { background-color: #f5f5f5; }
     height: 85px;
 }
 
+
 .header-content {
     width: 100%;
     max-width: 1200px;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    padding: 0 20px;
+    padding: 0 24px;
+    gap: 40px;
 }
+
 
 .logo {
     display: flex;
@@ -794,8 +883,10 @@ body { background-color: #f5f5f5; }
     white-space: nowrap;
 }
 
+
 .logo-img { height: 38px; width: auto; object-fit: contain; }
 .logo .pro { color: #0077cc; }
+
 
 /* Logo más compacto en pantallas medianas */
 @media (max-width: 992px) {
@@ -803,11 +894,13 @@ body { background-color: #f5f5f5; }
     .logo-img { height: 34px; }
 }
 
+
 /* Logo más pequeño en tablets/móviles */
 @media (max-width: 768px) {
     .logo { font-size: 0.8rem; gap: 5px; }
     .logo-img { height: 30px; }
 }
+
 
 /* En pantallas muy pequeñas: texto mínimo para evitar amontonamiento */
 @media (max-width: 480px) {
@@ -815,6 +908,7 @@ body { background-color: #f5f5f5; }
     .logo-img { height: 28px; }
     .logo .logo-ws { display: none; }
 }
+
 
 .nav-menu {
     display: flex;
@@ -831,9 +925,11 @@ body { background-color: #f5f5f5; }
 }
 .nav-menu a:hover { color: #0077cc; }
 
+
 .icons { display: flex; align-items: center; gap: 20px; font-size: 18px; }
 .icons i.fa-magnifying-glass, .icons i.fa-cart-shopping { color: #000 !important; }
 .icons i.fa-circle-plus { color: #0077cc !important; }
+
 
 .user-icon-circle {
     width: 40px; height: 40px; border-radius: 50%;
@@ -842,6 +938,7 @@ body { background-color: #f5f5f5; }
 }
 .user-icon-circle i { color: #0077cc !important; }
 .user-icon-circle:hover { background-color: #f0f7ff; border: 1px solid #cce5ff; }
+
 
 /* ================================================= */
 /* 3. HERO, NOSOTROS Y PRODUCTOS                     */
@@ -854,11 +951,13 @@ body { background-color: #f5f5f5; }
 .hero-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.45); }
 .hero-content { position: relative; color: white; max-width: 600px; }
 
+
 .nosotros-container {
     max-width: 1200px; margin: 0 auto;
     display: flex; gap: 80px; padding: 100px 20px; align-items: center;
 }
 .nosotros-img img { max-width: 450px; width: 100%; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1)); }
+
 
 .productos-section { padding: 80px 0; background: #f5f5f5; text-align: center; }
 .productos-grid {
@@ -866,6 +965,7 @@ body { background-color: #f5f5f5; }
     gap: 40px; max-width: 1200px; margin: 0 auto; padding: 0 20px;
 }
 .producto-card { background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+
 
 /* ================================================= */
 /* 4. MODALES (LOGIN / REGISTRO / MENSAJES)          */
@@ -876,6 +976,7 @@ body { background-color: #f5f5f5; }
     z-index: 3000; visibility: hidden; opacity: 0; transition: 0.3s;
 }
 .modal-overlay.active { visibility: visible; opacity: 1; }
+
 
 .modal {
     background: #f1f3f4; width: 90%; max-width: 480px;
@@ -898,6 +999,7 @@ body { background-color: #f5f5f5; }
   z-index: 1000;
 }
 
+
 .modal-diseno-nuevo {
   background: white;
   padding: 40px;
@@ -908,11 +1010,13 @@ body { background-color: #f5f5f5; }
   box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
 
+
 .icono-circulo.pregunta {
   color: #fa5252;
   font-size: 50px;
   margin-bottom: 20px;
 }
+
 
 .btn-confirmar-rojo {
   background-color: #fa5252;
@@ -925,6 +1029,7 @@ body { background-color: #f5f5f5; }
   margin-left: 10px;
 }
 
+
 .btn-cancelar-gris {
   background-color: #e9ecef;
   color: #495057;
@@ -933,3 +1038,5 @@ body { background-color: #f5f5f5; }
   border-radius: 8px;
   cursor: pointer;
 }
+
+
