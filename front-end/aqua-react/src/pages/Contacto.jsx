@@ -17,7 +17,7 @@ function Contacto() {
   const isValidEmail = (email) => {
     if (!email.trim()) return false; // Verificar que no esté vacío
     const regex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
-    return regex.test(email) && email.length <= 6; // Verificar formato y longitud
+    return regex.test(email) && email.length <= 256; // Verificar formato y longitud
   }
 
   const handleChange = (e) => {
