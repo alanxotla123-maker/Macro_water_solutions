@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-
+ 
 function Header({ abrirCarrito, abrirLogin, usuario, cerrarSesion, conteo }) {
-  // La barra de búsqueda ahora siempre está visible (tipo Amazon/Mercado Libre)
   const [searchOpen, setSearchOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [sugerencias, setSugerencias] = useState([]);
@@ -10,8 +9,7 @@ function Header({ abrirCarrito, abrirLogin, usuario, cerrarSesion, conteo }) {
   const [mostrarSugerencias, setMostrarSugerencias] = useState(false);
   const searchRef = useRef(null);
   const navigate = useNavigate();
-
-  // Cargar productos cuando se abre la búsqueda
+ 
   useEffect(() => {
     if (searchOpen) {
       fetch("https://macrowatersolutions.com/api/productos")
@@ -20,8 +18,7 @@ function Header({ abrirCarrito, abrirLogin, usuario, cerrarSesion, conteo }) {
         .catch(() => setProductos([]));
     }
   }, [searchOpen]);
-
-  // Filtrar sugerencias según lo escrito
+ 
   useEffect(() => {
     const q = searchQuery.trim().toLowerCase();
     if (q.length < 2) {
@@ -35,8 +32,7 @@ function Header({ abrirCarrito, abrirLogin, usuario, cerrarSesion, conteo }) {
     setSugerencias(filtrados);
     setMostrarSugerencias(filtrados.length > 0);
   }, [searchQuery, productos]);
-
-  // Cerrar al hacer clic fuera
+ 
   useEffect(() => {
     function handleClickOutside(e) {
       if (searchRef.current && !searchRef.current.contains(e.target)) {
@@ -47,7 +43,7 @@ function Header({ abrirCarrito, abrirLogin, usuario, cerrarSesion, conteo }) {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
+ 
   const handleBuscar = () => {
     const q = searchQuery.trim();
     if (q) {
@@ -57,7 +53,7 @@ function Header({ abrirCarrito, abrirLogin, usuario, cerrarSesion, conteo }) {
       setMostrarSugerencias(false);
     }
   };
-
+ 
   const handleSugerenciaClick = (texto) => {
     setSearchQuery(texto);
     navigate(`/productos?q=${encodeURIComponent(texto)}`);
@@ -65,24 +61,23 @@ function Header({ abrirCarrito, abrirLogin, usuario, cerrarSesion, conteo }) {
     setSearchQuery("");
     setMostrarSugerencias(false);
   };
-
+ 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") handleBuscar();
   };
-
+ 
   const esAdmin = usuario?.rol === "admin" || usuario?.rol == 1 || usuario?.rol_id == 1;
-
+ 
   return (
     <header className="main-header">
       <div className="header-content">
-        <div className="logo">
+        <Link to="/" className="logo" style={{ textDecoration: "none", color: "inherit" }}>
           <img src="/imagenes/logo1.1.png" className="logo-img" alt="Logo" />
           <span className="logo-text">
-            Macro <span className="pro logo-ws">Water Solutions</span>
+            Macro <br /><span className="pro logo-ws">Water Solutions</span>
           </span>
-        </div>
-
-        {/* Centro: barra de búsqueda siempre visible arriba y menú abajo */}
+        </Link>
+ 
         <div className="middle-header" ref={searchRef}>
           <div className="search-container open">
             <div className="search-bar-wrapper">
@@ -117,7 +112,7 @@ function Header({ abrirCarrito, abrirLogin, usuario, cerrarSesion, conteo }) {
               )}
             </div>
           </div>
-
+ 
           <nav className="nav-menu">
             <Link to="/">Inicio</Link>
             <Link to="/productos">Productos</Link>
@@ -130,19 +125,19 @@ function Header({ abrirCarrito, abrirLogin, usuario, cerrarSesion, conteo }) {
             )}
           </nav>
         </div>
-
+ 
         <div className="icons">
           {esAdmin && (
             <Link to="/admin" title="Agregar Producto">
               <i className="fa-solid fa-circle-plus icon-add"></i>
             </Link>
           )}
-
+ 
           <div className="cart-container" onClick={abrirCarrito}>
             <i className="fa-solid fa-cart-shopping"></i>
             {conteo > 0 && <span className="badge-conteo">{conteo}</span>}
           </div>
-
+ 
           {usuario ? (
             <Link to="/perfil" className="profile-link-header" title="Mi Perfil">
               <div className="user-icon-circle">
@@ -157,5 +152,6 @@ function Header({ abrirCarrito, abrirLogin, usuario, cerrarSesion, conteo }) {
     </header>
   );
 }
-
+ 
 export default Header;
+ 
