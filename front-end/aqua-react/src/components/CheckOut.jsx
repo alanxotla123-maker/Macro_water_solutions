@@ -1,10 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react'; // 1. Agregamos useState
 import '../styles/Checkout.css';
 import { useNavigate } from 'react-router-dom';
+import { initMercadoPago, Wallet } from '@mercadopago/sdk-react'; // 2. Importamos SDK
+
+// Inicializa con tu PUBLIC_KEY de la captura
+initMercadoPago('APP_USR-4a539dc1-8c63-4e6a-9346-37e323b03a5f'); 
 
 const Checkout = ({ carrito = [], usuario, setAuthModalAbierto }) => {
     const navigate = useNavigate();
-    
+    const [preferenceId, setPreferenceId] = useState(null); // Estado para el ID de pago
+    const [cargando, setCargando] = useState(false);
+
     // --- LÓGICA DE CÁLCULO ---
     const subtotal = carrito.reduce((acc, prod) => {
         const precio = parseFloat(prod.precio) || 0;
@@ -14,6 +20,30 @@ const Checkout = ({ carrito = [], usuario, setAuthModalAbierto }) => {
 
     const envio = subtotal > 500 || subtotal === 0 ? 0 : 59.99;
     const total = subtotal + envio;
+
+    // --- FUNCIÓN PARA CREAR PREFERENCIA ---
+    const handlePago = async () => {
+        setCargando(true);
+        try {
+            const response = await fetch("https://macrowatersolutions.com/api/create_preference", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ 
+                    items: carrito,
+                    envio: envio // Enviamos el costo de envío si es necesario
+                }),
+            });
+            const data = await response.json();
+            if (data.id) {
+                setPreferenceId(data.id);
+            }
+        } catch (error) {
+            console.error("Error al crear preferencia:", error);
+            alert("Hubo un error al conectar con Mercado Pago");
+        } finally {
+            setCargando(false);
+        }
+    };
 
     // --- ESCENARIO 1: NO HAY SESIÓN INICIADA ---
     if (!usuario) {
@@ -30,9 +60,7 @@ const Checkout = ({ carrito = [], usuario, setAuthModalAbierto }) => {
     }
 
     // --- ESCENARIO 2: TIENE SESIÓN PERO NO TIENE DIRECCIÓN ---
-    // Verificamos si la dirección es nula, vacía o el texto por defecto
     const tieneDireccion = usuario.direccion && usuario.direccion !== "Dirección no ingresada";
-
     if (!tieneDireccion) {
         return (
             <div className="checkout-empty-state">
@@ -46,7 +74,7 @@ const Checkout = ({ carrito = [], usuario, setAuthModalAbierto }) => {
         );
     }
 
-    // --- ESCENARIO 3: TODO CORRECTO (VISTA DE PAGO) ---
+    // --- ESCENARIO 3: TODO CORRECTO ---
     return (
         <div className="checkout-container">
             <div className="checkout-content">
@@ -78,9 +106,20 @@ const Checkout = ({ carrito = [], usuario, setAuthModalAbierto }) => {
                         </div>
                     </div>
 
-                    <button className="continue-btn-main" onClick={() => alert("Próximamente: Mercado Pago")}>
-                        Continuar con el pago
-                    </button>
+                    {/* Lógica condicional: Si no hay ID, mostramos botón de carga. Si hay ID, el botón de MP */}
+                    {!preferenceId ? (
+                        <button 
+                            className="continue-btn-main" 
+                            onClick={handlePago}
+                            disabled={cargando || carrito.length === 0}
+                        >
+                            {cargando ? "Preparando pago..." : "Continuar con el pago"}
+                        </button>
+                    ) : (
+                        <div className="mp-button-container" style={{ marginTop: '20px' }}>
+                            <Wallet initialization={{ preferenceId: preferenceId }} />
+                        </div>
+                    )}
                 </div>
 
                 <div className="summary-section">

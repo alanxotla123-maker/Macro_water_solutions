@@ -1,3 +1,4 @@
+const { MercadoPagoConfig, Preference } = require('mercadopago');
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -128,6 +129,41 @@ app.delete('/api/productos/:id', async (req, res) => {
         await pool.execute("DELETE FROM productos WHERE id = ?", [id]);
         res.json({ message: "Eliminado" });
     } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+//mercado pago 
+const clientMP = new MercadoPagoConfig({ 
+    accessToken: process.env.MP_ACCESS_TOKEN || process.env.ACCESS_TOKEN_MERCADO
+});
+// --- RUTA PARA CREAR PREFERENCIA DE PAGO ---
+app.post("/api/create_preference", async (req, res) => {
+    try {
+        const { items } = req.body; // Recibe los productos del carrito
+
+        const body = {
+            items: items.map(prod => ({
+                title: prod.nombre,
+                quantity: Number(prod.cantidad),
+                unit_price: Number(prod.precio),
+                currency_id: "MXN",
+            })),
+            back_urls: {
+                success: "https://macrowatersolutions.com/pago-exitoso",
+                failure: "https://macrowatersolutions.com/pago-fallido",
+                pending: "https://macrowatersolutions.com/pago-pendiente",
+            },
+            auto_return: "approved",
+        };
+
+        const preference = new Preference(clientMP);
+        const result = await preference.create({ body });
+
+        // Enviamos el ID de la preferencia al frontend
+        res.json({ id: result.id });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Error al crear la preferencia" });
+    }
 });
 
 const PORT = process.env.PORT || 3000;
