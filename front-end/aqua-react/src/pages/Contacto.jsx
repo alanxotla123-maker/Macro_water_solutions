@@ -12,17 +12,43 @@ function Contacto() {
   });
 
   const [enviado, setEnviado] = useState(false);
+  const[emailError,setEmailError] = useState("");
+
+  const isValidEmail = (email) => {
+    const trimmed = (email || "").trim();
+    if (!trimmed) return false;
+    const regex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
+    return regex.test(trimmed) && trimmed.length >= 6;
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    let finalValue = value;
+    if (name === "telefono") {// Validación para el campo de teléfono (solo números)
+      finalValue = value.replace(/\D/g, "").slice(0,10); // Solo dígitos, máximo 10
+    }
     setFormData({
       ...formData,
-      [name]: value
+      [name]: finalValue
     });
+    if (name === "email") setEmailError("");
+  };
+
+  const handleEmailBlur = () => {
+    if (formData.email && !isValidEmail(formData.email)) {
+      setEmailError("Introduce un email válido con dominio (.com, .es, .org, etc.)");
+    } else {
+      setEmailError("");
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!isValidEmail(formData.email)) {
+      setEmailError("Introduce un email válido con dominio (.com, .es, .org, etc.)");
+      return;
+    }
+    setEmailError("");
     // Aquí irá la lógica para enviar el formulario
     console.log("Formulario enviado:", formData);
     setEnviado(true);
@@ -124,9 +150,14 @@ function Contacto() {
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
+                      onBlur={handleEmailBlur}
+                      pattern="[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}"
+                      title="Ejemplo: usuario@dominio.com o usuario@dominio.es"
                       required
                       placeholder=""
+                      className={emailError?"input-error":""}
                     />
+                  {emailError && <span className="email-error-msg">{emailError}</span>}
                   </div>
                   <div className="form-group">
                     <label htmlFor="telefono">Teléfono</label>
@@ -136,6 +167,8 @@ function Contacto() {
                       name="telefono"
                       value={formData.telefono}
                       onChange={handleChange}
+                      inputMode="numeric"
+                      maxLength={10}
                       placeholder=""
                     />
                   </div>

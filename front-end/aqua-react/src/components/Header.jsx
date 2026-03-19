@@ -118,11 +118,6 @@ function Header({ abrirCarrito, abrirLogin, usuario, cerrarSesion, conteo }) {
             <Link to="/productos">Productos</Link>
             <Link to="/nosotros">Nosotros</Link>
             <Link to="/contacto">Contacto</Link>
-            {esAdmin && (
-              <Link to="/admin" className="link-admin">
-                Gestionar
-              </Link>
-            )}
           </nav>
         </div>
  

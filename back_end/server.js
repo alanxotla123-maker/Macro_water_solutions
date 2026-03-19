@@ -1,34 +1,31 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const path = require('path'); // <-- CORREGIDO: Importación faltante
+const path = require('path');
 
 // 1. IMPORTACIONES DE AWS Y MULTER
 const { S3Client, DeleteObjectCommand } = require("@aws-sdk/client-s3");
 const multer = require('multer');
 const multerS3 = require('multer-s3');
 
-// 2. REGISTRA TS-NODE
-require('ts-node').register(); 
+// 2. IMPORTACIONES LOCALES (Asegúrate de que estos archivos sean .js)
+const { pool } = require('./src/config/db'); 
+const authRoutes = require('./src/routes/auth.routes'); 
 
-const app = express(); // <-- CORREGIDO: Definido antes de usarse
+const app = express();
 
-// --- AJUSTE DE ESTATICOS Y PARSERS ---
+// --- CONFIGURACIÓN ---
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 
-// --- AJUSTE DE CORS PARA PRODUCCIÓN ---
+// --- CORS ---
 app.use(cors({
     origin: ['https://macrowatersolutions.com', 'http://macrowatersolutions.com'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
 }));
 
-// 3. IMPORTACIONES
-const { pool } = require('./src/config/db'); 
-const authRoutes = require('./src/routes/auth.routes'); 
-
-// 4. CONFIGURACIÓN DE AWS S3
+// 3. CONFIGURACIÓN DE AWS S3
 const s3 = new S3Client({
     region: (process.env.AWS_REGION || "us-east-2").trim(),
     credentials: {
@@ -37,7 +34,7 @@ const s3 = new S3Client({
     },
 });
 
-// 5. CONFIGURACIÓN DE MULTER
+// 4. CONFIGURACIÓN DE MULTER
 const upload = multer({
     storage: multerS3({
         s3: s3,
@@ -74,7 +71,7 @@ app.get('/api/productos/:id', async (req, res) => {
 
 app.post('/api/productos', upload.single('imagen'), async (req, res) => {
     try {
-        const { nombre, precio, descripcion, stock, categoria_id } = req.body; // <-- Acepta categoria_id del front
+        const { nombre, precio, descripcion, stock, categoria_id } = req.body;
         const imagenUrl = req.file ? req.file.location : ""; 
         const sql = `INSERT INTO productos (nombre, precio, descripcion, stock, imagen, categoria_id) VALUES (?, ?, ?, ?, ?, ?)`;
         await pool.execute(sql, [nombre, precio, descripcion, stock, imagenUrl, categoria_id || 1]);
@@ -135,5 +132,5 @@ app.delete('/api/productos/:id', async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`🚀 Servidor activo en macrowatersolutions.com puerto ${PORT}`);
+    console.log(`🚀 Servidor activo en puerto ${PORT}`);
 });
