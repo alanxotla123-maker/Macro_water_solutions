@@ -1,6 +1,6 @@
 const { OAuth2Client } = require("google-auth-library");
  
-const GOOGLE_CLIENT_ID = "561610268736-8eam83vcf2694ihti70pb4dc4t64k6u5.apps.googleusercontent.com"; // mismo que en el frontend
+const GOOGLE_CLIENT_ID = "561610268736-8eam83vcf2694ihti70pb4dc4t64k6u5.apps.googleusercontent.com";
 const client = new OAuth2Client(GOOGLE_CLIENT_ID);
  
 router.post("/google", async (req, res) => {
@@ -18,27 +18,36 @@ router.post("/google", async (req, res) => {
         });
  
         const payload = ticket.getPayload();
-        const { email, name, picture, sub: googleId } = payload;
+        const { email, name, sub: googleId } = payload;
  
-        // 2. Buscar si el usuario ya existe en tu BD
-        let usuario = await db.query(
+        // 2. Buscar si el usuario ya existe en la BD
+        const [rows] = await db.query(
             "SELECT * FROM usuarios WHERE correo = ? LIMIT 1",
             [email]
         );
  
-        if (!usuario) {
+        let usuario;
+ 
+        if (rows.length === 0) {
             // 3a. No existe → crearlo automáticamente
-            const nuevoId = await db.query(
+            const [result] = await db.query(
                 `INSERT INTO usuarios (nombre, correo, password, direccion, rol_id)
                  VALUES (?, ?, ?, ?, ?)`,
                 [name, email, googleId, "Dirección no ingresada", 2]
-                //                     ^^^^^^^^
-                //   Usamos el googleId como "password" (nunca se usará para login normal)
             );
-            usuario = { id: nuevoId, nombre: name, correo: email, rol_id: 2 };
+ 
+            // 3b. Traer el usuario recién insertado por su ID
+            const [nuevoUsuario] = await db.query(
+                "SELECT * FROM usuarios WHERE id = ? LIMIT 1",
+                [result.insertId]
+            );
+            usuario = nuevoUsuario[0];
+        } else {
+            // 4. Ya existe → usarlo directamente
+            usuario = rows[0];
         }
  
-        // 4. Devolver el usuario igual que en tu login normal
+        // 5. Devolver el usuario igual que en tu login normal
         return res.json({ usuario });
  
     } catch (error) {

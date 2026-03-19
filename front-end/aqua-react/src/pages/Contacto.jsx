@@ -15,16 +15,17 @@ function Contacto() {
   const[emailError,setEmailError] = useState("");
 
   const isValidEmail = (email) => {
-    if (!email.trim()) return false; // Verificar que no esté vacío
+    const trimmed = (email || "").trim();
+    if (!trimmed) return false;
     const regex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
-    return regex.test(email) && email.length <= 6; // Verificar formato y longitud
-  }
+    return regex.test(trimmed) && trimmed.length >= 6;
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     let finalValue = value;
     if (name === "telefono") {// Validación para el campo de teléfono (solo números)
-      finalValue = value.replace(/\D/g, ""); // Eliminar cualquier carácter que no sea un dígito
+      finalValue = value.replace(/\D/g, "").slice(0,10); // Solo dígitos, máximo 10
     }
     setFormData({
       ...formData,
@@ -167,6 +168,7 @@ function Contacto() {
                       value={formData.telefono}
                       onChange={handleChange}
                       inputMode="numeric"
+                      maxLength={10}
                       placeholder=""
                     />
                   </div>
