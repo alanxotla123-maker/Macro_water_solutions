@@ -11,9 +11,10 @@ function Nosotros() {
           <h4>Sobre Nosotros</h4>
           <h2>Expertos en Limpieza Profesional</h2>
           <p>
-            En Macro Water Solutions ofrecemos productos de limpieza de alta calidad
-            diseñados para resultados profesionales. Nuestra misión es brindar
-            soluciones eficientes, ecológicas y accesibles.
+          En Macro Water Solutions ofrecemos productos especializados para el mantenimiento y cuidado de albercas y piscinas, diseñados para garantizar agua limpia, segura y cristalina. Contamos con soluciones profesionales como químicos para piscinas, 
+          sistemas de filtración, accesorios de limpieza y equipos de mantenimiento.
+Nuestra misión es brindar productos de alta calidad que faciliten el tratamiento del agua, mejoren la durabilidad de las instalaciones 
+  y aseguren una experiencia óptima en cada uso.
           </p>
 
           <div className="nosotros-beneficios">
