@@ -21,30 +21,33 @@ const Checkout = ({ carrito = [], usuario, setAuthModalAbierto }) => {
     const envio = subtotal > 500 || subtotal === 0 ? 0 : 59.99;
     const total = subtotal + envio;
 
-    // --- FUNCIÓN PARA CREAR PREFERENCIA ---
-    const handlePago = async () => {
-        setCargando(true);
-        try {
-            const response = await fetch("https://macrowatersolutions.com/api/create_preference", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ 
-                    items: carrito,
-                    envio: envio // Enviamos el costo de envío si es necesario
-                }),
-            });
-            const data = await response.json();
-            if (data.id) {
-                setPreferenceId(data.id);
-            }
-        } catch (error) {
-            console.error("Error al crear preferencia:", error);
-            alert("Hubo un error al conectar con Mercado Pago");
-        } finally {
-            setCargando(false);
+   // --- FUNCIÓN PARA CREAR PREFERENCIA ---
+const handlePago = async () => {
+    setCargando(true);
+    try {
+        const response = await fetch("https://macrowatersolutions.com/api/create_preference", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+                items: carrito,
+                envio: envio,
+                userId: usuario.id // <--- ¡ESTA ES LA LÍNEA QUE FALTA!
+            }),
+        });
+        
+        const data = await response.json();
+        if (data.id) {
+            setPreferenceId(data.id);
+        } else {
+            console.error("No se recibió preferenceId:", data);
         }
-    };
-
+    } catch (error) {
+        console.error("Error al crear preferencia:", error);
+        alert("Hubo un error al conectar con Mercado Pago");
+    } finally {
+        setCargando(false);
+    }
+};
     // --- ESCENARIO 1: NO HAY SESIÓN INICIADA ---
     if (!usuario) {
         return (
