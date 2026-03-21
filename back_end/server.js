@@ -12,7 +12,6 @@ const multerS3 = require('multer-s3');
 // --- 💳 IMPORTACIÓN DE MERCADO PAGO ---
 const { MercadoPagoConfig, Preference, Payment } = require('mercadopago');
 
-// 2. REGISTRA TS-NODE
 require('ts-node').register(); 
 
 const app = express();
@@ -39,7 +38,6 @@ app.use(cors({
     credentials: true
 }));
 
-// 3. IMPORTACIONES DE BASE DE DATOS Y RUTAS
 const { pool } = require('./src/config/db'); 
 const authRoutes = require('./src/routes/auth.routes'); 
 
@@ -52,7 +50,6 @@ const s3 = new S3Client({
     },
 });
 
-// 5. CONFIGURACIÓN DE MULTER
 const upload = multer({
     storage: multerS3({
         s3: s3,
@@ -61,33 +58,6 @@ const upload = multer({
             cb(null, `productos/${Date.now()}_${file.originalname}`);
         }
     })
-});
-
-// ================= RUTA DE PRUEBA DE BASE DE DATOS =================
-app.post("/api/test-db-directo", async (req, res) => {
-    try {
-        const { userId, productoId, precio } = req.body;
-        
-        const sqlPedido = `
-            INSERT INTO pedidos 
-            (usuario_id, producto_id, cantidad, total_linea, estado) 
-            VALUES (?, ?, ?, ?, 'test_exitoso')`;
-        
-        const [result] = await pool.execute(sqlPedido, [
-            userId || 1, 
-            productoId || 1, 
-            1, 
-            precio || 100
-        ]);
-
-        res.json({ message: "✅ ¡Conexión exitosa!", pedidoId: result.insertId });
-    } catch (dbErr) {
-        console.error("❌ ERROR DE SQL:", dbErr.message);
-        res.status(500).json({ 
-            error: "Error en la base de datos", 
-            detalle: dbErr.message 
-        });
-    }
 });
 
 // ================= RUTAS DE PRODUCTOS =================
@@ -192,9 +162,13 @@ app.post('/api/auth/google', async (req, res) => {
 });
 
 // ================= RUTAS DE MERCADO PAGO =================
+
 app.post("/api/create_preference", async (req, res) => {
     try {
         const { items, envio, userId } = req.body;
+
+        // Generamos un ID de pedido numérico (INT) usando segundos actuales
+        const idPedidosAgrupador = Math.floor(Date.now() / 1000);
 
         const body = {
             items: items.map(prod => ({
@@ -205,7 +179,8 @@ app.post("/api/create_preference", async (req, res) => {
                 currency_id: "MXN",
             })),
             metadata: { 
-                user_id: userId 
+                user_id: userId,
+                id_pedidos: idPedidosAgrupador // Se envía como INT
             },
             back_urls: {
                 success: "https://macrowatersolutions.com/pago-exitoso",
@@ -246,6 +221,8 @@ app.post("/api/webhook", async (req, res) => {
 
             if (paymentInfo.status === "approved") {
                 const userId = paymentInfo.metadata?.user_id;
+                // Nos aseguramos que id_pedidos se trate como Número
+                const idPedidos = Number(paymentInfo.metadata?.id_pedidos);
                 const itemsPagados = paymentInfo.additional_info?.items || paymentInfo.items || [];
 
                 if (!userId) return res.sendStatus(200);
@@ -255,14 +232,12 @@ app.post("/api/webhook", async (req, res) => {
 
                     try {
                         const totalItem = Number(item.unit_price) * Number(item.quantity);
-                        
-                        // Nombres corregidos según tu imagen de base de datos
                         const sqlPedido = `
                             INSERT INTO pedidos 
-                            (usuario_id, producto_id, cantidad, total_linea, estado) 
-                            VALUES (?, ?, ?, ?, 'pagado')`;
+                            (usuario_id, producto_id, cantidad, total_linea, estado, id_pedidos) 
+                            VALUES (?, ?, ?, ?, 'En proceso', ?)`;
                         
-                        await pool.execute(sqlPedido, [userId, item.id, item.quantity, totalItem]);
+                        await pool.execute(sqlPedido, [userId, item.id, item.quantity, totalItem, idPedidos]);
                         
                         // Actualizar stock
                         await pool.execute("UPDATE productos SET stock = stock - ? WHERE id = ?", [item.quantity, item.id]);
@@ -282,24 +257,14 @@ app.post("/api/webhook", async (req, res) => {
 
 // ================= RUTAS DE PEDIDOS (USUARIO Y ADMIN) =================
 
-app.get('/api/mis-pedidos/:userId', async (req, res) => {
-    try {
-        const { userId } = req.params;
-        const [rows] = await pool.execute(`
-            SELECT p.*, pr.nombre as producto_nombre 
-            FROM pedidos p 
-            JOIN productos pr ON p.producto_id = pr.id
-            WHERE p.usuario_id = ?
-            ORDER BY p.id DESC
-        `, [userId]);
-        res.json(rows);
-    } catch (err) { res.status(500).json({ error: err.message }); }
-});
-
 app.get('/api/pedidos', async (req, res) => {
     try {
         const [rows] = await pool.execute(`
-            SELECT p.*, u.nombre as cliente, pr.nombre as producto_nombre 
+            SELECT 
+                p.*, 
+                u.nombre as cliente, 
+                pr.nombre as producto_nombre,
+                pr.imagen as producto_imagen
             FROM pedidos p 
             JOIN usuarios u ON p.usuario_id = u.id
             JOIN productos pr ON p.producto_id = pr.id
@@ -317,11 +282,99 @@ app.put('/api/pedidos/status/:id', async (req, res) => {
         res.json({ message: "Estado actualizado" });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
+app.get('/api/mis-pedidos/:userId', async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const [rows] = await pool.execute(`
+            SELECT 
+                p.id, 
+                p.id_pedidos,
+                p.usuario_id, 
+                p.producto_id, 
+                p.cantidad, 
+                p.total_linea as total, 
+                p.estado, 
+                p.fecha,
+                pr.nombre as nombre, 
+                pr.imagen as imagen, 
+                pr.precio as precio_unitario
+            FROM pedidos p 
+            JOIN productos pr ON p.producto_id = pr.id
+            WHERE p.usuario_id = ?
+            ORDER BY p.fecha DESC
+        `, [userId]);
 
-// ================= INICIO DEL SERVIDOR =================
+        // Si no hay pedidos, devolvemos array vacío de una vez
+        if (rows.length === 0) return res.json([]);
 
+        const pedidosAgrupados = rows.reduce((acc, current) => {
+            // Si id_pedidos es null, usamos el id individual para no romper la vista
+            const key = current.id_pedidos || `old-${current.id}`; 
+            
+            if (!acc[key]) {
+                acc[key] = {
+                    id: key,
+                    fecha: current.fecha,
+                    estado: current.estado,
+                    total: 0,
+                    productos: []
+                };
+            }
+            acc[key].productos.push({
+                nombre: current.nombre,
+                imagen: current.imagen,
+                cantidad: current.cantidad,
+                precio: current.precio_unitario
+            });
+            acc[key].total += Number(current.total);
+            return acc;
+        }, {});
+
+        res.json(Object.values(pedidosAgrupados));
+    } catch (err) { 
+        console.error("❌ Error en mis-pedidos:", err);
+        res.status(500).json({ error: "Error interno al obtener pedidos" }); 
+    }
+});
 app.get('/api/health', (req, res) => res.json({ status: "ok" }));
+app.get('/api/mis-pedidos/:userId', async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const [rows] = await pool.execute(`
+            SELECT 
+                p.id, p.id_pedidos, p.cantidad, p.total_linea as total, p.estado, p.fecha,
+                pr.nombre, pr.imagen
+            FROM pedidos p 
+            LEFT JOIN productos pr ON p.producto_id = pr.id
+            WHERE p.usuario_id = ?
+            ORDER BY p.fecha DESC
+        `, [userId]);
 
+        const pedidosAgrupados = rows.reduce((acc, current) => {
+            const key = current.id_pedidos || `old-${current.id}`; 
+            if (!acc[key]) {
+                acc[key] = {
+                    id: key,
+                    fecha: current.fecha,
+                    estado: current.estado,
+                    total: 0,
+                    productos: []
+                };
+            }
+            acc[key].productos.push({
+                nombre: current.nombre || "Producto no disponible",
+                imagen: current.imagen || "",
+                cantidad: current.cantidad
+            });
+            acc[key].total += Number(current.total);
+            return acc;
+        }, {});
+
+        res.json(Object.values(pedidosAgrupados));
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`🚀 Servidor activo en puerto ${PORT}`);
