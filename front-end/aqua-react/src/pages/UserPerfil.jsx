@@ -1,55 +1,94 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import MensajeModal from '../components/MensajeModal';
 import '../styles/UserProfile.css';
 
 const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
-    const [mostrarForm, setMostrarForm] = useState(false);
-    const [cargando, setCargando] = useState(false);
-    const [tabActivo, setTabActivo] = useState('inventario');
-    const [productos, setProductos] = useState([]);
-    const [pedidos, setPedidos] = useState([]);
+    const [tabActivo, setTabActivo] = useState('historial'); 
+    const [pedidos, setPedidos] = useState([]); 
+    const [productos, setProductos] = useState([]); 
+    const [pedidoSeleccionado, setPedidoSeleccionado] = useState(null); 
     const [cargandoData, setCargandoData] = useState(false);
-    const [modal, setModal] = useState({ abierto: false, tipo: '', titulo: '', texto: '' });
-    const [idAEliminar, setIdAEliminar] = useState(null);
-    const navigate = useNavigate();
+    const [cargandoEnvio, setCargandoEnvio] = useState(false);
 
     const esAdmin = usuario && (usuario.rol == 1 || usuario.rol === 'admin' || usuario.rol_id == 1);
 
-    useEffect(() => {
-        if (tabActivo === 'inventario' && esAdmin) {
-            fetchData('productos', setProductos);
-        } else if (tabActivo === 'pedidos') {
-            fetchData(`mis-pedidos/${usuario.id}`, setPedidos);
-        }
-    }, [tabActivo, esAdmin, usuario.id]);
-
-    const fetchData = (endpoint, setter) => {
+    // Función de carga de datos memorizada para evitar re-creaciones innecesarias
+    const fetchData = useCallback(async (signal) => {
+        if (!usuario?.id) return;
+        
         setCargandoData(true);
-        fetch(`https://macrowatersolutions.com/api/${endpoint}`)
-            .then(res => res.json())
-            .then(data => setter(data))
-            .catch(err => console.error(err))
-            .finally(() => setCargandoData(false));
-    };
-
-    const ejecutarEliminado = async () => {
-        setModal(m => ({ ...m, abierto: false }));
         try {
-            const res = await fetch(`https://macrowatersolutions.com/api/productos/${idAEliminar}`, { method: 'DELETE' });
-            if (res.ok) {
-                setProductos(prev => prev.filter(p => p.id !== idAEliminar));
-                setModal({ abierto: true, tipo: 'exito', titulo: '¡Borrado!', texto: 'Producto eliminado.' });
+            let endpoint = '';
+            if (tabActivo === 'historial') {
+                endpoint = esAdmin ? 'api/admin/pedidos' : `api/mis-pedidos/${usuario.id}`;
+            } else if (tabActivo === 'inventario') {
+                endpoint = 'api/productos';
             }
-        } catch (e) { console.error(e); }
+
+            if (!endpoint) return;
+
+            const res = await fetch(`https://macrowatersolutions.com/${endpoint}`, { signal });
+            if (!res.ok) throw new Error('Error en la respuesta del servidor');
+            
+            const data = await res.json();
+            
+            if (tabActivo === 'inventario') {
+                setProductos(Array.isArray(data) ? data : []);
+            } else {
+                setPedidos(Array.isArray(data) ? data : []);
+            }
+        } catch (err) {
+            if (err.name !== 'AbortError') {
+                console.error('Error al cargar datos:', err);
+            }
+        } finally {
+            setCargandoData(false);
+        }
+    }, [tabActivo, usuario?.id, esAdmin]);
+
+    useEffect(() => {
+        const controller = new AbortController();
+        fetchData(controller.signal);
+        return () => controller.abort(); // Limpieza al desmontar o cambiar tab
+    }, [fetchData]);
+
+    const handleCambiarEstado = async (idPedidoAgrupado, nuevoEstado) => {
+        if (!idPedidoAgrupado) return;
+
+        try {
+            const res = await fetch(`https://macrowatersolutions.com/api/admin/pedidos/status`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    id_pedidos: idPedidoAgrupado, 
+                    nuevoEstado: nuevoEstado 
+                })
+            });
+
+            if (res.ok) {
+                setPedidoSeleccionado(prev => ({ ...prev, estado: nuevoEstado }));
+                setPedidos(prevPedidos => prevPedidos.map(p => 
+                    p.id === idPedidoAgrupado ? { ...p, estado: nuevoEstado } : p
+                ));
+                alert("✅ Estado actualizado correctamente");
+            } else {
+                const errorData = await res.json();
+                alert("❌ Error: " + (errorData.error || "No se pudo actualizar"));
+            }
+        } catch (error) {
+            alert("❌ Error de conexión");
+        }
     };
 
     const handleSubmitDireccion = async (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
+        
+        // Construcción de dirección igual a tu lógica original
         const direccionFinal = `${formData.get('calle')}, Col. ${formData.get('colonia')}, ${formData.get('ciudad')}, CP: ${formData.get('cp')} - Tel: ${formData.get('telefono')}`;
         
-        setCargando(true);
+        setCargandoEnvio(true);
         try {
             const res = await fetch(`https://macrowatersolutions.com/api/auth/UpdateD/${usuario.id}`, {
                 method: 'PUT',
@@ -59,103 +98,206 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
 
             if (res.ok) {
                 if (onActualizarDireccion) onActualizarDireccion(direccionFinal);
-                const usuarioLocal = JSON.parse(localStorage.getItem("usuario_aqua"));
-                if(usuarioLocal) {
-                    usuarioLocal.direccion = direccionFinal;
-                    localStorage.setItem("usuario_aqua", JSON.stringify(usuarioLocal));
-                }
-                alert("Dirección actualizada");
-                window.location.reload();
+                alert("¡Dirección actualizada con éxito!");
             }
-        } catch (error) { console.error(error); } finally { setCargando(false); }
+        } catch (error) { 
+            console.error(error); 
+            alert("Hubo un error al actualizar.");
+        } finally { 
+            setCargandoEnvio(false); 
+        }
     };
 
     if (!usuario) return <div className="loading">Cargando perfil...</div>;
 
     return (
-        <div className="user-panel-container">
-            {/* --- CABECERA DE PERFIL --- */}
-            <div className="profile-header-card">
-                <div className="profile-banner-blue"></div>
-                <div className="profile-content">
-                    <div className="avatar-circle"><i className="fa-regular fa-user"></i></div>
+        <div className="perfil-container-aqua">
+            <header className="profile-header-card-centered">
+                <div className="avatar-circle"><i className="fa-regular fa-user"></i></div>
+                <div className="user-meta-centered">
                     <h3 className="user-name-title">{usuario.nombre}</h3>
-                    <div className="user-info-section">
-                        <span className={esAdmin ? 'badge-admin' : 'badge-cliente'}>{esAdmin ? 'ADMIN' : 'CLIENTE'}</span>
-                        <p className="user-email-text">{usuario.correo}</p>
-                        <div className="address-display-box">
-                            <i className="fa-solid fa-location-dot"></i>
-                            <span>{usuario.direccion || "Sin dirección registrada"}</span>
-                        </div>
-                        <button className="btn-toggle-form edit" onClick={() => setMostrarForm(!mostrarForm)}>
-                            {mostrarForm ? 'Cancelar' : 'Actualizar dirección'}
-                        </button>
+                    <span className="user-email-text">{usuario.correo}</span>
+                    <div className="badge-role-container">
+                        <span className={esAdmin ? 'badge-admin' : 'badge-cliente'}>
+                            {esAdmin ? 'MODO ADMINISTRADOR' : 'CLIENTE'}
+                        </span>
                     </div>
-                    {mostrarForm && (
-                        <form onSubmit={handleSubmitDireccion} className="fancy-form">
-                            <input name="calle" placeholder="Calle y Número" required />
-                            <div className="form-row-fancy">
-                                <input name="colonia" placeholder="Colonia" required />
-                                <input name="telefono" placeholder="Teléfono" required />
-                            </div>
-                            <div className="form-row-fancy">
-                                <input name="ciudad" placeholder="Ciudad" required />
-                                <input name="cp" placeholder="C.P." required />
-                            </div>
-                            <button type="submit" className="confirm-btn-fancy" disabled={cargando}>Confirmar</button>
-                        </form>
-                    )}
                 </div>
-            </div>
+            </header>
 
-            {/* --- PANEL DE CONTROL --- */}
-            <div className="control-panel-card">
-                <div className="control-panel-tabs">
-                    <button className={`tab-item ${tabActivo === 'pedidos' ? 'active' : ''}`} onClick={() => setTabActivo('pedidos')}>Pedidos</button>
-                    {esAdmin && <button className={`tab-item ${tabActivo === 'inventario' ? 'active' : ''}`} onClick={() => setTabActivo('inventario')}>Inventario</button>}
-                </div>
+            <div className="perfil-main-content-static">
+                <aside className="perfil-sidebar-fixed">
+                    <h4 className="sidebar-title">PANEL</h4>
+                    <nav className="sidebar-nav">
+                        <button className={`nav-link ${tabActivo === 'historial' ? 'active' : ''}`} 
+                                onClick={() => {setTabActivo('historial'); setPedidoSeleccionado(null);}}>
+                            <i className="fa-solid fa-file-invoice-dollar"></i> {esAdmin ? 'Ventas Globales' : 'Mis Pedidos'}
+                        </button>
+                        
+                        {esAdmin && (
+                            <button className={`nav-link ${tabActivo === 'inventario' ? 'active' : ''}`} 
+                                    onClick={() => setTabActivo('inventario')}>
+                                <i className="fa-solid fa-boxes-stacked"></i> Gestión Inventario
+                            </button>
+                        )}
 
-                {tabActivo === 'inventario' && esAdmin && (
-                    <div className="inventario-content">
-                        <Link to="/admin" className="btn-agregar-nuevo">+ Agregar</Link>
-                        <div className="productos-list-inventario">
-                            {productos.map(prod => (
-                                <div className="producto-item-inventario" key={prod.id}>
-                                    <h6>{prod.nombre}</h6>
-                                    <span>${prod.precio} | Stock: {prod.stock}</span>
-                                    <div className="producto-item-acciones">
-                                        <button onClick={() => navigate(`/admin/editar/${prod.id}`)}><i className="fa-solid fa-pen"></i></button>
-                                        <button onClick={() => { setIdAEliminar(prod.id); setModal({ abierto: true, tipo: 'pregunta', titulo: '¿Borrar?', texto: 'Confirmar eliminación' }); }}><i className="fa-solid fa-trash-can"></i></button>
+                        <button className={`nav-link ${tabActivo === 'direccion' ? 'active' : ''}`} 
+                                onClick={() => setTabActivo('direccion')}>
+                            <i className="fa-solid fa-location-dot"></i> Mi Dirección
+                        </button>
+                        
+                        <button className="nav-link logout-item" onClick={onCerrarSesion}>
+                            <i className="fa-solid fa-arrow-right-from-bracket"></i> Salir
+                        </button>
+                    </nav>
+                </aside>
+
+                <section className="perfil-view-area-scrollable">
+                    {/* VISTA DE HISTORIAL / PEDIDOS */}
+                    {tabActivo === 'historial' && (
+                        <div className="view-fade-in">
+                            <h3 className="view-title">
+                                {pedidoSeleccionado ? (
+                                    <button onClick={() => setPedidoSeleccionado(null)} className="btn-back-link">
+                                        <i className="fa-solid fa-chevron-left"></i> Volver al listado
+                                    </button>
+                                ) : esAdmin ? "Panel de Ventas Realizadas" : "Mis Compras"}
+                            </h3>
+
+                            {cargandoData ? (
+                                <div className="loader-container"><p className="empty-text">Consultando datos...</p></div>
+                            ) : !pedidoSeleccionado ? (
+                                <div className="pedidos-list-aqua">
+                                    {pedidos.length > 0 ? pedidos.map(p => (
+                                        <div className="pedido-row-item" key={p.id}>
+                                            <div className="pedido-info-left">
+                                                <span className="pedido-id">Folio: {p.id}</span>
+                                                {esAdmin && <span className="cliente-name">Cliente: {p.cliente}</span>}
+                                                <span className="pedido-date">{new Date(p.fecha).toLocaleDateString()}</span>
+                                                <span className={`badge-status ${p.estado?.toLowerCase()}`}>{p.estado?.toUpperCase()}</span>
+                                            </div>
+                                            <div className="pedido-info-right">
+                                                <span className="pedido-price-tag">${Number(p.total).toLocaleString()}</span>
+                                                <button className="btn-ver-detalles" onClick={() => setPedidoSeleccionado(p)}>
+                                                    {esAdmin ? 'Gestionar' : 'Detalles'}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )) : <p className="empty-text">No hay registros aún.</p>}
+                                </div>
+                            ) : (
+                                <div className="detalle-pedido-container view-fade-in">
+                                    <div className="detalle-header-admin">
+                                        <div>
+                                            <strong>Pedido:</strong> #{pedidoSeleccionado.id}<br/>
+                                            {esAdmin && <span><strong>Correo:</strong> {pedidoSeleccionado.correo}</span>}
+                                        </div>
+                                        
+                                        {esAdmin ? (
+                                            <div className="admin-status-control">
+                                                <label>Estado: </label>
+                                                <select 
+                                                    value={pedidoSeleccionado.estado?.toLowerCase() || ""} 
+                                                    onChange={(e) => handleCambiarEstado(pedidoSeleccionado.id, e.target.value)}
+                                                    className="select-admin-aqua"
+                                                >
+                                                    <option value="pagado">Pendiente</option>
+                                                    <option value="enviado">Pagado</option>
+                                                    <option value="entregado">Enviado</option>
+                                                    <option value="cancelado">Cancelado</option>
+                                                </select>
+                                            </div>
+                                        ) : (
+                                            <span className={`badge-status ${pedidoSeleccionado.estado?.toLowerCase()}`}>
+                                                {pedidoSeleccionado.estado?.toUpperCase()}
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    <div className="productos-comprados-lista">
+                                        {pedidoSeleccionado.productos?.map((item, idx) => (
+                                            <div key={idx} className="prod-item-mini">
+                                                <span>{item.nombre}</span>
+                                                <strong>x{item.cantidad}</strong>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <div className="total-detalle">
+                                        <span>Total pagado:</span>
+                                        <span className="monto">${Number(pedidoSeleccionado.total).toLocaleString()}</span>
                                     </div>
                                 </div>
-                            ))}
+                            )}
                         </div>
-                    </div>
-                )}
+                    )}
 
-                {tabActivo === 'pedidos' && (
-                    <div className="pedidos-content">
-                        {pedidos.length === 0 ? <p>No hay pedidos.</p> : (
-                            <div className="pedidos-list">
-                                {pedidos.map(p => (
-                                    <div key={p.id} className="pedido-card-simple" style={{border: '1px solid #eee', padding: '10px', marginBottom: '10px', borderRadius: '8px'}}>
-                                        <div style={{display: 'flex', justifyContent: 'space-between'}}>
-                                            <strong>{p.producto_nombre}</strong>
-                                            <span className={`status-${p.estado}`} style={{color: 'green', fontWeight: 'bold'}}>{p.estado}</span>
+                    {/* VISTA DE INVENTARIO (ADMIN) */}
+                    {tabActivo === 'inventario' && esAdmin && (
+                        <div className="view-fade-in">
+                             <div className="inventory-header">
+                                <h3 className="view-title">Gestión de Stock</h3>
+                                <Link to="/admin" className="btn-add-inv">+ Agregar Producto</Link>
+                            </div>
+                            <div className="pedidos-list-aqua">
+                                {productos.map(prod => (
+                                    <div className="pedido-row-item" key={prod.id}>
+                                        <div className="prod-info-admin">
+                                            <img src={prod.imagen} alt={prod.nombre} />
+                                            <div>
+                                                <div className="pedido-id">{prod.nombre}</div>
+                                                <div className="stock-label">
+                                                    Stock: <strong className={prod.stock < 5 ? 'low-stock' : ''}>{prod.stock}</strong>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <p>Cantidad: {p.cantidad} | Total: ${p.precio_total}</p>
-                                        <small>{new Date(p.fecha).toLocaleDateString()}</small>
+                                        <div className="prod-actions-admin">
+                                            <span className="pedido-price-tag">${prod.precio}</span>
+                                            <Link to={`/admin`} className="btn-ver-detalles">Editar</Link>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
-                        )}
-                    </div>
-                )}
+                        </div>
+                    )}
+
+                    {/* VISTA DE DIRECCIÓN */}
+                    {tabActivo === 'direccion' && (
+                         <div className="view-fade-in">
+                            <h3 className="view-title">Mi Dirección de Envío</h3>
+                            <form onSubmit={handleSubmitDireccion} className="fancy-form">
+                                <div className="form-group-fancy">
+                                    <label>Calle y Número</label>
+                                    <input name="calle" className="input-aqua" defaultValue={usuario.direccion?.split(',')[0]} placeholder="Ej. Av. Siempre Viva 123" required />
+                                </div>
+                                <div className="form-row-fancy">
+                                    <div className="form-group-fancy">
+                                        <label>Colonia</label>
+                                        <input name="colonia" className="input-aqua" placeholder="Colonia" required />
+                                    </div>
+                                    <div className="form-group-fancy">
+                                        <label>Ciudad</label>
+                                        <input name="ciudad" className="input-aqua" placeholder="Ciudad" required />
+                                    </div>
+                                </div>
+                                <div className="form-row-fancy">
+                                    <div className="form-group-fancy">
+                                        <label>Código Postal</label>
+                                        <input name="cp" className="input-aqua" placeholder="C.P." required />
+                                    </div>
+                                    <div className="form-group-fancy">
+                                        <label>Teléfono de Contacto</label>
+                                        <input name="telefono" className="input-aqua" placeholder="10 dígitos" required />
+                                    </div>
+                                </div>
+                                <button type="submit" className="confirm-btn-fancy" disabled={cargandoEnvio}>
+                                    {cargandoEnvio ? "Guardando..." : "Actualizar Dirección"}
+                                </button>
+                            </form>
+                        </div>
+                    )}
+                </section>
             </div>
-
-            <button className="menu-item logout-item" onClick={onCerrarSesion} style={{marginTop: '20px'}}>Cerrar sesión</button>
-
-            {modal.abierto && <MensajeModal info={modal} cerrar={() => setModal(m => ({ ...m, abierto: false }))} onConfirmar={ejecutarEliminado} />}
         </div>
     );
 };
