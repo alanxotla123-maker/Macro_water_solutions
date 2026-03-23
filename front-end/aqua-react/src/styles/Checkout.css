@@ -253,7 +253,7 @@
 
 .continue-btn-main {
     width: 100%;
-    background: #34a853;
+    background: #007BFF;
     color: white;
     border: none;
     padding: 16px;
@@ -265,7 +265,7 @@
 }
 
 .continue-btn-main:hover {
-    background: #2d8e47;
+    background: #0069d9;
 }
 
 /* --- RESUMEN DE COMPRA --- */
