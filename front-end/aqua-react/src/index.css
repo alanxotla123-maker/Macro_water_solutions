@@ -959,3 +959,151 @@ body { background-color: #f5f5f5; }
     justify-content: center;
     margin-bottom: 8px;
 }
+/* --- Contenedor Principal --- */
+.ML-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.ML-card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px 0 rgba(0,0,0,.1);
+    padding: 32px;
+}
+
+/* --- Grid de Información --- */
+.ML-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 40px;
+}
+
+.ML-photo-section img {
+    width: 100%;
+    max-height: 500px;
+    object-fit: contain;
+}
+
+.ML-label-top {
+    font-size: 14px;
+    color: rgba(0,0,0,.55);
+}
+
+.ML-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: #333;
+    margin: 8px 0;
+}
+
+.ML-price-large {
+    font-size: 36px;
+    font-weight: 300;
+    margin: 16px 0;
+    color: #333;
+}
+
+.ML-stock-status {
+    color: #00a650;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+/* --- Botón Azul Estilo ML --- */
+.ML-btn-buy {
+    width: 100%;
+    background-color: #3483fa;
+    color: #fff;
+    border: none;
+    padding: 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    margin: 20px 0;
+    transition: 0.2s;
+}
+
+.ML-btn-buy:hover { background-color: #2968c8; }
+
+/* --- Descripción --- */
+.ML-description-section {
+    margin-top: 40px;
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+}
+
+.ML-description-section h3 { font-size: 18px; margin-bottom: 12px; }
+.ML-description-section p { color: #666; line-height: 1.6; }
+
+/* --- SECCIÓN DE OPINIONES (SOLO LECTURA) --- */
+.ML-reviews-section {
+    margin-top: 50px;
+    border-top: 1px solid #eee;
+    padding-top: 30px;
+}
+
+.ML-review-item {
+    padding: 20px 0;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+.ML-review-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.user-icon-small {
+    width: 30px;
+    height: 30px;
+    background: #f0f0f0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #999;
+}
+
+.ML-review-date {
+    font-size: 12px;
+    color: #999;
+}
+
+.ML-review-text {
+    color: #444;
+    font-size: 15px;
+    line-height: 1.4;
+}
+
+.ML-no-reviews {
+    text-align: center;
+    color: #999;
+    padding: 40px;
+    font-style: italic;
+}
+
+/* --- Estilo para el Grid de Productos --- */
+.img-container {
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.overlay-view {
+    position: absolute;
+    bottom: -100%;
+    left: 0;
+    width: 100%;
+    background: rgba(0, 194, 203, 0.8);
+    color: white;
+    text-align: center;
+    padding: 10px;
+    transition: 0.3s;
+}
+
+.img-container:hover .overlay-view { bottom: 0; }

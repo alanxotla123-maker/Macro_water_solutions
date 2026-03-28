@@ -1143,3 +1143,111 @@
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
+/* Estilos Vista Ficha Técnica (Tipo Mercado Libre) */
+.ML-grid-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    border: 1px solid #e6e6e6;
+}
+
+.ML-col-img img {
+    width: 100%;
+    max-height: 450px;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+.ML-stock-tag {
+    font-size: 0.85rem;
+    color: rgba(0,0,0,.55);
+}
+
+.ML-prod-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin: 10px 0;
+    color: #333;
+}
+
+.ML-prod-price {
+    font-size: 2.4rem;
+    font-weight: 300;
+    margin-bottom: 25px;
+    color: #333;
+}
+
+.ML-description-box h3, .ML-comment-section h3 {
+    font-size: 1.3rem;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 12px;
+    margin-bottom: 15px;
+}
+
+.ML-description-box p {
+    color: #666;
+    line-height: 1.6;
+    font-size: 1rem;
+}
+
+.ML-comment-section textarea {
+    width: 100%;
+    height: 120px;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    margin-bottom: 15px;
+    resize: none;
+    font-size: 1rem;
+}
+
+.btn-back-link-ML {
+    background: none;
+    border: none;
+    color: #3483fa;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Listado de productos dentro del pedido */
+.ML-mini-item {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.ML-mini-item:hover {
+    background: #f9f9f9;
+}
+
+.ML-mini-item img {
+    width: 65px;
+    height: 65px;
+    object-fit: cover;
+    margin-right: 20px;
+    border-radius: 6px;
+    border: 1px solid #eee;
+}
+
+.ML-mini-info { flex: 1; }
+.ML-mini-name { display: block; font-weight: 500; color: #333; font-size: 1.1rem; }
+.ML-link-detail { font-size: 0.85rem; color: #3483fa; }
+
+.ML-mini-meta {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.ML-mini-meta strong { font-size: 1.1rem; color: #333; }
