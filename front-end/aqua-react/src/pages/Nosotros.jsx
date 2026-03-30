@@ -4,7 +4,7 @@ function Nosotros() {
       <div className="nosotros-container">
 
         <div className="nosotros-img">
-          <img src="/imagenes/logo1.1.png" alt="Nosotros" />
+          <img src="/favicon.ico" alt="Nosotros" />
         </div>
 
         <div className="nosotros-texto">
