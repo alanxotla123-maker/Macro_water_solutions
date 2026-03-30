@@ -41,6 +41,32 @@ Nuestra misión es brindar productos de alta calidad que faciliten el tratamient
 
         </div>
       </div>
+      {/* --- NUEVA SECCIÓN: Misión, Visión y Valores --- */}
+      <div className="nosotros-mvv-grid">
+        <div className="mvv-card">
+          <div className="mvv-icon-wrapper">
+            <i className="fa-solid fa-bullseye"></i>
+          </div>
+          <h3>Misión</h3>
+          <p>Proveer soluciones integrales y productos de alta especialidad para el mantenimiento de albercas, garantizando agua limpia, segura y cristalina mediante innovación y fórmulas responsables con el medio ambiente, facilitando así el cuidado y la durabilidad de cada instalación.</p>
+        </div>
+
+        <div className="mvv-card">
+          <div className="mvv-icon-wrapper">
+            <i className="fa-solid fa-eye"></i>
+          </div>
+          <h3>Visión</h3>
+          <p>Ser el referente líder en el mercado de soluciones profesionales para el tratamiento de agua, reconocidos por nuestra excelencia técnica, nuestro compromiso con la sostenibilidad y por transformar el mantenimiento de piscinas en una experiencia sencilla y eficiente para todos nuestros clientes.</p>
+        </div>
+
+        <div className="mvv-card">
+          <div className="mvv-icon-wrapper">
+            <i className="fa-solid fa-gem"></i>
+          </div>
+          <h3>Valores</h3>
+          <p>Calidad Garantizada: No negociamos con el estándar de nuestros productos; si es Macro, funciona y es seguro.</p>
+        </div>
+      </div>
     </section>
   );
 }

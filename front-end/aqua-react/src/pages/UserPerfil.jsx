@@ -10,11 +10,16 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
     const [pedidoSeleccionado, setPedidoSeleccionado] = useState(null); 
     const [productoDetalle, setProductoDetalle] = useState(null); 
     const [nuevoComentario, setNuevoComentario] = useState("");
+    const [estrellasSeleccionadas, setEstrellasSeleccionadas] = useState(5);
+    const [yaCalificado, setYaCalificado] = useState(false);
     const [cargandoData, setCargandoData] = useState(false);
     const [cargandoEnvio, setCargandoEnvio] = useState(false);
+    const [modal, setModal] = useState({ abierto: false, tipo: "", titulo: "", texto: "" });
 
+    const navigate = useNavigate();
     const esAdmin = usuario && (usuario.rol == 1 || usuario.rol === 'admin' || usuario.rol_id == 1);
 
+    // 1. CARGA DE DATOS
     const fetchData = useCallback(async (signal) => {
         if (!usuario?.id) return;
         setCargandoData(true);
@@ -25,12 +30,10 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
             } else if (tabActivo === 'inventario') {
                 endpoint = 'api/productos';
             }
-
             if (!endpoint) return;
 
             const res = await fetch(`https://macrowatersolutions.com/${endpoint}`, { signal });
-            if (!res.ok) throw new Error('Error en la respuesta del servidor');
-            
+            if (!res.ok) throw new Error('Error en el servidor');
             const data = await res.json();
             
             if (tabActivo === 'inventario') {
@@ -51,6 +54,19 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
         return () => controller.abort();
     }, [fetchData]);
 
+    const abrirDetalleConVerificacion = async (prod) => {
+        setProductoDetalle(prod);
+        setYaCalificado(false);
+        const pId = prod.id || prod.producto_id;
+        try {
+            const res = await fetch(`https://macrowatersolutions.com/api/productos/${pId}/comentarios`);
+            const data = await res.json();
+            const lista = data.comentarios || (Array.isArray(data) ? data : []);
+            const encontro = lista.some(c => c.nombre === usuario.nombre);
+            if (encontro) setYaCalificado(true);
+        } catch (e) { console.error(e); }
+    };
+
     const handleCambiarEstado = async (idPedidoAgrupado, nuevoEstado) => {
         try {
             const res = await fetch(`https://macrowatersolutions.com/api/admin/pedidos/status`, {
@@ -59,51 +75,40 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
                 body: JSON.stringify({ id_pedidos: idPedidoAgrupado, nuevoEstado })
             });
             if (res.ok) {
-                setPedidoSeleccionado(prev => ({ ...prev, estado: nuevoEstado }));
                 setPedidos(prev => prev.map(p => p.id === idPedidoAgrupado ? { ...p, estado: nuevoEstado } : p));
-                alert("✅ Estado actualizado");
+                setModal({
+                    abierto: true,
+                    tipo: "exito",
+                    titulo: "Estado actualizado",
+                    texto: "El estado del pedido se ha actualizado correctamente."
+                });
             }
-        } catch (error) { alert("❌ Error de conexión"); }
-    };
-const handleEnviarComentario = async () => {
-    // Imprimimos en la consola del navegador para debug
-    console.log("Datos del producto seleccionado:", productoDetalle);
-
-    // Buscamos el ID en cualquier propiedad posible
-    const pId = productoDetalle?.id || 
-                productoDetalle?.producto_id || 
-                productoDetalle?.id_producto;
-
-    if (!nuevoComentario.trim()) return alert("Por favor escribe un comentario.");
-    
-    if (!pId) {
-        console.error("No se encontró ID. Objeto recibido:", productoDetalle);
-        return alert("Error: No se pudo identificar el producto (ID no encontrado).");
-    }
-
-    try {
-        const res = await fetch(`https://macrowatersolutions.com/api/productos/comentario`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                producto_id: pId,
-                usuario_id: usuario.id,
-                comentario: nuevoComentario
-            })
-        });
-
-        if (res.ok) {
-            alert("✅ ¡Gracias! Tu comentario ha sido publicado.");
-            setNuevoComentario("");
-        } else {
-            const errorText = await res.text();
-            alert("❌ Error del servidor: " + errorText);
+        } catch (error) { 
+            setModal({ abierto: true, tipo: "error", titulo: "Error", texto: "Sin conexión." });
         }
-    } catch (error) { 
-        console.error(error);
-        alert("❌ Error de conexión con el servidor.");
-    }
-};
+    };
+
+    const handleEnviarComentario = async () => {
+        const pId = productoDetalle?.id || productoDetalle?.producto_id;
+        if (!nuevoComentario.trim()) {
+            setModal({ abierto: true, tipo: "error", titulo: "Atención", texto: "Escribe un comentario." });
+            return;
+        }
+        try {
+            const res = await fetch(`https://macrowatersolutions.com/api/productos/comentario`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    producto_id: pId, usuario_id: usuario.id, comentario: nuevoComentario, calificacion: estrellasSeleccionadas
+                })
+            });
+            if (res.ok) {
+                setModal({ abierto: true, tipo: "exito", titulo: "¡Gracias!", texto: "Comentario publicado." });
+                setYaCalificado(true);
+            }
+        } catch (error) { console.error(error); }
+    };
+
     const handleSubmitDireccion = async (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
@@ -117,7 +122,7 @@ const handleEnviarComentario = async () => {
             });
             if (res.ok) {
                 if (onActualizarDireccion) onActualizarDireccion(direccionFinal);
-                alert("¡Dirección actualizada!");
+                setModal({ abierto: true, tipo: "exito", titulo: "Éxito", texto: "Dirección guardada." });
             }
         } catch (error) { console.error(error); } finally { setCargandoEnvio(false); }
     };
@@ -164,154 +169,197 @@ const handleEnviarComentario = async () => {
                 </aside>
 
                 <section className="perfil-view-area-scrollable">
-                    
-                    {/* VISTA 1: DETALLE DE PRODUCTO TIPO ML */}
                     {productoDetalle ? (
                         <div className="ML-detalle-producto view-fade-in">
                             <button onClick={() => setProductoDetalle(null)} className="btn-back-link-ML">
-                                <i className="fa-solid fa-arrow-left"></i> Volver al listado
+                                <i className="fa-solid fa-arrow-left"></i> Volver
                             </button>
-                            
                             <div className="ML-grid-container">
-                                <div className="ML-col-img">
-                                    <img src={productoDetalle.imagen} alt={productoDetalle.nombre} />
-                                </div>
+                                <div className="ML-col-img"><img src={productoDetalle.imagen} alt="" /></div>
                                 <div className="ML-col-info">
-                                    <span className="ML-stock-tag">Nuevo | {productoDetalle.stock || 0} disponibles</span>
-                                    <h1 className="ML-prod-title">{productoDetalle.nombre}</h1>
+                                    <h1>{productoDetalle.nombre}</h1>
                                     <div className="ML-prod-price">${Number(productoDetalle.precio || productoDetalle.precio_unitario).toLocaleString()}</div>
-                                    
-                                    <div className="ML-description-box">
-                                        <h3>Descripción</h3>
-                                        <p>{productoDetalle.descripcion || "Sin descripción disponible."}</p>
-                                    </div>
-
                                     <div className="ML-comment-section">
-                                        <h3>Pregúntale al vendedor</h3>
-                                        <textarea 
-                                            placeholder="Escribe tu opinión o duda sobre el producto..."
-                                            value={nuevoComentario}
-                                            onChange={(e) => setNuevoComentario(e.target.value)}
-                                        />
-                                        <button onClick={handleEnviarComentario} className="confirm-btn-fancy">Enviar Comentario</button>
+                                        <h3>Califica tu producto</h3>
+                                        {!yaCalificado ? (
+                                            <>
+                                                <div className="star-rating-selector">
+                                                    {[1, 2, 3, 4, 5].map((num) => (
+                                                        <i key={num} className={`fa-star ${estrellasSeleccionadas >= num ? 'fa-solid' : 'fa-regular'}`}
+                                                           style={{ color: "#ffb300", fontSize: '1.5rem', cursor: 'pointer' }}
+                                                           onClick={() => setEstrellasSeleccionadas(num)}></i>
+                                                    ))}
+                                                </div>
+                                                <textarea placeholder="Cuéntanos tu experiencia..." value={nuevoComentario} onChange={(e) => setNuevoComentario(e.target.value)} />
+                                                <button onClick={handleEnviarComentario} className="confirm-btn-fancy">Enviar Calificación</button>
+                                            </>
+                                        ) : (
+                                            <div className="already-reviewed-msg">Ya calificaste este producto.</div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
                         </div>
                     ) : (
-                        /* VISTA 2: LISTADOS GENERALES */
                         <div className="view-fade-in">
                             {tabActivo === 'historial' && (
                                 <>
-                                    <h3 className="view-title">
-                                        {pedidoSeleccionado ? (
-                                            <button onClick={() => setPedidoSeleccionado(null)} className="btn-back-link">
-                                                <i className="fa-solid fa-chevron-left"></i> Volver a pedidos
-                                            </button>
-                                        ) : esAdmin ? "Panel de Ventas Realizadas" : "Mis Compras"}
-                                    </h3>
-
-                                    {cargandoData ? (
-                                        <p className="empty-text">Cargando...</p>
-                                    ) : !pedidoSeleccionado ? (
+                                    <h3 className="view-title">{esAdmin ? "Panel de Ventas Realizadas" : "Mis Compras"}</h3>
+                                    
+                                    {esAdmin ? (
+                                        /* VISTA TABLA DIRECTA PARA ADMIN (ESTILO SOLICITADO) */
+                                        <div className="gestion-pedido-panel view-fade-in">
+                                            <table className="gestion-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>ID PEDIDO</th>
+                                                        <th>CLIENTE</th>
+                                                        <th>FECHA</th>
+                                                        <th>PRODUCTOS</th>
+                                                        <th>ESTADO / TOTAL</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {pedidos.map((p) => (
+                                                        <tr key={p.id}>
+                                                            <td className="col-folio">#ORD-{p.id}</td>
+                                                            <td className="col-cliente">
+                                                                <div className="cliente-flex">
+                                                                    <div className="avatar-mini">{p.cliente?.charAt(0)}</div>
+                                                                    <div className="cliente-datos">
+                                                                        <strong>{p.cliente}</strong>
+                                                                        <p><i className="fa-solid fa-location-dot"></i> {p.direccion || 'No registrada'}</p>
+                                                                        <p><i className="fa-solid fa-phone"></i> {p.telefono || 'Sin teléfono'}</p>
+                                                                        <p><i className="fa-solid fa-envelope"></i> {p.correo}</p>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td className="col-fecha">
+                                                                {new Date(p.fecha).toLocaleDateString()}<br/>
+                                                                <small>{new Date(p.fecha).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
+                                                            </td>
+                                                            <td className="col-productos-lista">
+                                                                {p.productos?.map((item, idx) => (
+                                                                    <div key={idx} className="prod-mini-item">
+                                                                        <div className="img-placeholder-mini">
+                                                                            <img src={item.imagen} alt="" />
+                                                                        </div>
+                                                                        <div className="prod-mini-info">
+                                                                            <strong>{item.nombre}</strong>
+                                                                            <span>Cant: {item.cantidad}</span>
+                                                                        </div>
+                                                                    </div>
+                                                                ))}
+                                                            </td>
+                                                            <td className="col-status-final">
+                                                                <div className="status-box">
+                                                                    <select 
+                                                                        value={p.estado?.toLowerCase()} 
+                                                                        onChange={(e) => handleCambiarEstado(p.id, e.target.value)}
+                                                                        className="select-gestion"
+                                                                    >
+                                                                        <option value="pagado">Pagado</option>
+                                                                        <option value="en proceso">En proceso</option>
+                                                                        <option value="enviado">Enviado</option>
+                                                                        <option value="entregado">Entregado</option>
+                                                                    </select>
+                                                                    <div className="total-destacado">${Number(p.total).toLocaleString()}</div>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    ) : (
+                                        /* VISTA DE LISTA PARA USUARIO NORMAL */
                                         <div className="pedidos-list-aqua">
                                             {pedidos.map(p => (
                                                 <div className="pedido-row-item" key={p.id}>
                                                     <div className="pedido-info-left">
                                                         <span className="pedido-id">Folio: {p.id}</span>
-                                                        {esAdmin && <span className="cliente-name">Cliente: {p.cliente}</span>}
                                                         <span className="pedido-date">{new Date(p.fecha).toLocaleDateString()}</span>
                                                         <span className={`badge-status ${p.estado?.toLowerCase()}`}>{p.estado?.toUpperCase()}</span>
                                                     </div>
                                                     <div className="pedido-info-right">
                                                         <span className="pedido-price-tag">${Number(p.total).toLocaleString()}</span>
-                                                        <button className="btn-ver-detalles" onClick={() => setPedidoSeleccionado(p)}>Gestionar</button>
+                                                        <button className="btn-ver-detalles" onClick={() => setPedidoSeleccionado(p)}>Ver Detalles</button>
                                                     </div>
                                                 </div>
                                             ))}
-                                        </div>
-                                    ) : (
-                                        <div className="detalle-pedido-container">
-                                            <div className="detalle-header-admin">
-                                                <strong>Folio: #{pedidoSeleccionado.id}</strong>
-                                                {esAdmin && (
-                                                    <select value={pedidoSeleccionado.estado?.toLowerCase() || ""} onChange={(e) => handleCambiarEstado(pedidoSeleccionado.id, e.target.value)}>
-                                                        <option value="pagado">Pagado</option>
-                                                        <option value="enviado">Enviado</option>
-                                                        <option value="entregado">Entregado</option>
-                                                        <option value="cancelado">Cancelado</option>
-                                                    </select>
-                                                )}
-                                            </div>
-                                            <div className="ML-mini-list-container">
-                                                {pedidoSeleccionado.productos?.map((item, idx) => (
-                                                    <div key={idx} className="ML-mini-item" onClick={() => setProductoDetalle(item)} style={{cursor:'pointer'}}>
-                                                        <img src={item.imagen} alt="" width="60" />
-                                                        <div className="ML-mini-info">
-                                                            <span className="ML-mini-name">{item.nombre}</span>
-                                                            <span className="ML-link-detail">Haz clic para comentar</span>
-                                                        </div>
-                                                        <div className="ML-mini-meta">
-                                                            <span>Cant: {item.cantidad}</span>
-                                                            <strong>${Number(item.precio || item.total_linea).toLocaleString()}</strong>
-                                                        </div>
+                                            {pedidoSeleccionado && (
+                                                <div className="detalle-pedido-container view-fade-in">
+                                                    <button onClick={() => setPedidoSeleccionado(null)} className="btn-back-link">Cerrar detalle</button>
+                                                    <div className="ML-mini-list-container">
+                                                        {pedidoSeleccionado.productos?.map((item, idx) => (
+                                                            <div key={idx} className="ML-mini-item" onClick={() => abrirDetalleConVerificacion(item)} style={{cursor:'pointer'}}>
+                                                                <img src={item.imagen} alt="" width="60" />
+                                                                <div className="ML-mini-info">
+                                                                    <span className="ML-mini-name">{item.nombre}</span>
+                                                                    <span className="ML-link-detail">Calificar compra</span>
+                                                                </div>
+                                                                <div className="ML-mini-meta">
+                                                                    <strong>${Number(item.precio || item.total_linea).toLocaleString()}</strong>
+                                                                </div>
+                                                            </div>
+                                                        ))}
                                                     </div>
-                                                ))}
-                                            </div>
+                                                </div>
+                                            )}
                                         </div>
                                     )}
                                 </>
                             )}
 
                             {tabActivo === 'inventario' && esAdmin && (
-                                <div className="view-fade-in">
-                                    <div className="inventory-header">
+                                <div className="inventory-list-container view-fade-in">
+                                    <div className="inventory-header-flex">
                                         <h3 className="view-title">Gestión de Stock</h3>
-                                        <Link to="/admin" className="btn-add-inv">+ Agregar Producto</Link>
+                                        <Link to="/admin" className="btn-agregar-nuevo">+ Agregar Nuevo</Link>
                                     </div>
-                                    <div className="pedidos-list-aqua">
-                                        {productos.map(prod => (
-                                            <div className="pedido-row-item" key={prod.id} onClick={() => setProductoDetalle(prod)} style={{cursor:'pointer'}}>
-                                                <div className="prod-info-admin">
-                                                    <img src={prod.imagen} alt="" width="50" />
-                                                    <div>
-                                                        <div className="pedido-id">{prod.nombre}</div>
-                                                        <div className="stock-label">Stock: <strong>{prod.stock}</strong></div>
+                                    {productos.map(prod => (
+                                        <div className="inventory-row-item" key={prod.id}>
+                                            <div className="inventory-col-main">
+                                                <div className="inventory-img-box"><img src={prod.imagen} alt="" /></div>
+                                                <div className="inventory-info-text">
+                                                    <h4>{prod.nombre}</h4>
+                                                    <div className="inventory-meta">
+                                                        <span>${Number(prod.precio).toLocaleString()}</span>
+                                                        <span className={`meta-stock ${prod.stock <= 0 ? 'agotado' : ''}`}>Stock: {prod.stock}</span>
                                                     </div>
                                                 </div>
-                                                <span className="pedido-price-tag">${prod.precio}</span>
                                             </div>
-                                        ))}
-                                    </div>
+                                            <div className="inventory-actions">
+                                                <button className="btn-action-edit" onClick={() => navigate(`/admin/editar/${prod.id}`)}><i className="fa-regular fa-pen-to-square"></i></button>
+                                                <button className="btn-action-delete" onClick={() => setModal({ abierto: true, tipo: "pregunta", titulo: "¿Eliminar?", texto: `¿Borrar ${prod.nombre}?` })}><i className="fa-regular fa-trash-can"></i></button>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             )}
 
                             {tabActivo === 'direccion' && (
-                                <div className="view-fade-in">
-                                    <h3 className="view-title">Mi Dirección de Envío</h3>
-                                    <form onSubmit={handleSubmitDireccion} className="fancy-form">
-                                        <div className="form-group-fancy">
-                                            <label>Calle y Número</label>
-                                            <input name="calle" className="input-aqua" defaultValue={usuario.direccion?.split(',')[0]} required />
-                                        </div>
-                                        <div className="form-row-fancy">
-                                            <div className="form-group-fancy"><label>Colonia</label><input name="colonia" className="input-aqua" required /></div>
-                                            <div className="form-group-fancy"><label>Ciudad</label><input name="ciudad" className="input-aqua" required /></div>
-                                        </div>
-                                        <div className="form-row-fancy">
-                                            <div className="form-group-fancy"><label>CP</label><input name="cp" className="input-aqua" required /></div>
-                                            <div className="form-group-fancy"><label>Teléfono</label><input name="telefono" className="input-aqua" required /></div>
-                                        </div>
-                                        <button type="submit" className="confirm-btn-fancy" disabled={cargandoEnvio}>
-                                            {cargandoEnvio ? "Guardando..." : "Actualizar Dirección"}
-                                        </button>
-                                    </form>
-                                </div>
+                                <form onSubmit={handleSubmitDireccion} className="fancy-form">
+                                    <div className="form-group-fancy">
+                                        <label>Calle y Número</label>
+                                        <input name="calle" className="input-aqua" defaultValue={usuario.direccion?.split(',')[0]} required />
+                                    </div>
+                                    <div className="form-row-fancy">
+                                        <div className="form-group-fancy"><label>Colonia</label><input name="colonia" className="input-aqua" required /></div>
+                                        <div className="form-group-fancy"><label>Ciudad</label><input name="ciudad" className="input-aqua" required /></div>
+                                    </div>
+                                    <div className="form-row-fancy">
+                                        <div className="form-group-fancy"><label>CP</label><input name="cp" className="input-aqua" required /></div>
+                                        <div className="form-group-fancy"><label>Teléfono</label><input name="telefono" className="input-aqua" required /></div>
+                                    </div>
+                                    <button type="submit" className="confirm-btn-fancy" disabled={cargandoEnvio}>Actualizar Dirección</button>
+                                </form>
                             )}
                         </div>
                     )}
                 </section>
             </div>
+            {modal.abierto && <MensajeModal info={modal} cerrar={() => setModal({ ...modal, abierto: false })} />}
         </div>
     );
 };

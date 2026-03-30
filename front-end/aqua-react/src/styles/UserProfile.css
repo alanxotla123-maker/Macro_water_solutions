@@ -1251,3 +1251,557 @@
 }
 
 .ML-mini-meta strong { font-size: 1.1rem; color: #333; }
+.status-tracker-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    border-left: 5px solid #007cc3;
+}
+
+.status-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 0.85rem;
+    color: #ccc;
+    gap: 5px;
+}
+
+.status-step i {
+    font-size: 1.2rem;
+}
+
+.status-step.completed {
+    color: #00a650; /* Verde Mercado Libre para completado */
+}
+
+.status-label-main {
+    font-weight: 600;
+    color: #333;
+    border-left: 1px solid #ddd;
+    padding-left: 20px;
+}
+
+/* Colores para las etiquetas de estado */
+.badge-status.pagado { background: #e3f2fd; color: #1976d2; }
+.badge-status.enviado { background: #fff3e0; color: #ef6c00; }
+.badge-status.entregado { background: #e8f5e9; color: #2e7d32; }
+.badge-status.cancelado { background: #ffebee; color: #c62828; }
+/* --- CONTENEDOR DE INVENTARIO TIPO LISTA --- */
+.inventory-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.btn-agregar-nuevo {
+    background-color: #24a0ed;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.3s;
+}
+
+.btn-agregar-nuevo:hover {
+    background-color: #1a8cd8;
+}
+
+.inventory-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.inventory-row-item {
+    background: #f8f9fa; /* Fondo gris muy tenue como en la imagen */
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.inventory-row-item:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.inventory-col-main {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.inventory-img-box {
+    width: 60px;
+    height: 60px;
+    background: #ddd;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.inventory-img-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.inventory-info-text h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #1a1a1a;
+    font-weight: 700;
+}
+
+.inventory-meta {
+    display: flex;
+    gap: 15px;
+    margin-top: 4px;
+    font-size: 0.9rem;
+}
+
+.meta-price {
+    color: #999;
+    font-weight: 500;
+}
+
+.meta-stock {
+    font-weight: 600;
+    color: #4cd137; /* Verde para stock normal */
+}
+
+.meta-stock.bajo-stock {
+    color: #fbc531; /* Amarillo */
+}
+
+.meta-stock.agotado {
+    color: #e84118; /* Rojo */
+}
+
+/* ACCIONES (ICONOS) */
+.inventory-actions {
+    display: flex;
+    gap: 15px;
+}
+
+.inventory-actions button {
+    background: none;
+    border: none;
+    font-size: 1.3rem;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.btn-action-edit {
+    color: #24a0ed;
+}
+
+.btn-action-delete {
+    color: #e84118;
+}
+
+.inventory-actions button:hover {
+    opacity: 0.7;
+}
+/* =========================================
+   CONTENEDOR PRINCIPAL Y HEADER
+   ========================================= */
+.perfil-container-aqua {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+.profile-header-card-centered {
+    text-align: center;
+    padding: 30px;
+    border-bottom: 1px solid #eee;
+}
+
+.avatar-circle {
+    width: 80px;
+    height: 80px;
+    background: #e3f2fd;
+    color: #24a0ed;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+    margin: 0 auto 15px;
+}
+
+/* =========================================
+   TABLA DE VENTAS (MODO ADMIN) - ESTILO IMAGEN
+   ========================================= */
+.orders-table-container {
+    overflow-x: auto;
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #eee;
+}
+
+.admin-orders-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px;
+}
+
+.admin-orders-table thead th {
+    background: #f8f9fa;
+    color: #888;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    padding: 15px;
+    text-align: left;
+    border-bottom: 2px solid #eee;
+}
+
+.admin-orders-table tbody tr {
+    border-bottom: 1px solid #f1f1f1;
+    transition: background 0.2s;
+}
+
+.admin-orders-table tbody tr:hover {
+    background: #fafafa;
+}
+
+.admin-orders-table td {
+    padding: 15px;
+    vertical-align: middle;
+    color: #444;
+}
+
+/* Columna Cliente con Avatar */
+.client-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.client-avatar {
+    width: 35px;
+    height: 35px;
+    background: #4cd137; /* Verde como la imagen */
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.client-detail {
+    margin: 2px 0;
+    font-size: 0.8rem;
+    color: #888;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Mini Productos en la fila */
+.mini-prod-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 5px;
+    font-size: 0.85rem;
+}
+
+.mini-prod-row img {
+    width: 35px;
+    height: 35px;
+    border-radius: 4px;
+    object-fit: cover;
+    background: #f1f1f1;
+}
+
+/* Status Select */
+.select-status {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: #fff;
+}
+
+.order-total {
+    margin-top: 5px;
+    font-weight: 800;
+    font-size: 1rem;
+    color: #1a1a1a;
+}
+
+/* =========================================
+   BARRA DE SEGUIMIENTO (TRACKER)
+   ========================================= */
+.status-tracker-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fdfdfd;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #eee;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.status-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 0.8rem;
+    color: #ccc;
+    font-weight: 600;
+    gap: 5px;
+}
+
+.status-step i {
+    font-size: 1.2rem;
+}
+
+.status-step.completed {
+    color: #00a650; /* Verde éxito */
+}
+
+/* =========================================
+   GESTIÓN DE INVENTARIO (LISTA HORIZONTAL)
+   ========================================= */
+.inventory-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.inventory-row-item {
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    transition: box-shadow 0.3s;
+}
+
+.inventory-row-item:hover {
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.inventory-col-main {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.inventory-img-box {
+    width: 55px;
+    height: 55px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.inventory-img-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.inventory-info-text h4 {
+    margin: 0;
+    font-size: 1rem;
+    color: #333;
+}
+
+.inventory-meta {
+    font-size: 0.85rem;
+    display: flex;
+    gap: 10px;
+}
+
+.meta-price { color: #888; }
+.meta-stock { font-weight: bold; color: #00a650; }
+.meta-stock.bajo-stock { color: #f39c12; }
+.meta-stock.agotado { color: #e74c3c; }
+
+/* Botones de acción */
+.inventory-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.inventory-actions button {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 5px;
+    transition: transform 0.2s;
+}
+
+.btn-action-edit { color: #24a0ed; }
+.btn-action-delete { color: #e74c3c; }
+
+.inventory-actions button:hover {
+    transform: scale(1.15);
+}
+
+/* =========================================
+   BADGES DE ESTADO (COLORES)
+   ========================================= */
+.badge-status {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.badge-status.pagado { background: #e3f2fd; color: #1565c0; }
+.badge-status.pendiente { background: #fff3e0; color: #e65100; }
+.badge-status.enviado { background: #f3e5f5; color: #7b1fa2; }
+.badge-status.entregado { background: #e8f5e9; color: #2e7d32; }
+.badge-status.cancelado { background: #ffebee; color: #c62828; }
+/* Contenedor del Panel de Gestión */
+.gestion-pedido-panel {
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    overflow: hidden;
+    margin-top: 20px;
+}
+
+.gestion-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.gestion-table th {
+    background: #f4f4f4;
+    color: #666;
+    padding: 15px;
+    text-align: left;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    border-bottom: 1px solid #ddd;
+}
+
+.gestion-table td {
+    padding: 20px 15px;
+    vertical-align: top;
+    border-bottom: 1px solid #eee;
+}
+
+/* Folio */
+.col-folio {
+    color: #009ee3;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+/* Cliente */
+.cliente-flex {
+    display: flex;
+    gap: 12px;
+}
+
+.avatar-mini {
+    width: 35px;
+    height: 35px;
+    background: #00c853;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.cliente-datos strong {
+    display: block;
+    font-size: 1rem;
+    margin-bottom: 5px;
+}
+
+.cliente-datos p {
+    margin: 2px 0;
+    font-size: 0.8rem;
+    color: #777;
+}
+
+/* Productos */
+.prod-mini-item {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+.img-placeholder-mini {
+    width: 45px;
+    height: 45px;
+    background: #eee;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.img-placeholder-mini img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.prod-mini-info strong {
+    display: block;
+    font-size: 0.9rem;
+}
+
+.prod-mini-info span {
+    font-size: 0.75rem;
+    color: #888;
+}
+
+/* Status y Total */
+.select-gestion {
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    background: #d1d8e0;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.total-destacado {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.metodo-pago {
+    color: #999;
+    font-size: 0.7rem;
+}
