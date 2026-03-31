@@ -49,6 +49,18 @@ function ProductosPage({ agregarAlCarrito, usuario }) {
         setProductos(filtrados);
     }, [queryBusqueda, productosOriginales]);
 
+    // --- FUNCIÓN PARA COMPRA RÁPIDA ---
+    const handleComprarAhora = (producto) => {
+        agregarAlCarrito(producto, (ok, msg) => {
+            if (ok) {
+                // Redirige al checkout/carrito una vez agregado
+                navigate('/checkout'); 
+            } else {
+                mostrarToast("Error al procesar la compra rápida", true);
+            }
+        });
+    };
+
     // --- FUNCIÓN PARA ABRIR DETALLE Y CARGAR COMENTARIOS ---
     const abrirDetalle = async (prod) => {
         setProductoEnDetalle(prod);
@@ -57,8 +69,6 @@ function ProductosPage({ agregarAlCarrito, usuario }) {
             const res = await fetch(`https://macrowatersolutions.com/api/productos/${prod.id}/comentarios`);
             const data = await res.json();
             
-            // VALIDACIÓN: Si el backend envía el objeto con .comentarios lo usamos, 
-            // si envía el array directo también lo manejamos para que NO falle
             if (data.comentarios) {
                 setComentarios(data.comentarios);
                 setPromedioRating(data.promedio || 0);
@@ -124,7 +134,14 @@ function ProductosPage({ agregarAlCarrito, usuario }) {
                                 <div className="ML-price-large">${Number(productoEnDetalle.precio).toLocaleString()}</div>
                                 
                                 <div className="ML-actions-group">
-                                    <button className="ML-btn-buy-now">Comprar ahora</button>
+                                    {/* BOTÓN ACTUALIZADO */}
+                                    <button 
+                                        className="ML-btn-buy-now" 
+                                        onClick={() => handleComprarAhora(productoEnDetalle)}
+                                    >
+                                        Comprar ahora
+                                    </button>
+                                    
                                     <button className="ML-btn-add-cart" 
                                         onClick={() => agregarAlCarrito(productoEnDetalle, (ok, msg) => mostrarToast(msg, !ok))}>
                                         Agregar al carrito
@@ -138,7 +155,6 @@ function ProductosPage({ agregarAlCarrito, usuario }) {
                             </div>
                         </div>
 
-                        {/* --- ESTA ES LA PARTE QUE MUESTRA LOS COMENTARIOS --- */}
                         <div className="ML-reviews-section">
                             <h3>Opiniones de clientes</h3>
                             <div className="ML-reviews-list">

@@ -127,6 +127,31 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
         } catch (error) { console.error(error); } finally { setCargandoEnvio(false); }
     };
 
+    // --- NUEVA FUNCIÓN PARA ACTUALIZAR DIRECCIÓN DEL PEDIDO ---
+    const handleActualizarDireccionPedido = async (idPedidoAgrupado) => {
+        try {
+            const res = await fetch(`https://macrowatersolutions.com/api/pedidos/actualizar-direccion/${idPedidoAgrupado}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nuevaDireccion: usuario.direccion })
+            });
+            if (res.ok) {
+                setModal({ 
+                    abierto: true, 
+                    tipo: "exito", 
+                    titulo: "¡Dirección Actualizada!", 
+                    texto: "Se usará tu dirección actual para la entrega de este pedido." 
+                });
+                fetchData(); // Recargar la lista
+            } else {
+                const errData = await res.json();
+                setModal({ abierto: true, tipo: "error", titulo: "No se puede cambiar", texto: errData.error || "Error al actualizar." });
+            }
+        } catch (error) {
+            setModal({ abierto: true, tipo: "error", titulo: "Error", texto: "Sin conexión con el servidor." });
+        }
+    };
+
     if (!usuario) return <div className="loading">Cargando perfil...</div>;
 
     return (
@@ -207,7 +232,6 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
                                     <h3 className="view-title">{esAdmin ? "Panel de Ventas Realizadas" : "Mis Compras"}</h3>
                                     
                                     {esAdmin ? (
-                                        /* VISTA TABLA DIRECTA PARA ADMIN (ESTILO SOLICITADO) */
                                         <div className="gestion-pedido-panel view-fade-in">
                                             <table className="gestion-table">
                                                 <thead>
@@ -228,7 +252,7 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
                                                                     <div className="avatar-mini">{p.cliente?.charAt(0)}</div>
                                                                     <div className="cliente-datos">
                                                                         <strong>{p.cliente}</strong>
-                                                                        <p><i className="fa-solid fa-location-dot"></i> {p.direccion || 'No registrada'}</p>
+                                                                        <p><i className="fa-solid fa-location-dot"></i> {p.direccion_historica || p.direccion || 'No registrada'}</p>
                                                                         <p><i className="fa-solid fa-phone"></i> {p.telefono || 'Sin teléfono'}</p>
                                                                         <p><i className="fa-solid fa-envelope"></i> {p.correo}</p>
                                                                     </div>
@@ -272,7 +296,6 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
                                             </table>
                                         </div>
                                     ) : (
-                                        /* VISTA DE LISTA PARA USUARIO NORMAL */
                                         <div className="pedidos-list-aqua">
                                             {pedidos.map(p => (
                                                 <div className="pedido-row-item" key={p.id}>
@@ -289,7 +312,21 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
                                             ))}
                                             {pedidoSeleccionado && (
                                                 <div className="detalle-pedido-container view-fade-in">
-                                                    <button onClick={() => setPedidoSeleccionado(null)} className="btn-back-link">Cerrar detalle</button>
+                                                    <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '15px'}}>
+                                                        <button onClick={() => setPedidoSeleccionado(null)} className="btn-back-link">Cerrar detalle</button>
+                                                        
+                                                        {/* BOTÓN PARA ACTUALIZAR DIRECCIÓN DEL PEDIDO */}
+                                                        {['pagado', 'pendiente', 'en proceso'].includes(pedidoSeleccionado.estado?.toLowerCase()) && (
+                                                            <button 
+                                                                className="btn-update-address-order"
+                                                                onClick={() => handleActualizarDireccionPedido(pedidoSeleccionado.id)}
+                                                                style={{background: '#24a0ed', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem'}}
+                                                            >
+                                                                <i className="fa-solid fa-truck-ramp-box"></i> Usar mi dirección actual
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                    
                                                     <div className="ML-mini-list-container">
                                                         {pedidoSeleccionado.productos?.map((item, idx) => (
                                                             <div key={idx} className="ML-mini-item" onClick={() => abrirDetalleConVerificacion(item)} style={{cursor:'pointer'}}>
