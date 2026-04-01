@@ -1,121 +1,104 @@
-import React, { useState } from 'react'; // 1. Agregamos useState
+import React, { useState } from 'react';
 import '../styles/Checkout.css';
 import { useNavigate } from 'react-router-dom';
-import { initMercadoPago, Wallet } from '@mercadopago/sdk-react'; // 2. Importamos SDK
+import { initMercadoPago, Wallet } from '@mercadopago/sdk-react';
 
-// Inicializa con tu PUBLIC_KEY de la captura
 initMercadoPago('APP_USR-4a539dc1-8c63-4e6a-9346-37e323b03a5f'); 
 
 const Checkout = ({ carrito = [], usuario, setAuthModalAbierto }) => {
     const navigate = useNavigate();
-    const [preferenceId, setPreferenceId] = useState(null); // Estado para el ID de pago
+    const [preferenceId, setPreferenceId] = useState(null);
     const [cargando, setCargando] = useState(false);
 
-    // --- LÓGICA DE CÁLCULO ---
+    // --- LÓGICA DE CÁLCULO CON DESCUENTO ---
     const subtotal = carrito.reduce((acc, prod) => {
-        const precio = parseFloat(prod.precio) || 0;
+        const precioOriginal = parseFloat(prod.precio) || 0;
+        const descuento = prod.descuento || 0;
+        const precioFinalItem = precioOriginal * (1 - descuento / 100);
         const cantidad = parseInt(prod.cantidad) || 1;
-        return acc + (precio * cantidad);
+        return acc + (precioFinalItem * cantidad);
     }, 0);
 
     const envio = subtotal > 500 || subtotal === 0 ? 0 : 59.99;
     const total = subtotal + envio;
 
-   // --- FUNCIÓN PARA CREAR PREFERENCIA ---
-const handlePago = async () => {
-    setCargando(true);
-    try {
-        const response = await fetch("https://macrowatersolutions.com/api/create_preference", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
-                items: carrito,
-                envio: envio,
-                userId: usuario.id // <--- ¡ESTA ES LA LÍNEA QUE FALTA!
-            }),
-        });
+    const handlePago = async () => {
+        setCargando(true);
         
-        const data = await response.json();
-        if (data.id) {
-            setPreferenceId(data.id);
-        } else {
-            console.error("No se recibió preferenceId:", data);
+        // Mapeamos los items aplicando el descuento para que Mercado Pago cobre el precio correcto
+        const itemsParaPago = carrito.map(item => ({
+            ...item,
+            precio: (item.precio * (1 - (item.descuento || 0) / 100)).toFixed(2)
+        }));
+
+        try {
+            const response = await fetch("https://macrowatersolutions.com/api/create_preference", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ 
+                    items: itemsParaPago, 
+                    envio: envio,
+                    userId: usuario.id 
+                }),
+            });
+            
+            const data = await response.json();
+            if (data.id) {
+                setPreferenceId(data.id);
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Hubo un error al conectar con Mercado Pago");
+        } finally {
+            setCargando(false);
         }
-    } catch (error) {
-        console.error("Error al crear preferencia:", error);
-        alert("Hubo un error al conectar con Mercado Pago");
-    } finally {
-        setCargando(false);
-    }
-};
-    // --- ESCENARIO 1: NO HAY SESIÓN INICIADA ---
+    };
+
     if (!usuario) {
         return (
             <div className="checkout-empty-state">
                 <i className="fa-solid fa-user-lock"></i>
                 <h2>¡Casi listo para tu compra!</h2>
-                <p>Para poder procesar tu envío de productos de piscina, necesitas iniciar sesión.</p>
-                <button className="action-btn" onClick={() => setAuthModalAbierto(true)}>
-                    Iniciar Sesión / Registrarse
-                </button>
+                <p>Inicia sesión para procesar tu envío.</p>
+                <button className="action-btn" onClick={() => setAuthModalAbierto(true)}>Iniciar Sesión</button>
             </div>
         );
     }
 
-    // --- ESCENARIO 2: TIENE SESIÓN PERO NO TIENE DIRECCIÓN ---
     const tieneDireccion = usuario.direccion && usuario.direccion !== "Dirección no ingresada";
     if (!tieneDireccion) {
         return (
             <div className="checkout-empty-state">
                 <i className="fa-solid fa-truck-fast"></i>
                 <h2>¿A dónde enviamos tu pedido?</h2>
-                <p>Parece que aún no has configurado una dirección de entrega en tu perfil.</p>
-                <button className="action-btn" onClick={() => navigate('/perfil')}>
-                    Configurar Dirección de Envío
-                </button>
+                <p>Configura una dirección de entrega en tu perfil.</p>
+                <button className="action-btn" onClick={() => navigate('/perfil')}>Configurar Dirección</button>
             </div>
         );
     }
 
-    // --- ESCENARIO 3: TODO CORRECTO ---
     return (
         <div className="checkout-container">
             <div className="checkout-content">
-                
                 <div className="delivery-section">
                     <h2 className="section-title">Revisa la forma de entrega</h2>
-                    
                     <div className="delivery-card">
                         <div className="delivery-header">
                             <div className="radio-group">
-                                <input type="radio" checked readOnly name="entrega" />
+                                <input type="radio" checked readOnly />
                                 <strong>Enviar a domicilio</strong>
                             </div>
-                            <span className="free-tag">
-                                {envio === 0 ? 'Gratis' : `$${envio.toFixed(2)}`}
-                            </span>
+                            <span className="free-tag">{envio === 0 ? 'Gratis' : `$${envio.toFixed(2)}`}</span>
                         </div>
-                        
                         <div className="address-details">
-                            <p className="address-text">
-                                <i className="fa-solid fa-location-dot"></i> {usuario.direccion}
-                            </p>
-                            <p className="user-info-text">
-                                {usuario.nombre} - {usuario.correo}
-                            </p>
-                            <button className="edit-address-link" onClick={() => navigate('/perfil')}>
-                                Modificar domicilio o elegir otro
-                            </button>
+                            <p className="address-text"><i className="fa-solid fa-location-dot"></i> {usuario.direccion}</p>
+                            <p className="user-info-text">{usuario.nombre} - {usuario.correo}</p>
+                            <button className="edit-address-link" onClick={() => navigate('/perfil')}>Modificar domicilio</button>
                         </div>
                     </div>
 
-                    {/* Lógica condicional: Si no hay ID, mostramos botón de carga. Si hay ID, el botón de MP */}
                     {!preferenceId ? (
-                        <button 
-                            className="continue-btn-main" 
-                            onClick={handlePago}
-                            disabled={cargando || carrito.length === 0}
-                        >
+                        <button className="continue-btn-main" onClick={handlePago} disabled={cargando || carrito.length === 0}>
                             {cargando ? "Preparando pago..." : "Continuar con el pago"}
                         </button>
                     ) : (
@@ -129,12 +112,18 @@ const handlePago = async () => {
                     <div className="summary-card">
                         <h3>Resumen de compra</h3>
                         <div className="summary-list">
-                            {carrito.map((item, index) => (
-                                <div key={index} className="summary-item">
-                                    <span>{item.cantidad || 1}x {item.nombre}</span>
-                                    <span>${(parseFloat(item.precio || 0) * (item.cantidad || 1)).toFixed(2)}</span>
-                                </div>
-                            ))}
+                            {carrito.map((item, index) => {
+                                const pFinal = item.precio * (1 - (item.descuento || 0) / 100);
+                                return (
+                                    <div key={index} className="summary-item">
+                                        <span>{item.cantidad || 1}x {item.nombre}</span>
+                                        <div style={{textAlign: 'right'}}>
+                                            {item.descuento > 0 && <small style={{display: 'block', textDecoration: 'line-through', color: '#999'}}>${item.precio}</small>}
+                                            <span>${(pFinal * item.cantidad).toFixed(2)}</span>
+                                        </div>
+                                    </div>
+                                );
+                            })}
                         </div>
                         <div className="summary-divider"></div>
                         <div className="summary-row">
@@ -143,9 +132,7 @@ const handlePago = async () => {
                         </div>
                         <div className="summary-row">
                             <span>Envío</span>
-                            <span className={envio === 0 ? 'green-text' : ''}>
-                                {envio === 0 ? 'Gratis' : `$${envio.toFixed(2)}`}
-                            </span>
+                            <span className={envio === 0 ? 'green-text' : ''}>{envio === 0 ? 'Gratis' : `$${envio.toFixed(2)}`}</span>
                         </div>
                         <div className="summary-total-row">
                             <span>Total</span>

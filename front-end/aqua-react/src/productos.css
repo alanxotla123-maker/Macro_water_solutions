@@ -770,3 +770,40 @@
     /* Opcional: Añadimos un margen inferior para separar del siguiente contenido */
     margin-bottom: 2rem; 
 }
+/* Precios en el listado grid */
+.precio-tachado-mini {
+    text-decoration: line-through;
+    color: #999;
+    font-size: 0.85rem;
+    margin-right: 8px;
+}
+
+.precio-oferta-mini {
+    color: #e84118;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.badge-grid-desc {
+    background: #e84118;
+    color: white;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    margin-left: 5px;
+    font-weight: bold;
+}
+
+/* Precios en el detalle (Vista tipo Mercado Libre) */
+.ML-price-tachado {
+    text-decoration: line-through;
+    color: #999;
+    font-size: 1.1rem;
+    font-weight: normal;
+}
+
+.ML-discount-label {
+    color: #00a650;
+    font-size: 1.2rem;
+    font-weight: 500;
+}

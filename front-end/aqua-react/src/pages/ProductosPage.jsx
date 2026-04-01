@@ -53,7 +53,6 @@ function ProductosPage({ agregarAlCarrito, usuario }) {
     const handleComprarAhora = (producto) => {
         agregarAlCarrito(producto, (ok, msg) => {
             if (ok) {
-                // Redirige al checkout/carrito una vez agregado
                 navigate('/checkout'); 
             } else {
                 mostrarToast("Error al procesar la compra rápida", true);
@@ -131,10 +130,27 @@ function ProductosPage({ agregarAlCarrito, usuario }) {
                                     <span className="ML-reviews-count">({totalReviews} opiniones)</span>
                                 </div>
                                 <h1 className="ML-title">{productoEnDetalle.nombre}</h1>
-                                <div className="ML-price-large">${Number(productoEnDetalle.precio).toLocaleString()}</div>
+                                
+                                {/* --- PRECIO CON DESCUENTO DETALLE --- */}
+                                <div className="ML-price-large">
+                                    {productoEnDetalle.descuento > 0 ? (
+                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                            <span style={{ textDecoration: 'line-through', color: '#999', fontSize: '1.1rem', fontWeight: 'normal' }}>
+                                                ${Number(productoEnDetalle.precio).toLocaleString()}
+                                            </span>
+                                            <span>
+                                                ${(productoEnDetalle.precio * (1 - productoEnDetalle.descuento / 100)).toLocaleString(undefined, {minimumFractionDigits: 2})}
+                                                <span style={{ color: '#00a650', fontSize: '1.2rem', fontWeight: '500', marginLeft: '10px' }}>
+                                                    {productoEnDetalle.descuento}% OFF
+                                                </span>
+                                            </span>
+                                        </div>
+                                    ) : (
+                                        `$${Number(productoEnDetalle.precio).toLocaleString()}`
+                                    )}
+                                </div>
                                 
                                 <div className="ML-actions-group">
-                                    {/* BOTÓN ACTUALIZADO */}
                                     <button 
                                         className="ML-btn-buy-now" 
                                         onClick={() => handleComprarAhora(productoEnDetalle)}
@@ -180,12 +196,29 @@ function ProductosPage({ agregarAlCarrito, usuario }) {
                     {productos.map((prod) => (
                         <div className="producto-card" key={prod.id}>
                             <div className="img-container" onClick={() => abrirDetalle(prod)}>
+                                {prod.descuento > 0 && <div className="badge-descuento-grid">-{prod.descuento}%</div>}
                                 <img src={prod.imagen} alt={prod.nombre} />
                                 <div className="overlay-view">Ver detalles</div>
                             </div>
                             <div className="producto-info">
                                 <h3 onClick={() => abrirDetalle(prod)} style={{cursor: 'pointer'}}>{prod.nombre}</h3>
-                                <span className="precio">${prod.precio}</span>
+                                
+                                {/* --- PRECIO CON DESCUENTO GRID --- */}
+                                <div className="precio-container-grid" style={{ marginBottom: '10px' }}>
+                                    {prod.descuento > 0 ? (
+                                        <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', flexWrap: 'wrap' }}>
+                                            <span style={{ textDecoration: 'line-through', color: '#999', fontSize: '0.85rem' }}>
+                                                ${prod.precio}
+                                            </span>
+                                            <span className="precio" style={{ color: '#e84118' }}>
+                                                ${(prod.precio * (1 - prod.descuento / 100)).toFixed(2)}
+                                            </span>
+                                        </div>
+                                    ) : (
+                                        <span className="precio">${prod.precio}</span>
+                                    )}
+                                </div>
+
                                 <div className="acciones-container">
                                     <button className="btn-carrito" onClick={() => agregarAlCarrito(prod, (ok, msg) => mostrarToast(msg, !ok))}>🛒 Agregar</button>
                                     <button className="btn-detalles-link" onClick={() => abrirDetalle(prod)}>Ver más</button>
