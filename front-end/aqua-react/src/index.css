@@ -846,26 +846,115 @@ body { background-color: #f5f5f5; }
 /* ================================================= */
 /* 3. HERO, NOSOTROS Y PRODUCTOS                     */
 /* ================================================= */
-.hero {
-    position: relative; min-height: 100vh;
-    background: url('/imagenes/umbrella-chair.jpg') center/cover no-repeat;
-    display: flex; align-items: center; padding: 0 8%;
+.nosotros {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 80px 0;
 }
-.hero-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.45); }
-.hero-content { position: relative; color: white; max-width: 600px; }
 
 .nosotros-container {
-    max-width: 1200px; margin: 0 auto;
-    display: flex; gap: 80px; padding: 100px 20px; align-items: center;
+    width: 100%;
+    max-width: 1200px;
+    display: flex;
+    align-items: center;
+    gap: 80px;
+    padding: 0 20px;
 }
-.nosotros-img img { max-width: 450px; width: 100%; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1)); }
 
-.productos-section { padding: 80px 0; background: #f5f5f5; text-align: center; }
-.productos-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr);
-    gap: 40px; max-width: 1200px; margin: 0 auto; padding: 0 20px;
+.nosotros-img img {
+    max-width: 450px;
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1));
 }
-.producto-card { background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+
+.nosotros-texto h4 { color: #0077cc; font-size: 14px; letter-spacing: 2px; margin-bottom: 10px; }
+.nosotros-texto h2 { font-size: 42px; font-weight: 800; color: #1a1a1a; margin-bottom: 25px; }
+.nosotros-texto p { font-size: 18px; color: #666; line-height: 1.7; margin-bottom: 30px; }
+
+.nosotros-beneficios { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+.beneficio { display: flex; align-items: center; gap: 12px; font-weight: 700; color: #333; }
+.beneficio i { color: #0077cc; font-size: 20px; }
+
+/* Contenedor general para que todo baje ordenado */
+.nosotros {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #ffffff;
+    padding-bottom: 100px;
+}
+
+/* El Grid de 3 columnas */
+.nosotros-mvv-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    width: 100%;
+    max-width: 1200px;
+    padding: 60px 20px 0 20px;
+}
+
+/* La Tarjeta Individual */
+.mvv-card {
+    background: #ffffff;
+    padding: 40px 30px;
+    border-radius: 24px; /* Siguiendo el estilo de tus modales */
+    text-align: center;
+    border: 1px solid #eee;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: default;
+}
+
+/* Efecto al pasar el mouse (se eleva y resalta el azul) */
+.mvv-card:hover {
+    transform: translateY(-12px);
+    box-shadow: 0 20px 40px rgba(0, 119, 204, 0.1);
+    border-color: #0077cc;
+}
+
+/* El círculo del icono */
+.mvv-icon-wrapper {
+    width: 70px;
+    height: 70px;
+    background-color: #f0f7ff; /* Tu azul claro de perfil */
+    color: #0077cc;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 25px;
+    font-size: 28px;
+    transition: 0.3s;
+}
+
+.mvv-card:hover .mvv-icon-wrapper {
+    background-color: #0077cc;
+    color: #ffffff;
+}
+
+.mvv-card h3 {
+    font-size: 22px;
+    font-weight: 800;
+    color: #1a1a1a;
+    margin-bottom: 15px;
+}
+
+.mvv-card p {
+    font-size: 15px;
+    color: #666;
+    line-height: 1.8;
+    margin: 0;
+}
+
+/* Ajuste para tablets y móviles */
+@media (max-width: 992px) {
+    .nosotros-mvv-grid {
+        grid-template-columns: 1fr; /* Se apilan en móvil */
+        max-width: 500px;
+    }
+}
 
 /* ================================================= */
 /* 4. MODALES (LOGIN / REGISTRO / MENSAJES)          */
@@ -933,7 +1022,6 @@ body { background-color: #f5f5f5; }
   border-radius: 8px;
   cursor: pointer;
 }
-
 .google-divider {
     display: flex;
     align-items: center;

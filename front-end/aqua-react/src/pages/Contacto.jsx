@@ -12,7 +12,7 @@ function Contacto() {
   });
 
   const [enviado, setEnviado] = useState(false);
-  const[emailError,setEmailError] = useState("");
+  const [emailError, setEmailError] = useState("");
 
   const isValidEmail = (email) => {
     const trimmed = (email || "").trim();
@@ -24,8 +24,8 @@ function Contacto() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     let finalValue = value;
-    if (name === "telefono") {// Validación para el campo de teléfono (solo números)
-      finalValue = value.replace(/\D/g, "").slice(0,10); // Solo dígitos, máximo 10
+    if (name === "telefono") {
+      finalValue = value.replace(/\D/g, "").slice(0, 10);
     }
     setFormData({
       ...formData,
@@ -44,16 +44,34 @@ function Contacto() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    // Validación de email
     if (!isValidEmail(formData.email)) {
       setEmailError("Introduce un email válido con dominio (.com, .es, .org, etc.)");
       return;
     }
     setEmailError("");
-    // Aquí irá la lógica para enviar el formulario
-    console.log("Formulario enviado:", formData);
+
+    // --- LÓGICA DE WHATSAPP ---
+    const numeroTelefono = "4422752025"; // <-- CAMBIA ESTO por tu número real
+    
+    // Formateamos el mensaje con negritas (*) y saltos de línea (%0A)
+    const textoWhatsApp = 
+      `*Nuevo mensaje de Macro Water Solutions*%0A%0A` +
+      `*Nombre:* ${formData.nombre} ${formData.apellido}%0A` +
+      `*Email:* ${formData.email}%0A` +
+      `*Teléfono:* ${formData.telefono}%0A` +
+      `*Asunto:* ${formData.asunto}%0A` +
+      `*Mensaje:* ${formData.mensaje}`;
+
+    const url = `https://wa.me/${numeroTelefono}?text=${textoWhatsApp}`;
+    
+    // Abrir WhatsApp en pestaña nueva
+    window.open(url, "_blank");
+    // ---------------------------
+
     setEnviado(true);
     
-    // Limpiar formulario después de 2 segundos
     setTimeout(() => {
       setFormData({
         nombre: "",
@@ -110,7 +128,7 @@ function Contacto() {
               <div className="mensaje-exito">
                 <i className="fa-solid fa-check-circle"></i>
                 <h4>¡Mensaje enviado!</h4>
-                <p>Nos pondremos en contacto pronto.</p>
+                <p>Se ha abierto WhatsApp para completar el envío.</p>
               </div>
             ) : (
               <form className="contacto-form" onSubmit={handleSubmit}>
@@ -124,7 +142,6 @@ function Contacto() {
                       value={formData.nombre}
                       onChange={handleChange}
                       required
-                      placeholder=""
                     />
                   </div>
                   <div className="form-group">
@@ -136,7 +153,6 @@ function Contacto() {
                       value={formData.apellido}
                       onChange={handleChange}
                       required
-                      placeholder=""
                     />
                   </div>
                 </div>
@@ -151,13 +167,10 @@ function Contacto() {
                       value={formData.email}
                       onChange={handleChange}
                       onBlur={handleEmailBlur}
-                      pattern="[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}"
-                      title="Ejemplo: usuario@dominio.com o usuario@dominio.es"
                       required
-                      placeholder=""
-                      className={emailError?"input-error":""}
+                      className={emailError ? "input-error" : ""}
                     />
-                  {emailError && <span className="email-error-msg">{emailError}</span>}
+                    {emailError && <span className="email-error-msg">{emailError}</span>}
                   </div>
                   <div className="form-group">
                     <label htmlFor="telefono">Teléfono</label>
@@ -169,7 +182,6 @@ function Contacto() {
                       onChange={handleChange}
                       inputMode="numeric"
                       maxLength={10}
-                      placeholder=""
                     />
                   </div>
                 </div>
@@ -183,7 +195,6 @@ function Contacto() {
                     value={formData.asunto}
                     onChange={handleChange}
                     required
-                    placeholder=""
                   />
                 </div>
 
@@ -195,7 +206,6 @@ function Contacto() {
                     value={formData.mensaje}
                     onChange={handleChange}
                     required
-                    placeholder=""
                     rows="5"
                   ></textarea>
                 </div>

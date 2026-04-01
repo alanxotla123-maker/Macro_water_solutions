@@ -294,3 +294,27 @@ input:focus, select:focus, textarea:focus {
     font-size: 18px; 
     margin-top: 2px; 
 }
+.precio-original-tachado {
+  text-decoration: line-through;
+  color: #888;
+  font-size: 0.9rem;
+  margin-right: 10px;
+}
+
+.precio-tag-oferta {
+  color: #e84118;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.badge-promo {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #e84118;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-weight: bold;
+  z-index: 2;
+}

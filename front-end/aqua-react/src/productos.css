@@ -208,3 +208,602 @@
   border-radius: 8px;
   cursor: pointer;
 }
+/* ==========================================================
+   PRODUCTOS PAGE - ESTILO MACRO WATER SOLUTIONS
+   ========================================================== */
+
+:root {
+    /* COLORES SACADOS DEL LOGO DE MACRO WATER SOLUTIONS */
+    --macro-aqua: #00c2cb;     /* Cian brillante del logo */
+    --macro-blue: #007cc3;     /* Azul oscuro del logo */
+    --aqua-soft: #e0f7f8;      /* Fondo cian muy suave */
+    
+    --text-dark: #333333;
+    --text-gray: #666666;
+    --border-color: #eeeeee;
+    --white: #ffffff;
+}
+
+.productos-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.productos-titulo {
+    font-size: 1.8rem;
+    color: var(--text-dark);
+    margin-bottom: 30px;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* --- GRID DE PRODUCTOS (VISTA INICIAL) --- */
+.productos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+}
+
+.producto-card {
+    background: var(--white);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.producto-card:hover {
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    transform: translateY(-5px);
+}
+
+.img-container {
+    position: relative;
+    height: 250px;
+    background: #fff;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 15px;
+    transition: transform 0.5s ease;
+}
+
+.producto-card:hover .img-container img {
+    transform: scale(1.05);
+}
+
+/* --- OVERLAY CON COLOR MACRO AQUA --- */
+.overlay-view {
+    position: absolute;
+    bottom: -100%;
+    left: 0;
+    width: 100%;
+    /* Usamos el Cian brillante del logo para el overlay */
+    background: rgba(0, 194, 203, 0.9);
+    color: white;
+    text-align: center;
+    padding: 10px;
+    font-weight: 600;
+    transition: bottom 0.3s ease;
+}
+
+.img-container:hover .overlay-view {
+    bottom: 0;
+}
+
+.producto-info {
+    padding: 15px;
+    border-top: 1px solid var(--border-color);
+}
+
+.producto-info h3 {
+    font-size: 1rem;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+    cursor: pointer;
+    font-weight: 400;
+}
+
+.producto-info h3:hover {
+    color: var(--macro-aqua); /* Resaltar nombre con aqua */
+}
+
+.precio {
+    display: block;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 15px;
+}
+
+/* --- BOTONES EN GRID --- */
+.acciones-container {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* Botón Agregar (Agua suave) */
+.btn-carrito {
+    flex: 1;
+    background: var(--aqua-soft);
+    color: var(--aqua-dark); /* Un aqua un poco más oscuro para texto */
+    border: none;
+    padding: 8px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-carrito:hover {
+    background: var(--macro-aqua);
+    color: white;
+}
+
+/* NUEVO BOTÓN: Ver más (Sutil) */
+.btn-detalles-link {
+    background: none;
+    border: 1px solid #ddd;
+    color: var(--text-gray);
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+}
+
+.btn-detalles-link:hover {
+    background: #f5f5f5;
+    border-color: #bbb;
+    color: var(--text-dark);
+}
+
+/* Botones Admin */
+.acciones-admin {
+    display: flex;
+    gap: 5px;
+}
+
+.btn-edit, .btn-delete {
+    background: #f0f0f0;
+    border: none;
+    padding: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.btn-delete:hover { background: #ffebee; color: #d32f2f; }
+.btn-edit:hover { background: var(--aqua-soft); color: var(--macro-blue); }
+
+/* --- VISTA DETALLE (MERCADO LIBRE STYLE CON COLORES MACRO) --- */
+.ML-container {
+    animation: fadeIn 0.4s ease;
+}
+
+.btn-back-ML {
+    background: none;
+    border: none;
+    /* Usamos el Azul oscuro del logo para enlaces de volver */
+    color: var(--macro-blue);
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem;
+}
+
+.ML-card {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 40px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.ML-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 50px;
+}
+
+.ML-photo-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-right: 1px solid var(--border-color);
+    padding-right: 30px;
+}
+
+.ML-photo-section img {
+    max-width: 100%;
+    max-height: 500px;
+    object-fit: contain;
+}
+
+.ML-label-top {
+    font-size: 0.85rem;
+    color: var(--text-gray);
+    margin-bottom: 10px;
+    display: block;
+}
+
+.ML-title {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 15px;
+}
+
+.ML-price-large {
+    font-size: 2.5rem;
+    font-weight: 300;
+    color: var(--text-dark);
+    margin-bottom: 25px;
+}
+
+.ML-stock-status {
+    color: #00a650;
+    font-weight: 600;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* --- BOTÓN COMPRAR EN DETALLE CON COLOR MACRO BLUE --- */
+.ML-btn-buy {
+    width: 100%;
+    /* Usamos el Azul oscuro del logo como color principal de acción */
+    background: var(--macro-blue);
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+    margin-bottom: 40px;
+}
+
+.ML-btn-buy:hover {
+    background: #0066a3; /* Un azul ligeramente más oscuro para el hover */
+}
+
+.ML-description-section {
+    border-top: 1px solid var(--border-color);
+    padding-top: 30px;
+}
+
+.ML-description-section h3 {
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+}
+
+.ML-description-section p {
+    color: var(--text-gray);
+    line-height: 1.6;
+    font-size: 1.05rem;
+}
+
+/* --- SECCIÓN DE COMENTARIOS --- */
+.ML-reviews-section {
+    margin-top: 60px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 40px;
+}
+
+.ML-review-item {
+    padding: 25px 0;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+.ML-review-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.user-icon-small {
+    width: 35px;
+    height: 35px;
+    background: var(--aqua-soft); /* Fondo cian suave para el icono */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--macro-aqua); /* Icono cian */
+}
+
+.ML-review-date {
+    font-size: 0.8rem;
+    color: #999;
+    margin-left: auto;
+}
+
+.ML-review-text {
+    font-size: 1rem;
+    color: var(--text-dark);
+    line-height: 1.5;
+}
+
+.ML-no-reviews {
+    text-align: center;
+    color: #999;
+    padding: 50px;
+    font-style: italic;
+    background: #fafafa;
+    border-radius: 8px;
+}
+
+/* Animación */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsivo */
+@media (max-width: 850px) {
+    .ML-grid {
+        grid-template-columns: 1fr;
+    }
+    .ML-photo-section {
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        padding-right: 0;
+        padding-bottom: 30px;
+    }
+}
+:root {
+    /* EL AZUL EXACTO DE TU IMAGEN */
+    --macro-blue: #007cc3; 
+    
+    /* VARIACIONES PARA HOVER Y FONDOS */
+    --macro-blue-hover: #0066a3; 
+    --macro-blue-soft: #eaf4fb;
+    
+    --text-dark: #333333;
+    --white: #ffffff;
+    --border-color: #eeeeee;
+}
+
+/* BOTÓN PRINCIPAL (AGREGAR AL CARRITO / COMPRAR) */
+.ML-btn-buy, .confirm-btn-fancy, .btn-carrito {
+    background-color: var(--macro-blue) !important;
+    color: white !important;
+    border: none;
+    transition: background-color 0.3s ease;
+}
+
+.ML-btn-buy:hover, .confirm-btn-fancy:hover, .btn-carrito:hover {
+    background-color: var(--macro-blue-hover) !important;
+}
+
+/* OVERLAY DE LA IMAGEN EN EL GRID */
+.overlay-view {
+    background: rgba(0, 124, 195, 0.85) !important; /* Azul con transparencia */
+    color: white;
+}
+
+/* ENLACES Y TÍTULOS AL PASAR EL MOUSE */
+.btn-back-ML, .producto-info h3:hover {
+    color: var(--macro-blue) !important;
+}
+
+/* ICONOS DE USUARIO EN REVIEWS */
+.user-icon-small {
+    background-color: var(--macro-blue-soft) !important;
+    color: var(--macro-blue) !important;
+}
+
+/* BADGES DE ESTADO (OPCIONAL: Si quieres que el estado sea azul) */
+.badge-status.enviado {
+    background-color: var(--macro-blue-soft);
+    color: var(--macro-blue);
+    border: 1px solid var(--macro-blue);
+}
+/* Colores de marca */
+:root {
+    --macro-blue: #007cc3;
+    --macro-blue-hover: #0066a3;
+}
+
+/* Botones en el detalle */
+.ML-actions-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 25px 0;
+}
+
+.ML-btn-buy-now {
+    background-color: var(--macro-blue);
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.ML-btn-buy-now:hover {
+    background-color: var(--macro-blue-hover);
+}
+
+.ML-btn-add-cart {
+    background-color: rgba(0, 124, 195, 0.1);
+    color: var(--macro-blue);
+    border: none;
+    padding: 15px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.ML-btn-add-cart:hover {
+    background-color: rgba(0, 124, 195, 0.2);
+}
+
+/* Botón "Ver más" del grid */
+.btn-detalles-link {
+    background: none;
+    border: 1px solid #ddd;
+    color: #666;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+.btn-detalles-link:hover {
+    border-color: var(--macro-blue);
+    color: var(--macro-blue);
+}
+
+.btn-back-ML {
+    color: var(--macro-blue) !important;
+}
+/* Selector de estrellas interactivo */
+.star-rating-selector {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.star-rating-selector i {
+    font-size: 1.5rem;
+    color: #ffb300;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.star-rating-selector i:hover {
+    transform: scale(1.2);
+}
+
+/* Caja de nuevo comentario */
+.ML-add-review-box {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    border: 1px solid #eee;
+}
+
+.ML-add-review-box textarea {
+    width: 100%;
+    height: 80px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+.ML-btn-submit {
+    background: #007cc3;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    margin-top: 10px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+/* Rating arriba del nombre */
+.ML-rating-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.ML-reviews-count {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+/* Fila de estrellas en cada comentario */
+.stars-row {
+    margin-bottom: 5px;
+}
+
+.ML-review-item {
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+}
+/* =========================================
+   Corrección para el Hero Visual
+   ========================================= */
+
+.hero-visual {
+    /* Eliminamos la altura completa de la ventana */
+    /* height: 100vh; */ /* <--- ELIMINAR O COMENTAR ESTA LÍNEA */
+
+    /* Definimos una relación de aspecto (ejemplo 16:9, formato panorámico) */
+    /* Esto hará que la imagen sea más ancha que alta y se vea completa */
+    aspect-ratio: 16 / 9; /* <--- AGREGAR ESTA LÍNEA */
+
+    /* Aseguramos que el contenedor ocupe todo el ancho disponible */
+    width: 100%;
+
+    /* Mantenemos object-fit para asegurar que la imagen cubra el área */
+    object-fit: cover; 
+
+    /* Centramos la imagen por si acaso */
+    object-position: center;
+
+    /* Opcional: Añadimos un margen inferior para separar del siguiente contenido */
+    margin-bottom: 2rem; 
+}
+/* Precios en el listado grid */
+.precio-tachado-mini {
+    text-decoration: line-through;
+    color: #999;
+    font-size: 0.85rem;
+    margin-right: 8px;
+}
+
+.precio-oferta-mini {
+    color: #e84118;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.badge-grid-desc {
+    background: #e84118;
+    color: white;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    margin-left: 5px;
+    font-weight: bold;
+}
+
+/* Precios en el detalle (Vista tipo Mercado Libre) */
+.ML-price-tachado {
+    text-decoration: line-through;
+    color: #999;
+    font-size: 1.1rem;
+    font-weight: normal;
+}
+
+.ML-discount-label {
+    color: #00a650;
+    font-size: 1.2rem;
+    font-weight: 500;
+}
