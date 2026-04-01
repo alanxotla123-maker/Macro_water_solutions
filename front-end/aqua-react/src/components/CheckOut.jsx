@@ -3,7 +3,8 @@ import '../styles/Checkout.css';
 import { useNavigate } from 'react-router-dom';
 import { initMercadoPago, Wallet } from '@mercadopago/sdk-react';
 
-initMercadoPago('APP_USR-4a539dc1-8c63-4e6a-9346-37e323b03a5f'); 
+// INICIALIZACIÓN CON TU PUBLIC KEY DE PRODUCCIÓN
+initMercadoPago('APP_USR-4f05e260-c10e-435a-9677-32dcda03f947'); 
 
 const Checkout = ({ carrito = [], usuario, setAuthModalAbierto }) => {
     const navigate = useNavigate();
@@ -19,13 +20,14 @@ const Checkout = ({ carrito = [], usuario, setAuthModalAbierto }) => {
         return acc + (precioFinalItem * cantidad);
     }, 0);
 
-    const envio = subtotal > 500 || subtotal === 0 ? 0 : 59.99;
+    // COSTO DE ENVÍO ELIMINADO PARA PRUEBAS
+    const envio = 0; 
     const total = subtotal + envio;
 
     const handlePago = async () => {
         setCargando(true);
         
-        // Mapeamos los items aplicando el descuento para que Mercado Pago cobre el precio correcto
+        // Mapeamos los items aplicando el descuento
         const itemsParaPago = carrito.map(item => ({
             ...item,
             precio: (item.precio * (1 - (item.descuento || 0) / 100)).toFixed(2)
@@ -37,7 +39,7 @@ const Checkout = ({ carrito = [], usuario, setAuthModalAbierto }) => {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ 
                     items: itemsParaPago, 
-                    envio: envio,
+                    envio: 0, // Envío a 0 para Mercado Pago
                     userId: usuario.id 
                 }),
             });
@@ -88,7 +90,7 @@ const Checkout = ({ carrito = [], usuario, setAuthModalAbierto }) => {
                                 <input type="radio" checked readOnly />
                                 <strong>Enviar a domicilio</strong>
                             </div>
-                            <span className="free-tag">{envio === 0 ? 'Gratis' : `$${envio.toFixed(2)}`}</span>
+                            <span className="free-tag">Gratis</span>
                         </div>
                         <div className="address-details">
                             <p className="address-text"><i className="fa-solid fa-location-dot"></i> {usuario.direccion}</p>
@@ -132,7 +134,7 @@ const Checkout = ({ carrito = [], usuario, setAuthModalAbierto }) => {
                         </div>
                         <div className="summary-row">
                             <span>Envío</span>
-                            <span className={envio === 0 ? 'green-text' : ''}>{envio === 0 ? 'Gratis' : `$${envio.toFixed(2)}`}</span>
+                            <span className="green-text">Gratis</span>
                         </div>
                         <div className="summary-total-row">
                             <span>Total</span>
