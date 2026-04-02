@@ -4,7 +4,7 @@ import MensajeModal from '../components/MensajeModal';
 import '../styles/UserProfile.css';
 
 const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
-    const [tabActivo, setTabActivo] = useState('pedidos'); // Pestaña inicial: Pedidos
+    const [tabActivo, setTabActivo] = useState('pedidos'); 
     const [pedidos, setPedidos] = useState([]); 
     const [productos, setProductos] = useState([]); 
     const [pedidoSeleccionado, setPedidoSeleccionado] = useState(null); 
@@ -54,11 +54,10 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
         return () => controller.abort();
     }, [fetchData]);
 
-    // --- LÓGICA DE FILTRADO ---
+    // FILTROS DE PEDIDOS
     const pedidosActivos = pedidos.filter(p => 
         ['pagado', 'en proceso', 'enviado', 'pendiente'].includes(p.estado?.toLowerCase())
     );
-
     const historialPedidos = pedidos.filter(p => 
         ['entregado', 'cancelado'].includes(p.estado?.toLowerCase())
     );
@@ -131,7 +130,7 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
             });
             if (res.ok) {
                 if (onActualizarDireccion) onActualizarDireccion(direccionFinal);
-                setModal({ abierto: true, tipo: "exito", titulo: "Éxito", texto: "Dirección guardada." });
+                setModal({ abierto: true, tipo: "exito", titulo: "¡Guardado!", texto: "Tu dirección principal ha sido actualizada." });
             }
         } catch (error) { console.error(error); } finally { setCargandoEnvio(false); }
     };
@@ -144,25 +143,14 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
                 body: JSON.stringify({ nuevaDireccion: usuario.direccion })
             });
             if (res.ok) {
-                setModal({ 
-                    abierto: true, 
-                    tipo: "exito", 
-                    titulo: "¡Dirección Actualizada!", 
-                    texto: "Se usará tu dirección actual para la entrega de este pedido." 
-                });
-                fetchData(); 
-            } else {
-                const errData = await res.json();
-                setModal({ abierto: true, tipo: "error", titulo: "No se puede cambiar", texto: errData.error || "Error al actualizar." });
+                setModal({ abierto: true, tipo: "exito", titulo: "¡Dirección Actualizada!", texto: "Se usará tu dirección actual para la entrega." });
+                fetchData();
             }
-        } catch (error) {
-            setModal({ abierto: true, tipo: "error", titulo: "Error", texto: "Sin conexión con el servidor." });
-        }
+        } catch (error) { console.error(error); }
     };
 
     if (!usuario) return <div className="loading">Cargando perfil...</div>;
 
-    // --- RENDERIZADO DE TABLA ADMIN ---
     const renderTablaAdmin = (lista) => (
         <div className="gestion-pedido-panel view-fade-in">
             <div className="gestion-table-wrap">
@@ -204,11 +192,7 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
                                 </td>
                                 <td className="col-status-final">
                                     <div className="status-box">
-                                        <select 
-                                            value={p.estado?.toLowerCase()} 
-                                            onChange={(e) => handleCambiarEstado(p.id, e.target.value)}
-                                            className="select-gestion"
-                                        >
+                                        <select value={p.estado?.toLowerCase()} onChange={(e) => handleCambiarEstado(p.id, e.target.value)} className="select-gestion">
                                             <option value="pagado">Pagado</option>
                                             <option value="en proceso">En proceso</option>
                                             <option value="enviado">Enviado</option>
@@ -225,7 +209,6 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
         </div>
     );
 
-    // --- RENDERIZADO DE LISTA CLIENTE ---
     const renderListaCliente = (lista, mostrarCalificar = false) => (
         <div className="pedidos-list-aqua">
             {lista.length === 0 ? (
@@ -283,10 +266,14 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
                                 <i className="fa-solid fa-boxes-stacked"></i> Inventario
                             </button>
                         )}
-                        <button className={`nav-link ${tabActivo === 'direccion' ? 'active' : ''}`} 
-                                onClick={() => {setTabActivo('direccion'); setProductoDetalle(null);}}>
-                            <i className="fa-solid fa-location-dot"></i> Mi Dirección
-                        </button>
+                        
+                        {!esAdmin && (
+                            <button className={`nav-link ${tabActivo === 'direccion' ? 'active' : ''}`} 
+                                    onClick={() => {setTabActivo('direccion'); setProductoDetalle(null);}}>
+                                <i className="fa-solid fa-location-dot"></i> Mi Dirección
+                            </button>
+                        )}
+
                         <button className="nav-link logout-item" onClick={onCerrarSesion}>
                             <i className="fa-solid fa-arrow-right-from-bracket"></i> Salir
                         </button>
@@ -325,7 +312,6 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
                         </div>
                     ) : (
                         <div className="view-fade-in">
-                            {/* VISTA DE PEDIDOS O HISTORIAL */}
                             {(tabActivo === 'pedidos' || tabActivo === 'historial') && (
                                 <>
                                     <h3 className="view-title">
@@ -342,10 +328,9 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
                                         <div className="detalle-pedido-container view-fade-in">
                                             <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '15px'}}>
                                                 <button onClick={() => setPedidoSeleccionado(null)} className="btn-back-link">Cerrar detalle</button>
-                                                {/* Cambio de dirección solo en pedidos activos */}
                                                 {tabActivo === 'pedidos' && !esAdmin && (
                                                     <button className="btn-update-address-order" onClick={() => handleActualizarDireccionPedido(pedidoSeleccionado.id)} style={{background: '#24a0ed', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem'}}>
-                                                        Usar dirección actual del perfil
+                                                        Usar dirección actual
                                                     </button>
                                                 )}
                                             </div>
@@ -393,27 +378,65 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
                                 </div>
                             )}
 
-                            {tabActivo === 'direccion' && (
-                                <form onSubmit={handleSubmitDireccion} className="fancy-form">
+                            {tabActivo === 'direccion' && !esAdmin && (
+                                <form onSubmit={handleSubmitDireccion} className="fancy-form" autoComplete="off">
                                     <div className="form-group-fancy">
                                         <label>Calle y Número</label>
-                                        <input name="calle" className="input-aqua" defaultValue={usuario.direccion?.split(',')[0]} required />
+                                        <input 
+                                            name="calle" 
+                                            className="input-aqua" 
+                                            defaultValue={usuario.direccion?.split(',')[0] || ""} 
+                                            placeholder="Ej. Av. Reforma 123"
+                                            required 
+                                        />
                                     </div>
                                     <div className="form-row-fancy">
-                                        <div className="form-group-fancy"><label>Colonia</label><input name="colonia" className="input-aqua" required /></div>
-                                        <div className="form-group-fancy"><label>Ciudad</label><input name="ciudad" className="input-aqua" required /></div>
+                                        <div className="form-group-fancy">
+                                            <label>Colonia</label>
+                                            <input 
+                                                name="colonia" 
+                                                className="input-aqua" 
+                                                defaultValue={usuario.direccion?.split('Col. ')[1]?.split(',')[0] || ""}
+                                                placeholder="Tu colonia"
+                                                required 
+                                            />
+                                        </div>
+                                        <div className="form-group-fancy">
+                                            <label>Ciudad</label>
+                                            <input 
+                                                name="ciudad" 
+                                                className="input-aqua" 
+                                                defaultValue={usuario.direccion?.split(', ')[2]?.split(',')[0] || ""}
+                                                placeholder="Ciudad"
+                                                required 
+                                            />
+                                        </div>
                                     </div>
                                     <div className="form-row-fancy">
                                         <div className="form-group-fancy">
                                             <label>CP</label>
-                                            <input name="cp" className="input-aqua" required inputMode="numeric" maxLength={5} minLength={5} pattern="\d{5}" onInput={(e) => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 5); }} />
+                                            <input 
+                                                name="cp" 
+                                                className="input-aqua" 
+                                                defaultValue={usuario.direccion?.split('CP: ')[1]?.split(' ')[0] || ""}
+                                                required inputMode="numeric" maxLength={5} minLength={5} pattern="\d{5}" 
+                                                onInput={(e) => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 5); }} 
+                                            />
                                         </div>
                                         <div className="form-group-fancy">
                                             <label>Teléfono</label>
-                                            <input name="telefono" className="input-aqua" required inputMode="tel" maxLength={10} minLength={10} pattern="\d{10}" onInput={(e) => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10); }} />
+                                            <input 
+                                                name="telefono" 
+                                                className="input-aqua" 
+                                                defaultValue={usuario.direccion?.split('Tel: ')[1] || ""}
+                                                required inputMode="tel" maxLength={10} minLength={10} pattern="\d{10}" 
+                                                onInput={(e) => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10); }} 
+                                            />
                                         </div>
                                     </div>
-                                    <button type="submit" className="confirm-btn-fancy" disabled={cargandoEnvio}>Actualizar Dirección</button>
+                                    <button type="submit" className="confirm-btn-fancy" disabled={cargandoEnvio}>
+                                        {cargandoEnvio ? "Guardando..." : "Actualizar Dirección"}
+                                    </button>
                                 </form>
                             )}
                         </div>

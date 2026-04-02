@@ -13,14 +13,14 @@ const EditarProducto = () => {
     categoria_id: 1,
     stock: 0,
     descripcion: '',
-    descuento: 0 // <--- NUEVO: Propiedad de descuento
+    descuento: 0 
   });
 
   const [archivo, setArchivo] = useState(null);
   const [preview, setPreview] = useState("");
   const [modal, setModal] = useState({ abierto: false, tipo: "", titulo: "", texto: "" });
 
-  // 1. CARGAR DATOS DEL PRODUCTO AL INICIAR
+  // 1. CARGAR DATOS DEL PRODUCTO
   useEffect(() => {
     const obtenerProducto = async () => {
       try {
@@ -29,7 +29,7 @@ const EditarProducto = () => {
           const data = await res.json();
           setProducto({
             ...data,
-            descuento: data.descuento || 0 // Asegurar que tenga un valor
+            descuento: data.descuento || 0 
           });
           setPreview(data.imagen);
         } else {
@@ -47,7 +47,7 @@ const EditarProducto = () => {
     obtenerProducto();
   }, [id]);
 
-  // 2. FUNCIÓN PARA ELIMINAR REALMENTE
+  // 2. LOGICA PARA ELIMINAR
   const eliminarProductoReal = async () => {
     try {
       const res = await fetch(`https://macrowatersolutions.com/api/productos/${id}`, {
@@ -83,13 +83,32 @@ const EditarProducto = () => {
     });
   };
 
-  // 3. MANEJADOR DE CAMBIOS
+  // 3. MANEJADOR DE CAMBIOS (CORREGIDO PARA PERMITIR BORRAR)
   const handleChange = (e) => {
-    const { name, value, type } = e.target;
+    const { name, value } = e.target;
+
+    // Permitimos que el campo esté vacío temporalmente para que el usuario pueda borrar el '0'
+    if (value === '') {
+      setProducto({ ...producto, [name]: '' });
+      return;
+    }
+
     let valorFinal = value;
     
-    if (type === 'number' || name === 'categoria_id' || name === 'stock' || name === 'descuento') {
-      valorFinal = value === '' ? 0 : Number(value);
+    // Validaciones para campos numéricos
+    if (name === 'precio' || name === 'stock' || name === 'descuento' || name === 'categoria_id') {
+      valorFinal = Number(value);
+
+      // Tope para descuento (0 - 100)
+      if (name === 'descuento') {
+        if (valorFinal < 0) valorFinal = 0;
+        if (valorFinal > 100) valorFinal = 100;
+      }
+      
+      // Evitar que precio o stock sean negativos
+      if ((name === 'precio' || name === 'stock') && valorFinal < 0) {
+        valorFinal = 0;
+      }
     }
     
     setProducto({ ...producto, [name]: valorFinal });
@@ -103,16 +122,17 @@ const EditarProducto = () => {
     }
   };
 
-  // 4. GUARDAR CAMBIOS (PUT)
+  // 4. GUARDAR CAMBIOS
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
+    // Al enviar, nos aseguramos de enviar 0 si el campo quedó vacío
     formData.append("nombre", producto.nombre);
-    formData.append("precio", producto.precio);
+    formData.append("precio", producto.precio || 0);
     formData.append("descripcion", producto.descripcion);
-    formData.append("stock", producto.stock);
+    formData.append("stock", producto.stock || 0);
     formData.append("categoria_id", producto.categoria_id);
-    formData.append("descuento", producto.descuento); // <--- NUEVO: Enviar descuento
+    formData.append("descuento", producto.descuento || 0); 
     
     if (archivo) {
       formData.append("imagen", archivo);
@@ -152,10 +172,12 @@ const EditarProducto = () => {
     }
   };
 
-  // Lógica para calcular precio con descuento en vista previa
-  const precioFinal = producto.descuento > 0 
-    ? (producto.precio * (1 - producto.descuento / 100)).toFixed(2)
-    : producto.precio;
+  // Cálculo de precio final para la vista previa
+  const numPrecio = Number(producto.precio) || 0;
+  const numDescuento = Number(producto.descuento) || 0;
+  const precioFinal = numDescuento > 0 
+    ? (numPrecio * (1 - numDescuento / 100)).toFixed(2)
+    : numPrecio.toFixed(2);
 
   return (
     <div className="admin-page">
@@ -163,8 +185,9 @@ const EditarProducto = () => {
         <section className="formulario-col">
           <div className="header-admin" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <nav className="breadcrumb">Admin ▸ <span>ID: {id}</span></nav>
-            <h1>Editar Producto</h1>
+            <button type="button" className="btn-delete-top" onClick={preguntarEliminar}>Eliminar Producto</button>
           </div>
+          <h1>Editar Producto</h1>
 
           <form className="caja-formulario" onSubmit={handleSubmit}>
             <div className="campo">
@@ -178,14 +201,11 @@ const EditarProducto = () => {
                 <input type="number" name="precio" value={producto.precio} onChange={handleChange} required />
               </div>
               
-              {/* --- NUEVO CAMPO DE DESCUENTO --- */}
               <div className="campo">
                 <label>Descuento (%)</label>
                 <input 
                   type="number" 
                   name="descuento" 
-                  min="0" 
-                  max="100" 
                   value={producto.descuento} 
                   onChange={handleChange} 
                 />
@@ -231,8 +251,8 @@ const EditarProducto = () => {
             <h3>VISTA PREVIA</h3>
             <div className="card-preview">
                 <div className="img-container">
-                    {producto.descuento > 0 && (
-                      <span className="badge-promo">-{producto.descuento}%</span>
+                    {numDescuento > 0 && (
+                      <span className="badge-promo">-{Math.round(numDescuento)}%</span>
                     )}
                     <img 
                         src={preview || "https://placehold.co/300x300?text=Sin+Imagen"} 
@@ -243,13 +263,13 @@ const EditarProducto = () => {
                     <h2>{producto.nombre || "Nombre"}</h2>
                     
                     <div className="precio-container">
-                      {producto.descuento > 0 ? (
+                      {numDescuento > 0 ? (
                         <>
-                          <span className="precio-original-tachado">${producto.precio}</span>
+                          <span className="precio-original-tachado">${numPrecio.toFixed(2)}</span>
                           <span className="precio-tag-oferta">${precioFinal}</span>
                         </>
                       ) : (
-                        <span className="precio-tag">${producto.precio || "0.00"}</span>
+                        <span className="precio-tag">${numPrecio.toFixed(2)}</span>
                       )}
                     </div>
                 </div>

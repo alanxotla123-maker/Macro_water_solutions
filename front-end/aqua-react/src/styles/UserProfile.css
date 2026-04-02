@@ -1930,3 +1930,184 @@
     color: #999;
     font-size: 0.7rem;
 }
+/* ================================================= */
+/* USER PROFILE - OPTIMIZADO PARA MÓVILES            */
+/* ================================================= */
+
+/* Contenedor principal: eliminamos márgenes excesivos en móvil */
+.perfil-container-aqua {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 0 15px;
+}
+
+/* 1. HEADER (Tarjeta Superior) */
+.profile-header-card-centered {
+    background: #fff;
+    border-radius: 20px;
+    padding: 25px 15px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+}
+
+.avatar-circle {
+    width: 70px;
+    height: 70px;
+    background: #f0f7ff;
+    color: #007bff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+    font-size: 28px;
+}
+
+.user-name-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+/* 2. LAYOUT: De 2 columnas a 1 columna en móvil */
+.perfil-main-content-static {
+    display: flex;
+    flex-direction: column; /* Apilado vertical */
+    gap: 20px;
+}
+
+/* 3. SIDEBAR (Ahora es un menú de navegación superior) */
+.perfil-sidebar-fixed {
+    width: 100% !important;
+    position: static !important; /* Quitamos el sticky en móvil */
+    background: white;
+    border-radius: 15px;
+    padding: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.sidebar-title {
+    display: none; /* Ocultamos el título "PANEL" en móvil para ahorrar espacio */
+}
+
+.sidebar-nav {
+    display: flex !important;
+    flex-direction: row !important; /* Botones uno al lado del otro */
+    overflow-x: auto; /* Scroll horizontal para los botones */
+    gap: 10px;
+    padding: 5px;
+    /* Estilo de barra de scroll invisible */
+    -webkit-overflow-scrolling: touch;
+}
+
+.sidebar-nav::-webkit-scrollbar { display: none; }
+
+.nav-link {
+    flex: 0 0 auto; /* Evita que los botones se encojan */
+    padding: 10px 18px !important;
+    border-radius: 10px;
+    font-size: 13px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    white-space: nowrap; /* Evita que el texto salte de línea */
+}
+
+.nav-link.active {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+/* 4. ÁREA DE CONTENIDO */
+.perfil-view-area-scrollable {
+    width: 100%;
+    padding: 20px 15px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    min-height: 300px;
+}
+
+/* 5. TABLA DE ADMIN (Convertida a scroll horizontal) */
+.gestion-pedido-panel {
+    width: 100%;
+    overflow-x: auto; /* Permite deslizar la tabla */
+    -webkit-overflow-scrolling: touch;
+}
+
+.gestion-table {
+    min-width: 600px; /* Forzamos que la tabla mantenga su estructura */
+    font-size: 13px;
+}
+
+/* 6. LISTA DE PEDIDOS CLIENTE (Tarjetas compactas) */
+.pedido-row-item {
+    flex-direction: column; /* Info arriba, botón abajo */
+    align-items: stretch !important;
+    gap: 15px;
+    padding: 15px;
+    border-radius: 12px;
+}
+
+.pedido-info-left {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.pedido-info-right {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #f1f5f9;
+    padding-top: 12px;
+}
+
+/* 7. FORMULARIOS (Dirección) */
+.form-row-fancy {
+    display: flex;
+    flex-direction: column; /* Inputs uno debajo del otro */
+    gap: 0;
+}
+
+.form-group-fancy input {
+    width: 100%;
+    margin-bottom: 15px;
+    font-size: 16px !important; /* Previene zoom en iPhone */
+    padding: 12px;
+}
+
+/* 8. DETALLE DE PRODUCTO (Calificación) */
+.ML-grid-container {
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.ML-col-img img {
+    width: 100%;
+    max-height: 200px;
+    object-fit: contain;
+}
+
+/* Ajuste para pantallas grandes (Escritorio) */
+@media (min-width: 900px) {
+    .perfil-main-content-static {
+        flex-direction: row;
+        align-items: flex-start;
+    }
+    .perfil-sidebar-fixed {
+        width: 280px !important;
+        position: sticky !important;
+        top: 100px;
+    }
+    .sidebar-nav {
+        flex-direction: column !important;
+        overflow-x: visible;
+    }
+    .form-row-fancy {
+        flex-direction: row;
+        gap: 15px;
+    }
+    .sidebar-title { display: block; }
+}

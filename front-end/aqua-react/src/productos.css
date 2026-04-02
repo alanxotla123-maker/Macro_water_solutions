@@ -1050,3 +1050,238 @@
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
+/* Añadir a productos.css */
+.badge-exhausted {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: #ff4757;
+    color: white;
+    padding: 5px 10px;
+    font-weight: bold;
+    border-radius: 5px;
+    z-index: 10;
+}
+
+.btn-disabled {
+    background-color: #ccc !important;
+    cursor: not-allowed !important;
+}
+
+.stock-out-warning-detail {
+    color: #d63031;
+    background: #fab1a044;
+    padding: 10px;
+    border-radius: 8px;
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+}
+/* Localiza estas reglas en tu productos.css */
+
+.img-container {
+    position: relative;
+    height: 280px; /* Puedes aumentar un poco el alto si gustas */
+    background: #ffffff; /* Cambia el gris por blanco puro para que se vea más limpio */
+    cursor: pointer;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.img-container img {
+    width: 100%;
+    height: 100%;
+    /* CAMBIO CLAVE: 'cover' hace que la imagen llene todo el espacio sin deformarse */
+    /* Si tus fotos tienen fondos diferentes, esto unificará el diseño */
+    object-fit: cover; 
+    
+    padding: 0; /* Quitamos el padding para que la foto llegue a los bordes */
+    transition: transform 0.5s ease;
+}
+
+/* Efecto de zoom suave al pasar el mouse para darle dinamismo */
+.producto-card:hover .img-container img {
+    transform: scale(1.1);
+}
+/* --- SECCIÓN DE OPINIONES MEJORADA --- */
+.ML-reviews-section {
+    margin-top: 50px;
+    padding-top: 30px;
+    border-top: 1px solid #eee;
+    text-align: left;
+}
+
+.ML-reviews-header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.ML-average-stats {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.ML-average-num {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.stars-col {
+    display: flex;
+    flex-direction: column;
+}
+
+.ML-total-label {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+/* Tarjeta individual de opinión */
+.ML-review-card {
+    background: #ffffff;
+    border: 1px solid #f0f0f0;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    transition: box-shadow 0.3s ease;
+}
+
+.ML-review-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.ML-review-user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.user-avatar-mini {
+    width: 40px;
+    height: 40px;
+    background: #e3f2fd;
+    color: #007cc3;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1rem;
+}
+
+.user-meta-data {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name {
+    font-weight: 700;
+    color: #333;
+    font-size: 1rem;
+}
+
+.stars-date-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.review-date {
+    font-size: 0.8rem;
+    color: #999;
+}
+
+.ML-review-content {
+    padding-left: 52px; /* Alineado con el texto después del avatar */
+}
+
+.review-text {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #444;
+    margin: 0;
+}
+
+/* Estado vacío */
+.ML-no-reviews-empty {
+    text-align: center;
+    padding: 40px;
+    background: #f9f9f9;
+    border-radius: 12px;
+    color: #888;
+}
+
+.ML-no-reviews-empty i {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    opacity: 0.3;
+}
+
+/* Ajuste móvil */
+@media (max-width: 600px) {
+    .ML-review-content {
+        padding-left: 0;
+        margin-top: 10px;
+    }
+    .ML-reviews-header-container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+}
+/* --- NUEVA JERARQUÍA DE PRECIOS EN DETALLE --- */
+.ML-price-container-detail {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.ML-price-original-strike {
+    font-size: 1rem;
+    color: #999;
+    text-decoration: line-through;
+    margin-bottom: 4px;
+    font-weight: 400;
+}
+
+.ML-price-current-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ML-price-final {
+    font-size: 2.2rem; /* Tamaño grande para el precio que importa */
+    font-weight: 500;
+    color: #333;
+    letter-spacing: -1px;
+}
+
+.ML-discount-badge-detail {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #00a650; /* Verde Mercado Libre */
+}
+
+/* Espaciado para la descripción que viene abajo */
+.ML-stock-status {
+    margin-top: 10px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #f0f0f0;
+}
+/* Cambia el color negro por el azul de Macro Water */
+.precio-oferta-final {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #007cc3 !important; /* Aquí forzamos el azul */
+    letter-spacing: -0.02em;
+}
