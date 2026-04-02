@@ -65,7 +65,19 @@ const upload = multer({
 
 app.get('/api/productos', async (req, res) => {
     try {
-        const [rows] = await pool.execute("SELECT * FROM productos");
+        const [rows] = await pool.execute(`
+            SELECT p.*,
+                COALESCE(r.promed_cal, 0) AS promedio,
+                COALESCE(r.total_rev, 0) AS totalReviews
+            FROM productos p
+            LEFT JOIN (
+                SELECT producto_id,
+                    AVG(calificacion) AS promed_cal,
+                    COUNT(*) AS total_rev
+                FROM comentarios_productos
+                GROUP BY producto_id
+            ) r ON r.producto_id = p.id
+        `);
         res.json(rows);
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
