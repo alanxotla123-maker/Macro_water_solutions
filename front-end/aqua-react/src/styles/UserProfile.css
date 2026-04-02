@@ -392,22 +392,22 @@
 .pedidos-content { padding: 20px 0; }
 .pedidos-empty { color: #888; font-size: 0.95rem; }
 
-/* Cerrar sesión en rojo */
-.menu-item.logout-item {
-    color: #dc2626 !important;
+/* Cerrar sesión: texto rojo y hover rojo (solo .nav-link.logout-item en el panel) */
+.nav-link.logout-item {
+    color: #dc2626;
 }
 
-.menu-item.logout-item i {
-    color: #dc2626 !important;
+.nav-link.logout-item i {
+    color: #dc2626;
 }
 
-.menu-item.logout-item:hover {
-    background-color: #fef2f2 !important;
-    color: #b91c1c !important;
+.nav-link.logout-item:hover {
+    background-color: #fef2f2;
+    color: #b91c1c;
 }
 
-.menu-item.logout-item:hover i {
-    color: #b91c1c !important;
+.nav-link.logout-item:hover i {
+    color: #b91c1c;
 }
 /* ================================================= */
 /* 9. DISEÑO AQUA CLEAN PRO (SIDEBAR + PEDIDOS)      */
@@ -1686,87 +1686,170 @@
 .badge-status.enviado { background: #f3e5f5; color: #7b1fa2; }
 .badge-status.entregado { background: #e8f5e9; color: #2e7d32; }
 .badge-status.cancelado { background: #ffebee; color: #c62828; }
-/* Contenedor del Panel de Gestión */
+/* Panel de ventas admin: tabla tipo “card” alineada a Aqua Clean */
 .gestion-pedido-panel {
-    background: white;
-    border-radius: 8px;
-    border: 1px solid #e0e0e0;
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid #e8eef4;
+    box-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
     overflow: hidden;
     margin-top: 20px;
 }
 
+.gestion-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
 .gestion-table {
     width: 100%;
-    border-collapse: collapse;
+    min-width: 920px;
+    border-collapse: separate;
+    border-spacing: 0;
 }
 
 .gestion-table th {
-    background: #f4f4f4;
-    color: #666;
-    padding: 15px;
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    color: #64748b;
+    padding: 16px 18px;
     text-align: left;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #e2e8f0;
 }
 
 .gestion-table td {
-    padding: 20px 15px;
+    padding: 22px 18px;
     vertical-align: top;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid #f1f5f9;
+    background: #fff;
+    transition: background-color 0.15s ease;
+}
+
+.gestion-table tbody tr:hover td {
+    background: #f8fafc;
+}
+
+.gestion-table tbody tr:last-child td {
+    border-bottom: none;
 }
 
 /* Folio */
 .col-folio {
-    color: #009ee3;
-    font-weight: bold;
-    font-size: 1.1rem;
+    color: #0077cc;
+    font-weight: 800;
+    font-size: 1rem;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+}
+
+.col-fecha {
+    font-size: 0.9rem;
+    color: #334155;
+    line-height: 1.45;
+}
+
+.col-fecha small {
+    color: #94a3b8;
+    font-size: 0.8rem;
+    font-weight: 500;
 }
 
 /* Cliente */
 .cliente-flex {
     display: flex;
-    gap: 12px;
+    gap: 14px;
+    align-items: flex-start;
 }
 
 .avatar-mini {
-    width: 35px;
-    height: 35px;
-    background: #00c853;
-    color: white;
-    border-radius: 50%;
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    background: linear-gradient(145deg, #0077cc 0%, #0ea5e9 100%);
+    color: #fff;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
+    font-weight: 800;
+    font-size: 1rem;
+    text-transform: uppercase;
+    box-shadow: 0 4px 12px rgba(0, 119, 204, 0.22);
+}
+
+.cliente-datos {
+    min-width: 0;
 }
 
 .cliente-datos strong {
     display: block;
     font-size: 1rem;
-    margin-bottom: 5px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 8px;
 }
 
 .cliente-datos p {
-    margin: 2px 0;
+    margin: 0 0 6px;
     font-size: 0.8rem;
-    color: #777;
+    color: #64748b;
+    line-height: 1.4;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
 }
 
-/* Productos */
+.cliente-datos p:last-child {
+    margin-bottom: 0;
+}
+
+.cliente-datos p i {
+    flex-shrink: 0;
+    margin-top: 2px;
+    width: 14px;
+    text-align: center;
+    color: #0077cc;
+    opacity: 0.85;
+}
+
+.col-productos-lista {
+    min-width: 200px;
+}
+
+/* Productos en fila */
 .prod-mini-item {
     display: flex;
-    gap: 10px;
-    margin-bottom: 10px;
-    cursor: pointer;
+    gap: 12px;
+    align-items: center;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    background: #f8fafc;
+    border: 1px solid #eef2f7;
+    border-radius: 12px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.prod-mini-item:last-child {
+    margin-bottom: 0;
+}
+
+.prod-mini-item:hover {
+    border-color: #cfe8fc;
+    box-shadow: 0 2px 8px rgba(0, 119, 204, 0.08);
 }
 
 .img-placeholder-mini {
-    width: 45px;
-    height: 45px;
-    background: #eee;
-    border-radius: 4px;
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    background: #e2e8f0;
+    border-radius: 10px;
     overflow: hidden;
+    border: 1px solid #e8eef4;
 }
 
 .img-placeholder-mini img {
@@ -1775,30 +1858,72 @@
     object-fit: cover;
 }
 
+.prod-mini-info {
+    min-width: 0;
+}
+
 .prod-mini-info strong {
     display: block;
     font-size: 0.9rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 4px;
 }
 
 .prod-mini-info span {
     font-size: 0.75rem;
-    color: #888;
+    font-weight: 600;
+    color: #64748b;
 }
 
-/* Status y Total */
+/* Estado + total */
+.col-status-final {
+    min-width: 160px;
+}
+
+.status-box {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+}
+
 .select-gestion {
-    padding: 8px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    background: #d1d8e0;
-    font-weight: bold;
-    margin-bottom: 10px;
+    appearance: none;
+    -webkit-appearance: none;
+    width: 100%;
+    max-width: 200px;
+    padding: 10px 36px 10px 14px;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    background-color: #fff;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #334155;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.select-gestion:hover {
+    border-color: #0077cc;
+}
+
+.select-gestion:focus {
+    outline: none;
+    border-color: #0077cc;
+    box-shadow: 0 0 0 3px rgba(0, 119, 204, 0.18);
 }
 
 .total-destacado {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #333;
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
 }
 
 .metodo-pago {

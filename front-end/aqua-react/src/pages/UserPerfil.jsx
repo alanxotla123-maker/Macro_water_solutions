@@ -4,7 +4,7 @@ import MensajeModal from '../components/MensajeModal';
 import '../styles/UserProfile.css';
 
 const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
-    const [tabActivo, setTabActivo] = useState('historial'); 
+    const [tabActivo, setTabActivo] = useState('pedidos'); // Pestaña inicial: Pedidos
     const [pedidos, setPedidos] = useState([]); 
     const [productos, setProductos] = useState([]); 
     const [pedidoSeleccionado, setPedidoSeleccionado] = useState(null); 
@@ -25,7 +25,7 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
         setCargandoData(true);
         try {
             let endpoint = '';
-            if (tabActivo === 'historial') {
+            if (tabActivo === 'pedidos' || tabActivo === 'historial') {
                 endpoint = esAdmin ? 'api/admin/pedidos' : `api/mis-pedidos/${usuario.id}`;
             } else if (tabActivo === 'inventario') {
                 endpoint = 'api/productos';
@@ -53,6 +53,15 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
         fetchData(controller.signal);
         return () => controller.abort();
     }, [fetchData]);
+
+    // --- LÓGICA DE FILTRADO ---
+    const pedidosActivos = pedidos.filter(p => 
+        ['pagado', 'en proceso', 'enviado', 'pendiente'].includes(p.estado?.toLowerCase())
+    );
+
+    const historialPedidos = pedidos.filter(p => 
+        ['entregado', 'cancelado'].includes(p.estado?.toLowerCase())
+    );
 
     const abrirDetalleConVerificacion = async (prod) => {
         setProductoDetalle(prod);
@@ -127,7 +136,6 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
         } catch (error) { console.error(error); } finally { setCargandoEnvio(false); }
     };
 
-    // --- NUEVA FUNCIÓN PARA ACTUALIZAR DIRECCIÓN DEL PEDIDO ---
     const handleActualizarDireccionPedido = async (idPedidoAgrupado) => {
         try {
             const res = await fetch(`https://macrowatersolutions.com/api/pedidos/actualizar-direccion/${idPedidoAgrupado}`, {
@@ -142,7 +150,7 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
                     titulo: "¡Dirección Actualizada!", 
                     texto: "Se usará tu dirección actual para la entrega de este pedido." 
                 });
-                fetchData(); // Recargar la lista
+                fetchData(); 
             } else {
                 const errData = await res.json();
                 setModal({ abierto: true, tipo: "error", titulo: "No se puede cambiar", texto: errData.error || "Error al actualizar." });
@@ -153,6 +161,94 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
     };
 
     if (!usuario) return <div className="loading">Cargando perfil...</div>;
+
+    // --- RENDERIZADO DE TABLA ADMIN ---
+    const renderTablaAdmin = (lista) => (
+        <div className="gestion-pedido-panel view-fade-in">
+            <div className="gestion-table-wrap">
+                <table className="gestion-table">
+                    <thead>
+                        <tr>
+                            <th>ID PEDIDO</th>
+                            <th>CLIENTE</th>
+                            <th>FECHA</th>
+                            <th>PRODUCTOS</th>
+                            <th>ESTADO / TOTAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {lista.map((p) => (
+                            <tr key={p.id}>
+                                <td className="col-folio">#ORD-{p.id}</td>
+                                <td className="col-cliente">
+                                    <div className="cliente-flex">
+                                        <div className="avatar-mini">{p.cliente?.charAt(0)}</div>
+                                        <div className="cliente-datos">
+                                            <strong>{p.cliente}</strong>
+                                            <p><i className="fa-solid fa-location-dot"></i> {p.direccion_historica || p.direccion || 'No registrada'}</p>
+                                            <p><i className="fa-solid fa-envelope"></i> {p.correo}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td className="col-fecha">
+                                    {new Date(p.fecha).toLocaleDateString()}<br/>
+                                    <small>{new Date(p.fecha).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
+                                </td>
+                                <td className="col-productos-lista">
+                                    {p.productos?.map((item, idx) => (
+                                        <div key={idx} className="prod-mini-item">
+                                            <img src={item.imagen} alt="" width="30" />
+                                            <div className="prod-mini-info"><strong>{item.nombre}</strong><span>x{item.cantidad}</span></div>
+                                        </div>
+                                    ))}
+                                </td>
+                                <td className="col-status-final">
+                                    <div className="status-box">
+                                        <select 
+                                            value={p.estado?.toLowerCase()} 
+                                            onChange={(e) => handleCambiarEstado(p.id, e.target.value)}
+                                            className="select-gestion"
+                                        >
+                                            <option value="pagado">Pagado</option>
+                                            <option value="en proceso">En proceso</option>
+                                            <option value="enviado">Enviado</option>
+                                            <option value="entregado">Entregado</option>
+                                        </select>
+                                        <div className="total-destacado">${Number(p.total).toLocaleString()}</div>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
+
+    // --- RENDERIZADO DE LISTA CLIENTE ---
+    const renderListaCliente = (lista, mostrarCalificar = false) => (
+        <div className="pedidos-list-aqua">
+            {lista.length === 0 ? (
+                <p className="empty-msg">No hay registros para mostrar.</p>
+            ) : (
+                lista.map(p => (
+                    <div className="pedido-row-item" key={p.id}>
+                        <div className="pedido-info-left">
+                            <span className="pedido-id">Folio: {p.id}</span>
+                            <span className="pedido-date">{new Date(p.fecha).toLocaleDateString()}</span>
+                            <span className={`badge-status ${p.estado?.toLowerCase()}`}>{p.estado?.toUpperCase()}</span>
+                        </div>
+                        <div className="pedido-info-right">
+                            <span className="pedido-price-tag">${Number(p.total).toLocaleString()}</span>
+                            <button className="btn-ver-detalles" onClick={() => setPedidoSeleccionado(p)}>
+                                {mostrarCalificar ? "Calificar" : "Detalles"}
+                            </button>
+                        </div>
+                    </div>
+                ))
+            )}
+        </div>
+    );
 
     return (
         <div className="perfil-container-aqua">
@@ -173,14 +269,18 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
                 <aside className="perfil-sidebar-fixed">
                     <h4 className="sidebar-title">PANEL</h4>
                     <nav className="sidebar-nav">
+                        <button className={`nav-link ${tabActivo === 'pedidos' ? 'active' : ''}`} 
+                                onClick={() => {setTabActivo('pedidos'); setPedidoSeleccionado(null); setProductoDetalle(null);}}>
+                            <i className="fa-solid fa-box"></i> {esAdmin ? 'Ventas Activas' : 'Mis Pedidos'}
+                        </button>
                         <button className={`nav-link ${tabActivo === 'historial' ? 'active' : ''}`} 
                                 onClick={() => {setTabActivo('historial'); setPedidoSeleccionado(null); setProductoDetalle(null);}}>
-                            <i className="fa-solid fa-file-invoice-dollar"></i> {esAdmin ? 'Ventas Globales' : 'Mis Pedidos'}
+                            <i className="fa-solid fa-clock-rotate-left"></i> Historial
                         </button>
                         {esAdmin && (
                             <button className={`nav-link ${tabActivo === 'inventario' ? 'active' : ''}`} 
                                     onClick={() => {setTabActivo('inventario'); setProductoDetalle(null);}}>
-                                <i className="fa-solid fa-boxes-stacked"></i> Gestión Inventario
+                                <i className="fa-solid fa-boxes-stacked"></i> Inventario
                             </button>
                         )}
                         <button className={`nav-link ${tabActivo === 'direccion' ? 'active' : ''}`} 
@@ -196,9 +296,7 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
                 <section className="perfil-view-area-scrollable">
                     {productoDetalle ? (
                         <div className="ML-detalle-producto view-fade-in">
-                            <button onClick={() => setProductoDetalle(null)} className="btn-back-link-ML">
-                                <i className="fa-solid fa-arrow-left"></i> Volver
-                            </button>
+                            <button onClick={() => setProductoDetalle(null)} className="btn-back-link-ML"><i className="fa-solid fa-arrow-left"></i> Volver</button>
                             <div className="ML-grid-container">
                                 <div className="ML-col-img"><img src={productoDetalle.imagen} alt="" /></div>
                                 <div className="ML-col-info">
@@ -227,122 +325,42 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
                         </div>
                     ) : (
                         <div className="view-fade-in">
-                            {tabActivo === 'historial' && (
+                            {/* VISTA DE PEDIDOS O HISTORIAL */}
+                            {(tabActivo === 'pedidos' || tabActivo === 'historial') && (
                                 <>
-                                    <h3 className="view-title">{esAdmin ? "Panel de Ventas Realizadas" : "Mis Compras"}</h3>
+                                    <h3 className="view-title">
+                                        {tabActivo === 'pedidos' ? (esAdmin ? "Gestión de Ventas Activas" : "Mis Pedidos Activos") : "Historial de Finalizados"}
+                                    </h3>
                                     
                                     {esAdmin ? (
-                                        <div className="gestion-pedido-panel view-fade-in">
-                                            <table className="gestion-table">
-                                                <thead>
-                                                    <tr>
-                                                        <th>ID PEDIDO</th>
-                                                        <th>CLIENTE</th>
-                                                        <th>FECHA</th>
-                                                        <th>PRODUCTOS</th>
-                                                        <th>ESTADO / TOTAL</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {pedidos.map((p) => (
-                                                        <tr key={p.id}>
-                                                            <td className="col-folio">#ORD-{p.id}</td>
-                                                            <td className="col-cliente">
-                                                                <div className="cliente-flex">
-                                                                    <div className="avatar-mini">{p.cliente?.charAt(0)}</div>
-                                                                    <div className="cliente-datos">
-                                                                        <strong>{p.cliente}</strong>
-                                                                        <p><i className="fa-solid fa-location-dot"></i> {p.direccion_historica || p.direccion || 'No registrada'}</p>
-                                                                        <p><i className="fa-solid fa-phone"></i> {p.telefono || 'Sin teléfono'}</p>
-                                                                        <p><i className="fa-solid fa-envelope"></i> {p.correo}</p>
-                                                                    </div>
-                                                                </div>
-                                                            </td>
-                                                            <td className="col-fecha">
-                                                                {new Date(p.fecha).toLocaleDateString()}<br/>
-                                                                <small>{new Date(p.fecha).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
-                                                            </td>
-                                                            <td className="col-productos-lista">
-                                                                {p.productos?.map((item, idx) => (
-                                                                    <div key={idx} className="prod-mini-item">
-                                                                        <div className="img-placeholder-mini">
-                                                                            <img src={item.imagen} alt="" />
-                                                                        </div>
-                                                                        <div className="prod-mini-info">
-                                                                            <strong>{item.nombre}</strong>
-                                                                            <span>Cant: {item.cantidad}</span>
-                                                                        </div>
-                                                                    </div>
-                                                                ))}
-                                                            </td>
-                                                            <td className="col-status-final">
-                                                                <div className="status-box">
-                                                                    <select 
-                                                                        value={p.estado?.toLowerCase()} 
-                                                                        onChange={(e) => handleCambiarEstado(p.id, e.target.value)}
-                                                                        className="select-gestion"
-                                                                    >
-                                                                        <option value="pagado">Pagado</option>
-                                                                        <option value="en proceso">En proceso</option>
-                                                                        <option value="enviado">Enviado</option>
-                                                                        <option value="entregado">Entregado</option>
-                                                                    </select>
-                                                                    <div className="total-destacado">${Number(p.total).toLocaleString()}</div>
-                                                                </div>
-                                                            </td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </div>
+                                        renderTablaAdmin(tabActivo === 'pedidos' ? pedidosActivos : historialPedidos)
                                     ) : (
-                                        <div className="pedidos-list-aqua">
-                                            {pedidos.map(p => (
-                                                <div className="pedido-row-item" key={p.id}>
-                                                    <div className="pedido-info-left">
-                                                        <span className="pedido-id">Folio: {p.id}</span>
-                                                        <span className="pedido-date">{new Date(p.fecha).toLocaleDateString()}</span>
-                                                        <span className={`badge-status ${p.estado?.toLowerCase()}`}>{p.estado?.toUpperCase()}</span>
+                                        renderListaCliente(tabActivo === 'pedidos' ? pedidosActivos : historialPedidos, tabActivo === 'historial')
+                                    )}
+
+                                    {pedidoSeleccionado && (
+                                        <div className="detalle-pedido-container view-fade-in">
+                                            <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '15px'}}>
+                                                <button onClick={() => setPedidoSeleccionado(null)} className="btn-back-link">Cerrar detalle</button>
+                                                {/* Cambio de dirección solo en pedidos activos */}
+                                                {tabActivo === 'pedidos' && !esAdmin && (
+                                                    <button className="btn-update-address-order" onClick={() => handleActualizarDireccionPedido(pedidoSeleccionado.id)} style={{background: '#24a0ed', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem'}}>
+                                                        Usar dirección actual del perfil
+                                                    </button>
+                                                )}
+                                            </div>
+                                            <div className="ML-mini-list-container">
+                                                {pedidoSeleccionado.productos?.map((item, idx) => (
+                                                    <div key={idx} className="ML-mini-item" onClick={() => tabActivo === 'historial' && abrirDetalleConVerificacion(item)} style={{cursor: tabActivo === 'historial' ? 'pointer' : 'default'}}>
+                                                        <img src={item.imagen} alt="" width="60" />
+                                                        <div className="ML-mini-info">
+                                                            <span className="ML-mini-name">{item.nombre}</span>
+                                                            {tabActivo === 'historial' && <span className="ML-link-detail">Escribir reseña</span>}
+                                                        </div>
+                                                        <div className="ML-mini-meta"><strong>${Number(item.precio || item.total_linea).toLocaleString()}</strong></div>
                                                     </div>
-                                                    <div className="pedido-info-right">
-                                                        <span className="pedido-price-tag">${Number(p.total).toLocaleString()}</span>
-                                                        <button className="btn-ver-detalles" onClick={() => setPedidoSeleccionado(p)}>Ver Detalles</button>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                            {pedidoSeleccionado && (
-                                                <div className="detalle-pedido-container view-fade-in">
-                                                    <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '15px'}}>
-                                                        <button onClick={() => setPedidoSeleccionado(null)} className="btn-back-link">Cerrar detalle</button>
-                                                        
-                                                        {/* BOTÓN PARA ACTUALIZAR DIRECCIÓN DEL PEDIDO */}
-                                                        {['pagado', 'pendiente', 'en proceso'].includes(pedidoSeleccionado.estado?.toLowerCase()) && (
-                                                            <button 
-                                                                className="btn-update-address-order"
-                                                                onClick={() => handleActualizarDireccionPedido(pedidoSeleccionado.id)}
-                                                                style={{background: '#24a0ed', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem'}}
-                                                            >
-                                                                <i className="fa-solid fa-truck-ramp-box"></i> Usar mi dirección actual
-                                                            </button>
-                                                        )}
-                                                    </div>
-                                                    
-                                                    <div className="ML-mini-list-container">
-                                                        {pedidoSeleccionado.productos?.map((item, idx) => (
-                                                            <div key={idx} className="ML-mini-item" onClick={() => abrirDetalleConVerificacion(item)} style={{cursor:'pointer'}}>
-                                                                <img src={item.imagen} alt="" width="60" />
-                                                                <div className="ML-mini-info">
-                                                                    <span className="ML-mini-name">{item.nombre}</span>
-                                                                    <span className="ML-link-detail">Calificar compra</span>
-                                                                </div>
-                                                                <div className="ML-mini-meta">
-                                                                    <strong>${Number(item.precio || item.total_linea).toLocaleString()}</strong>
-                                                                </div>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            )}
+                                                ))}
+                                            </div>
                                         </div>
                                     )}
                                 </>
@@ -386,8 +404,14 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
                                         <div className="form-group-fancy"><label>Ciudad</label><input name="ciudad" className="input-aqua" required /></div>
                                     </div>
                                     <div className="form-row-fancy">
-                                        <div className="form-group-fancy"><label>CP</label><input name="cp" className="input-aqua" required /></div>
-                                        <div className="form-group-fancy"><label>Teléfono</label><input name="telefono" className="input-aqua" required /></div>
+                                        <div className="form-group-fancy">
+                                            <label>CP</label>
+                                            <input name="cp" className="input-aqua" required inputMode="numeric" maxLength={5} minLength={5} pattern="\d{5}" onInput={(e) => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 5); }} />
+                                        </div>
+                                        <div className="form-group-fancy">
+                                            <label>Teléfono</label>
+                                            <input name="telefono" className="input-aqua" required inputMode="tel" maxLength={10} minLength={10} pattern="\d{10}" onInput={(e) => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10); }} />
+                                        </div>
                                     </div>
                                     <button type="submit" className="confirm-btn-fancy" disabled={cargandoEnvio}>Actualizar Dirección</button>
                                 </form>

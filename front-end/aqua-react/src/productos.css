@@ -807,3 +807,64 @@
     font-size: 1.2rem;
     font-weight: 500;
 }
+.precio-container-grid {
+    margin-bottom: 10px;
+}
+
+/* Precio con descuento en tarjeta (precio tachado arriba, oferta + badge OFF al lado) */
+.precio-con-descuento-card {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-start;
+}
+
+.precio-original-tachado {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #9ca3af;
+    text-decoration: line-through;
+    line-height: 1.2;
+}
+
+.precio-fila-oferta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    line-height: 1.15;
+}
+
+.precio-oferta-final {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #111827;
+    letter-spacing: -0.02em;
+}
+
+.precio-badge-off {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #00a650;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: rgba(0, 166, 80, 0.12);
+    border: 1px solid rgba(0, 166, 80, 0.22);
+    white-space: nowrap;
+}
+
+.precio { color: #2a9fd6; font-weight: 800; font-size: 22px; }
+
+.badge-descuento-grid {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 2;
+    background: rgba(0, 166, 80, 0.92);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 6px 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
