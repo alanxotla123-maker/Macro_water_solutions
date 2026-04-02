@@ -6,6 +6,28 @@
     align-items: center;
 }
 
+.productos-header-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 50px;
+    width: 100%;
+    max-width: 1200px;
+    padding: 0 20px;
+}
+
+.productos-header-block .productos-titulo {
+    margin-bottom: 0;
+    text-align: center;
+    width: 100%;
+}
+
+.productos-header-block .search-status-chip {
+    flex-shrink: 0;
+}
+
 .productos-titulo {
     font-size: 36px;
     font-weight: 800;
@@ -13,10 +35,87 @@
     color: #1a1a1a;
 }
 
-.search-badge {
-    font-size: 0.5em;
-    font-weight: 600;
+/* Chip de búsqueda: lupa | texto | cerrar (debajo del título, centrado) */
+.search-status-chip {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 8px 8px 16px;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 999px;
+    box-shadow: 0 2px 12px rgba(0, 119, 204, 0.1);
+    max-width: min(100%, 520px);
+}
+
+.search-status-lupa {
     color: #0077cc;
+    font-size: 1rem;
+    opacity: 0.95;
+    flex-shrink: 0;
+}
+
+.search-status-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    min-width: 0;
+    flex: 1;
+}
+
+.search-status-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #64748b;
+    line-height: 1.2;
+}
+
+.search-status-query {
+    font-size: 0.95rem;
+    font-weight: 700;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.3;
+    padding: 0;
+    margin: 0;
+    color: #0f172a;
+    background: none;
+    border: none;
+}
+
+.search-status-clear {
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 50%;
+    background: #f1f5f9;
+    color: #64748b;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s, transform 0.15s;
+}
+
+.search-status-clear:hover {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.search-status-clear:active {
+    transform: scale(0.95);
+}
+
+.search-status-clear i {
+    font-size: 0.85rem;
+    line-height: 1;
 }
 
 .no-resultados {
@@ -93,7 +192,91 @@
 }
 
 .producto-info { padding: 25px; }
+
+/* Valoración en tarjeta (solo si hay reseñas; sin texto “Sin reseñas”) */
+.producto-card-rating {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 1.25rem;
+    margin-top: 6px;
+    margin-bottom: 10px;
+}
+
+.producto-card-star {
+    color: #0077cc;
+    font-size: 0.9rem;
+    line-height: 1;
+}
+
+.producto-card-rating-num {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #111827;
+    line-height: 1;
+}
+
+.precio-container-grid {
+    margin-bottom: 10px;
+}
+
+/* Precio con descuento en tarjeta (precio tachado arriba, oferta + badge OFF al lado) */
+.precio-con-descuento-card {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-start;
+}
+
+.precio-original-tachado {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #9ca3af;
+    text-decoration: line-through;
+    line-height: 1.2;
+}
+
+.precio-fila-oferta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    line-height: 1.15;
+}
+
+.precio-oferta-final {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #111827;
+    letter-spacing: -0.02em;
+}
+
+.precio-badge-off {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #00a650;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: rgba(0, 166, 80, 0.12);
+    border: 1px solid rgba(0, 166, 80, 0.22);
+    white-space: nowrap;
+}
+
 .precio { color: #2a9fd6; font-weight: 800; font-size: 22px; }
+
+.badge-descuento-grid {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 2;
+    background: rgba(0, 166, 80, 0.92);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 6px 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
 
 .btn-carrito {
     width: 100%;
@@ -724,7 +907,7 @@
     font-weight: 600;
 }
 
-/* Rating arriba del nombre */
+/* Rating arriba del nombre (solo se renderiza si hay opiniones) */
 .ML-rating-top {
     display: flex;
     align-items: center;
@@ -737,7 +920,6 @@
     color: #666;
 }
 
-/* Fila de estrellas en cada comentario */
 .stars-row {
     margin-bottom: 5px;
 }

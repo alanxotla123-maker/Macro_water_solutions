@@ -4,8 +4,14 @@ import MensajeModal from "../components/MensajeModal";
 import "../productos.css";
 
 function ProductosPage({ agregarAlCarrito, usuario }) {
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
     const queryBusqueda = searchParams.get("q") || "";
+
+    const limpiarBusqueda = () => {
+        const next = new URLSearchParams(searchParams);
+        next.delete("q");
+        setSearchParams(next, { replace: true });
+    };
     const [productos, setProductos] = useState([]);
     const [productosOriginales, setProductosOriginales] = useState([]);
     const [cargando, setCargando] = useState(true);
@@ -97,7 +103,7 @@ function ProductosPage({ agregarAlCarrito, usuario }) {
 
     const renderEstrellas = (rating) => {
         return [...Array(5)].map((_, i) => (
-            <i key={i} className={`fa-star ${i < Math.round(rating) ? 'fa-solid' : 'fa-regular'}`} 
+            <i key={i} className={`fa-star ${i < Math.round(rating) ? 'fa-solid' : 'fa-regular'}`}
                style={{ color: "#ffb300", fontSize: '0.9rem' }}></i>
         ));
     };
@@ -107,10 +113,30 @@ function ProductosPage({ agregarAlCarrito, usuario }) {
     return (
         <section className="productos-section">
             {!productoEnDetalle && (
-                <h2 className="productos-titulo">
-                    {esAdmin ? "Panel de Gestión de Inventario" : "Nuestros Productos"}
-                    {queryBusqueda && <span className="search-badge"> Buscando: "{queryBusqueda}"</span>}
-                </h2>
+                <div className="productos-header-block">
+                    <h2 className="productos-titulo">
+                        {esAdmin ? "Panel de Gestión de Inventario" : "Nuestros Productos"}
+                    </h2>
+                    {queryBusqueda.trim() && (
+                        <div className="search-status-chip" role="status" aria-live="polite">
+                            <i className="fa-solid fa-magnifying-glass search-status-lupa" aria-hidden="true"></i>
+                            <span className="search-status-inner">
+                                <span className="search-status-label">Búsqueda activa</span>
+                                <span className="search-status-query" title={queryBusqueda}>
+                                    {queryBusqueda}
+                                </span>
+                            </span>
+                            <button
+                                type="button"
+                                className="search-status-clear"
+                                onClick={limpiarBusqueda}
+                                aria-label="Quitar búsqueda y ver todos los productos"
+                            >
+                                <i className="fa-solid fa-xmark" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    )}
+                </div>
             )}
 
             {productoEnDetalle ? (
@@ -125,10 +151,12 @@ function ProductosPage({ agregarAlCarrito, usuario }) {
                                 <img src={productoEnDetalle.imagen} alt={productoEnDetalle.nombre} />
                             </div>
                             <div className="ML-info-section">
-                                <div className="ML-rating-top">
-                                    {renderEstrellas(promedioRating)}
-                                    <span className="ML-reviews-count">({totalReviews} opiniones)</span>
-                                </div>
+                                {totalReviews > 0 && (
+                                    <div className="ML-rating-top">
+                                        {renderEstrellas(promedioRating)}
+                                        <span className="ML-reviews-count">({totalReviews} opiniones)</span>
+                                    </div>
+                                )}
                                 <h1 className="ML-title">{productoEnDetalle.nombre}</h1>
                                 
                                 {/* --- PRECIO CON DESCUENTO DETALLE --- */}
@@ -202,26 +230,35 @@ function ProductosPage({ agregarAlCarrito, usuario }) {
                             </div>
                             <div className="producto-info">
                                 <h3 onClick={() => abrirDetalle(prod)} style={{cursor: 'pointer'}}>{prod.nombre}</h3>
-                                
-                                {/* --- PRECIO CON DESCUENTO GRID --- */}
-                                <div className="precio-container-grid" style={{ marginBottom: '10px' }}>
+                                {Number(prod.totalReviews) > 0 && (
+                                    <div className="producto-card-rating" aria-label={`Valoración ${Number(prod.promedio).toFixed(1)} de 5`}>
+                                        <i className="fa-solid fa-star producto-card-star" aria-hidden="true"></i>
+                                        <span className="producto-card-rating-num">{Number(prod.promedio).toFixed(1)}</span>
+                                    </div>
+                                )}
+
+                                <div className="precio-container-grid">
                                     {prod.descuento > 0 ? (
-                                        <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', flexWrap: 'wrap' }}>
-                                            <span style={{ textDecoration: 'line-through', color: '#999', fontSize: '0.85rem' }}>
-                                                ${prod.precio}
+                                        <div className="precio-con-descuento-card">
+                                            <span className="precio-original-tachado">
+                                                ${Number(prod.precio).toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
                                             </span>
-                                            <span className="precio" style={{ color: '#e84118' }}>
-                                                ${(prod.precio * (1 - prod.descuento / 100)).toFixed(2)}
-                                            </span>
+                                            <div className="precio-fila-oferta">
+                                                <span className="precio-oferta-final">
+                                                    ${Number(prod.precio * (1 - prod.descuento / 100)).toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
+                                                </span>
+                                                <span className="precio-badge-off">{Math.round(Number(prod.descuento))}% OFF</span>
+                                            </div>
                                         </div>
                                     ) : (
-                                        <span className="precio">${prod.precio}</span>
+                                        <span className="precio">
+                                            ${Number(prod.precio).toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
+                                        </span>
                                     )}
                                 </div>
 
                                 <div className="acciones-container">
                                     <button className="btn-carrito" onClick={() => agregarAlCarrito(prod, (ok, msg) => mostrarToast(msg, !ok))}>🛒 Agregar</button>
-                                    <button className="btn-detalles-link" onClick={() => abrirDetalle(prod)}>Ver más</button>
                                     {esAdmin && (
                                         <div className="acciones-admin">
                                             <button className="btn-edit" onClick={() => navigate(`/admin/editar/${prod.id}`)}>✏️</button>

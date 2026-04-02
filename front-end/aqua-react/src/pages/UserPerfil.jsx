@@ -233,6 +233,7 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
                                     
                                     {esAdmin ? (
                                         <div className="gestion-pedido-panel view-fade-in">
+                                            <div className="gestion-table-wrap">
                                             <table className="gestion-table">
                                                 <thead>
                                                     <tr>
@@ -294,6 +295,7 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
                                                     ))}
                                                 </tbody>
                                             </table>
+                                            </div>
                                         </div>
                                     ) : (
                                         <div className="pedidos-list-aqua">
@@ -386,8 +388,38 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
                                         <div className="form-group-fancy"><label>Ciudad</label><input name="ciudad" className="input-aqua" required /></div>
                                     </div>
                                     <div className="form-row-fancy">
-                                        <div className="form-group-fancy"><label>CP</label><input name="cp" className="input-aqua" required /></div>
-                                        <div className="form-group-fancy"><label>Teléfono</label><input name="telefono" className="input-aqua" required /></div>
+                                        <div className="form-group-fancy">
+                                            <label>CP</label>
+                                            <input
+                                                name="cp"
+                                                className="input-aqua"
+                                                required
+                                                inputMode="numeric"
+                                                autoComplete="postal-code"
+                                                maxLength={5}
+                                                minLength={5}
+                                                pattern="\d{5}"
+                                                title="5 dígitos del código postal"
+                                                placeholder="Ej. 64000"
+                                                onInput={(e) => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 5); }}
+                                            />
+                                        </div>
+                                        <div className="form-group-fancy">
+                                            <label>Teléfono</label>
+                                            <input
+                                                name="telefono"
+                                                className="input-aqua"
+                                                required
+                                                inputMode="tel"
+                                                autoComplete="tel"
+                                                maxLength={10}
+                                                minLength={10}
+                                                pattern="\d{10}"
+                                                title="10 dígitos, sin espacios ni guiones"
+                                                placeholder="10 dígitos"
+                                                onInput={(e) => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10); }}
+                                            />
+                                        </div>
                                     </div>
                                     <button type="submit" className="confirm-btn-fancy" disabled={cargandoEnvio}>Actualizar Dirección</button>
                                 </form>
