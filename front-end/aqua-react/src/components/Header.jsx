@@ -72,7 +72,7 @@ function Header({ abrirCarrito, abrirLogin, usuario, cerrarSesion, conteo }) {
     <header className="main-header">
       <div className="header-content">
         <Link to="/" className="logo" style={{ textDecoration: "none", color: "inherit" }}>
-          <img src="/imagenes/logo1.1.png" className="logo-img" alt="Logo" />
+          <img src="/favicon.ico" className="logo-img" alt="Logo" />
           <span className="logo-text">
             Macro <br /><span className="pro logo-ws">Water Solutions</span>
           </span>

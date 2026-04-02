@@ -13,8 +13,8 @@ function Nosotros() {
           <p>
           En Macro Water Solutions ofrecemos productos especializados para el mantenimiento y cuidado de albercas y piscinas, diseñados para garantizar agua limpia, segura y cristalina. Contamos con soluciones profesionales como químicos para piscinas, 
           sistemas de filtración, accesorios de limpieza y equipos de mantenimiento.
-Nuestra misión es brindar productos de alta calidad que faciliten el tratamiento del agua, mejoren la durabilidad de las instalaciones 
-  y aseguren una experiencia óptima en cada uso.
+          Nuestra misión es brindar productos de alta calidad que faciliten el tratamiento del agua, mejoren la durabilidad de las instalaciones 
+          y aseguren una experiencia óptima en cada uso.
           </p>
 
           <div className="nosotros-beneficios">
