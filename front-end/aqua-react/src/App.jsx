@@ -8,6 +8,9 @@ import AuthModal from "./components/AuthModal";
 import Carrito from "./components/Carrito";
 import MensajeModal from "./components/MensajeModal";
 import Checkout from "./components/CheckOut";
+// --- NUEVOS COMPONENTES (Crea estos archivos en tu carpeta pages) ---
+import PagoExitoso from "./pages/PagoExito"; 
+import PagoFallido from "./pages/PagoFallido";
 
 // PÁGINAS
 import Adminagregar from "./pages/AdminAgregar";
@@ -36,6 +39,12 @@ function App() {
   useEffect(() => {
     localStorage.setItem("carrito_pro", JSON.stringify(carrito));
   }, [carrito]);
+
+  // --- NUEVA FUNCIÓN: VACIAR CARRITO ---
+  const vaciarCarrito = () => {
+    setCarrito([]);
+    localStorage.removeItem("carrito_pro");
+  };
 
   const handleLogin = (datosUsuario) => {
     setUsuario(datosUsuario);
@@ -138,6 +147,10 @@ function App() {
             <Route path="/admin" element={usuario?.rol === "admin" || usuario?.rol_id == 1 ? <Adminagregar usuario={usuario} /> : <Navigate to="/" />} />
 
             <Route path="/admin/editar/:id" element={usuario?.rol === "admin" || usuario?.rol_id == 1 ? <EditarProducto /> : <Navigate to="/" />} />
+
+            {/* RUTAS DE MERCADO PAGO */}
+            <Route path="/pago-exitoso" element={<PagoExitoso vaciarCarrito={vaciarCarrito} />} />
+            <Route path="/pago-fallido" element={<PagoFallido />} />
 
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>

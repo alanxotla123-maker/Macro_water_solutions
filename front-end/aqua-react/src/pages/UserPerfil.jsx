@@ -1,237 +1,402 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import MensajeModal from '../components/MensajeModal';
 import '../styles/UserProfile.css';
 
 const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
-    const [mostrarForm, setMostrarForm] = useState(false);
-    const [cargando, setCargando] = useState(false);
-    const [tabActivo, setTabActivo] = useState('inventario');
-    const [productos, setProductos] = useState([]);
-    const [cargandoProductos, setCargandoProductos] = useState(false);
-    const [modal, setModal] = useState({ abierto: false, tipo: '', titulo: '', texto: '' });
-    const [idAEliminar, setIdAEliminar] = useState(null);
-    const navigate = useNavigate();
+    const [tabActivo, setTabActivo] = useState('historial'); 
+    const [pedidos, setPedidos] = useState([]); 
+    const [productos, setProductos] = useState([]); 
+    const [pedidoSeleccionado, setPedidoSeleccionado] = useState(null); 
+    const [productoDetalle, setProductoDetalle] = useState(null); 
+    const [nuevoComentario, setNuevoComentario] = useState("");
+    const [estrellasSeleccionadas, setEstrellasSeleccionadas] = useState(5);
+    const [yaCalificado, setYaCalificado] = useState(false);
+    const [cargandoData, setCargandoData] = useState(false);
+    const [cargandoEnvio, setCargandoEnvio] = useState(false);
+    const [modal, setModal] = useState({ abierto: false, tipo: "", titulo: "", texto: "" });
 
+    const navigate = useNavigate();
     const esAdmin = usuario && (usuario.rol == 1 || usuario.rol === 'admin' || usuario.rol_id == 1);
 
-    useEffect(() => {
-        if (esAdmin && tabActivo === 'inventario') {
-            setCargandoProductos(true);
-            fetch('https://macrowatersolutions.com/api/productos')
-                .then(res => res.json())
-                .then(data => setProductos(data))
-                .catch(err => console.error('Error cargando productos:', err))
-                .finally(() => setCargandoProductos(false));
-        }
-    }, [esAdmin, tabActivo]);
-
-    const ejecutarEliminado = async () => {
-        setModal(m => ({ ...m, abierto: false }));
+    // 1. CARGA DE DATOS
+    const fetchData = useCallback(async (signal) => {
+        if (!usuario?.id) return;
+        setCargandoData(true);
         try {
-            const res = await fetch(`https://macrowatersolutions.com/api/productos/${idAEliminar}`, { method: 'DELETE' });
-            if (res.ok) {
-                setModal({ abierto: true, tipo: 'exito', titulo: '¡Borrado!', texto: 'Producto eliminado correctamente.' });
-                setProductos(prev => prev.filter(p => p.id !== idAEliminar));
-            } else {
-                setModal({ abierto: true, tipo: 'error', titulo: 'Error', texto: 'No se pudo eliminar el producto.' });
+            let endpoint = '';
+            if (tabActivo === 'historial') {
+                endpoint = esAdmin ? 'api/admin/pedidos' : `api/mis-pedidos/${usuario.id}`;
+            } else if (tabActivo === 'inventario') {
+                endpoint = 'api/productos';
             }
-        } catch (e) {
-            setModal({ abierto: true, tipo: 'error', titulo: 'Error', texto: 'No se pudo conectar con el servidor.' });
+            if (!endpoint) return;
+
+            const res = await fetch(`https://macrowatersolutions.com/${endpoint}`, { signal });
+            if (!res.ok) throw new Error('Error en el servidor');
+            const data = await res.json();
+            
+            if (tabActivo === 'inventario') {
+                setProductos(Array.isArray(data) ? data : []);
+            } else {
+                setPedidos(Array.isArray(data) ? data : []);
+            }
+        } catch (err) {
+            if (err.name !== 'AbortError') console.error('Error:', err);
+        } finally {
+            setCargandoData(false);
+        }
+    }, [tabActivo, usuario?.id, esAdmin]);
+
+    useEffect(() => {
+        const controller = new AbortController();
+        fetchData(controller.signal);
+        return () => controller.abort();
+    }, [fetchData]);
+
+    const abrirDetalleConVerificacion = async (prod) => {
+        setProductoDetalle(prod);
+        setYaCalificado(false);
+        const pId = prod.id || prod.producto_id;
+        try {
+            const res = await fetch(`https://macrowatersolutions.com/api/productos/${pId}/comentarios`);
+            const data = await res.json();
+            const lista = data.comentarios || (Array.isArray(data) ? data : []);
+            const encontro = lista.some(c => c.nombre === usuario.nombre);
+            if (encontro) setYaCalificado(true);
+        } catch (e) { console.error(e); }
+    };
+
+    const handleCambiarEstado = async (idPedidoAgrupado, nuevoEstado) => {
+        try {
+            const res = await fetch(`https://macrowatersolutions.com/api/admin/pedidos/status`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id_pedidos: idPedidoAgrupado, nuevoEstado })
+            });
+            if (res.ok) {
+                setPedidos(prev => prev.map(p => p.id === idPedidoAgrupado ? { ...p, estado: nuevoEstado } : p));
+                setModal({
+                    abierto: true,
+                    tipo: "exito",
+                    titulo: "Estado actualizado",
+                    texto: "El estado del pedido se ha actualizado correctamente."
+                });
+            }
+        } catch (error) { 
+            setModal({ abierto: true, tipo: "error", titulo: "Error", texto: "Sin conexión." });
         }
     };
 
-    const getStockClass = (stock) => {
-        if (!stock || stock <= 0) return 'stock-agotado';
-        if (stock <= 5) return 'stock-bajo';
-        return 'stock-ok';
+    const handleEnviarComentario = async () => {
+        const pId = productoDetalle?.id || productoDetalle?.producto_id;
+        if (!nuevoComentario.trim()) {
+            setModal({ abierto: true, tipo: "error", titulo: "Atención", texto: "Escribe un comentario." });
+            return;
+        }
+        try {
+            const res = await fetch(`https://macrowatersolutions.com/api/productos/comentario`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    producto_id: pId, usuario_id: usuario.id, comentario: nuevoComentario, calificacion: estrellasSeleccionadas
+                })
+            });
+            if (res.ok) {
+                setModal({ abierto: true, tipo: "exito", titulo: "¡Gracias!", texto: "Comentario publicado." });
+                setYaCalificado(true);
+            }
+        } catch (error) { console.error(error); }
     };
-
-    if (!usuario) return <div className="loading">Cargando perfil...</div>;
 
     const handleSubmitDireccion = async (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
-        
-        const calle = formData.get('calle');
-        const colonia = formData.get('colonia');
-        const ciudad = formData.get('ciudad');
-        const cp = formData.get('cp');
-        const telefono = formData.get('telefono');
-
-        // Formato unificado
-        const direccionFinal = `${calle}, Col. ${colonia}, ${ciudad}, CP: ${cp} - Tel: ${telefono}`;
-        
-        setCargando(true);
+        const direccionFinal = `${formData.get('calle')}, Col. ${formData.get('colonia')}, ${formData.get('ciudad')}, CP: ${formData.get('cp')} - Tel: ${formData.get('telefono')}`;
+        setCargandoEnvio(true);
         try {
-            // CAMBIO AQUÍ: Usamos direccionFinal en el body
             const res = await fetch(`https://macrowatersolutions.com/api/auth/UpdateD/${usuario.id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ direccion: direccionFinal }) 
             });
-
             if (res.ok) {
-                // 1. Actualizamos el estado global de la App
                 if (onActualizarDireccion) onActualizarDireccion(direccionFinal);
-                
-                // 2. IMPORTANTE: Actualizar el localStorage para que al recargar no se pierda
-                const usuarioLocal = JSON.parse(localStorage.getItem("usuario_aqua"));
-                if(usuarioLocal) {
-                    usuarioLocal.direccion = direccionFinal;
-                    localStorage.setItem("usuario_aqua", JSON.stringify(usuarioLocal));
-                }
-
-                setMostrarForm(false);
-                alert("¡Dirección actualizada con éxito!");
-                window.location.reload();
-            } else {
-                const errorData = await res.json();
-                alert(`Error: ${errorData.message || 'No se pudo actualizar'}`);
+                setModal({ abierto: true, tipo: "exito", titulo: "Éxito", texto: "Dirección guardada." });
             }
-        } catch (error) {
-            console.error("Error al actualizar:", error);
-            alert("Error de conexión con el servidor");
-        } finally { setCargando(false); }
+        } catch (error) { console.error(error); } finally { setCargandoEnvio(false); }
     };
 
+    // --- NUEVA FUNCIÓN PARA ACTUALIZAR DIRECCIÓN DEL PEDIDO ---
+    const handleActualizarDireccionPedido = async (idPedidoAgrupado) => {
+        try {
+            const res = await fetch(`https://macrowatersolutions.com/api/pedidos/actualizar-direccion/${idPedidoAgrupado}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nuevaDireccion: usuario.direccion })
+            });
+            if (res.ok) {
+                setModal({ 
+                    abierto: true, 
+                    tipo: "exito", 
+                    titulo: "¡Dirección Actualizada!", 
+                    texto: "Se usará tu dirección actual para la entrega de este pedido." 
+                });
+                fetchData(); // Recargar la lista
+            } else {
+                const errData = await res.json();
+                setModal({ abierto: true, tipo: "error", titulo: "No se puede cambiar", texto: errData.error || "Error al actualizar." });
+            }
+        } catch (error) {
+            setModal({ abierto: true, tipo: "error", titulo: "Error", texto: "Sin conexión con el servidor." });
+        }
+    };
+
+    if (!usuario) return <div className="loading">Cargando perfil...</div>;
+
     return (
-        <div className="user-panel-container">
-            <div className="profile-header-card">
-                <div className="profile-banner-blue"></div>
-                <div className="profile-content">
-                    <div className="avatar-circle">
-                        <i className="fa-regular fa-user"></i>
-                    </div>
+        <div className="perfil-container-aqua">
+            <header className="profile-header-card-centered">
+                <div className="avatar-circle"><i className="fa-regular fa-user"></i></div>
+                <div className="user-meta-centered">
                     <h3 className="user-name-title">{usuario.nombre}</h3>
-                    <div className="user-info-section">
-                        <div className="tag-container">
-                            <span className={esAdmin ? 'badge-admin' : 'badge-cliente'}>{esAdmin ? 'ADMIN' : 'CLIENTE'}</span><br/>
-                            <span className="user-email-text">{usuario.correo}</span>
-                        </div>
-                        <div className="address-display-box">
-                            <i className="fa-solid fa-location-dot icon-gps"></i>
-                            <span className="address-text">
-                                {usuario.direccion || "Dirección no ingresada"}
-                            </span>
-                        </div>
-                        <button 
-                            className={`btn-toggle-form ${mostrarForm ? 'cancel' : 'edit'}`}
-                            onClick={() => setMostrarForm(!mostrarForm)}
-                        >
-                            {mostrarForm ? 'Cancelar' : 'Actualizar dirección'}
-                        </button>
+                    <span className="user-email-text">{usuario.correo}</span>
+                    <div className="badge-role-container">
+                        <span className={esAdmin ? 'badge-admin' : 'badge-cliente'}>
+                            {esAdmin ? 'MODO ADMINISTRADOR' : 'CLIENTE'}
+                        </span>
                     </div>
-
-                    {mostrarForm && (
-                        <div className="shipping-container-fancy">
-                            <div className="divider-line"></div>
-                            <h4 className="shipping-title-fancy">Dirección de Envío</h4>
-                            <form onSubmit={handleSubmitDireccion} className="fancy-form">
-                                <div className="form-group-fancy">
-                                    <label>Calle y Número</label>
-                                    <input name="calle" type="text" placeholder="Ej. Paseo de la Alborada 1001" required />
-                                </div>
-                                <div className="form-row-fancy">
-                                    <div className="form-group-fancy">
-                                        <label>Colonia</label>
-                                        <input name="colonia" type="text" placeholder="Ej. El Pueblito" required />
-                                    </div>
-                                    <div className="form-group-fancy">
-                                        <label>Teléfono</label>
-                                        <input name="telefono" type="tel" placeholder="442 275 2025" required />
-                                    </div>
-                                </div>
-                                <div className="form-row-fancy">
-                                    <div className="form-group-fancy">
-                                        <label>Ciudad</label>
-                                        <input name="ciudad" type="text" placeholder="Querétaro" required />
-                                    </div>
-                                    <div className="form-group-fancy">
-                                        <label>C.P.</label>
-                                        <input name="cp" type="text" placeholder="76113" required />
-                                    </div>
-                                </div>
-                                <button type="submit" className="confirm-btn-fancy" disabled={cargando}>
-                                    {cargando ? "Guardando..." : "Confirmar Dirección"}
-                                </button>
-                            </form>
-                        </div>
-                    )}
                 </div>
-            </div>
+            </header>
 
-            {esAdmin && (
-                <div className="control-panel-card">
-                    <div className="control-panel-header">
-                        <i className="fa-solid fa-th-large icon-panel"></i>
-                        <div>
-                            <h4 className="control-panel-title">Panel de Control</h4>
-                            <p className="control-panel-desc">Gestión general de la tienda y métricas.</p>
-                        </div>
-                    </div>
-                    <div className="control-panel-tabs">
-                        <button className={`tab-item ${tabActivo === 'pedidos' ? 'active' : ''}`} onClick={() => setTabActivo('pedidos')}>Pedidos</button>
-                        <button className={`tab-item ${tabActivo === 'inventario' ? 'active' : ''}`} onClick={() => setTabActivo('inventario')}>Inventario</button>
-                    </div>
-                    {tabActivo === 'inventario' && (
-                        <div className="inventario-content">
-                            <div className="inventario-header">
-                                <h5 className="inventario-subtitle">Listado de productos</h5>
-                                <Link to="/admin" className="btn-agregar-nuevo"><i className="fa-solid fa-plus"></i> Agregar Nuevo</Link>
+            <div className="perfil-main-content-static">
+                <aside className="perfil-sidebar-fixed">
+                    <h4 className="sidebar-title">PANEL</h4>
+                    <nav className="sidebar-nav">
+                        <button className={`nav-link ${tabActivo === 'historial' ? 'active' : ''}`} 
+                                onClick={() => {setTabActivo('historial'); setPedidoSeleccionado(null); setProductoDetalle(null);}}>
+                            <i className="fa-solid fa-file-invoice-dollar"></i> {esAdmin ? 'Ventas Globales' : 'Mis Pedidos'}
+                        </button>
+                        {esAdmin && (
+                            <button className={`nav-link ${tabActivo === 'inventario' ? 'active' : ''}`} 
+                                    onClick={() => {setTabActivo('inventario'); setProductoDetalle(null);}}>
+                                <i className="fa-solid fa-boxes-stacked"></i> Gestión Inventario
+                            </button>
+                        )}
+                        <button className={`nav-link ${tabActivo === 'direccion' ? 'active' : ''}`} 
+                                onClick={() => {setTabActivo('direccion'); setProductoDetalle(null);}}>
+                            <i className="fa-solid fa-location-dot"></i> Mi Dirección
+                        </button>
+                        <button className="nav-link logout-item" onClick={onCerrarSesion}>
+                            <i className="fa-solid fa-arrow-right-from-bracket"></i> Salir
+                        </button>
+                    </nav>
+                </aside>
+
+                <section className="perfil-view-area-scrollable">
+                    {productoDetalle ? (
+                        <div className="ML-detalle-producto view-fade-in">
+                            <button onClick={() => setProductoDetalle(null)} className="btn-back-link-ML">
+                                <i className="fa-solid fa-arrow-left"></i> Volver
+                            </button>
+                            <div className="ML-grid-container">
+                                <div className="ML-col-img"><img src={productoDetalle.imagen} alt="" /></div>
+                                <div className="ML-col-info">
+                                    <h1>{productoDetalle.nombre}</h1>
+                                    <div className="ML-prod-price">${Number(productoDetalle.precio || productoDetalle.precio_unitario).toLocaleString()}</div>
+                                    <div className="ML-comment-section">
+                                        <h3>Califica tu producto</h3>
+                                        {!yaCalificado ? (
+                                            <>
+                                                <div className="star-rating-selector">
+                                                    {[1, 2, 3, 4, 5].map((num) => (
+                                                        <i key={num} className={`fa-star ${estrellasSeleccionadas >= num ? 'fa-solid' : 'fa-regular'}`}
+                                                           style={{ color: "#ffb300", fontSize: '1.5rem', cursor: 'pointer' }}
+                                                           onClick={() => setEstrellasSeleccionadas(num)}></i>
+                                                    ))}
+                                                </div>
+                                                <textarea placeholder="Cuéntanos tu experiencia..." value={nuevoComentario} onChange={(e) => setNuevoComentario(e.target.value)} />
+                                                <button onClick={handleEnviarComentario} className="confirm-btn-fancy">Enviar Calificación</button>
+                                            </>
+                                        ) : (
+                                            <div className="already-reviewed-msg">Ya calificaste este producto.</div>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
-                            {cargandoProductos ? (
-                                <p className="inventario-loading">Cargando productos...</p>
-                            ) : (
-                                <div className="productos-list-inventario">
-                                    {productos.map((prod) => (
-                                        <div className="producto-item-inventario" key={prod.id}>
-                                            <div className="producto-item-img">
-                                                {prod.imagen ? <img src={prod.imagen} alt={prod.nombre} /> : <div className="producto-placeholder"><i className="fa-solid fa-image"></i></div>}
+                        </div>
+                    ) : (
+                        <div className="view-fade-in">
+                            {tabActivo === 'historial' && (
+                                <>
+                                    <h3 className="view-title">{esAdmin ? "Panel de Ventas Realizadas" : "Mis Compras"}</h3>
+                                    
+                                    {esAdmin ? (
+                                        <div className="gestion-pedido-panel view-fade-in">
+                                            <table className="gestion-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>ID PEDIDO</th>
+                                                        <th>CLIENTE</th>
+                                                        <th>FECHA</th>
+                                                        <th>PRODUCTOS</th>
+                                                        <th>ESTADO / TOTAL</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {pedidos.map((p) => (
+                                                        <tr key={p.id}>
+                                                            <td className="col-folio">#ORD-{p.id}</td>
+                                                            <td className="col-cliente">
+                                                                <div className="cliente-flex">
+                                                                    <div className="avatar-mini">{p.cliente?.charAt(0)}</div>
+                                                                    <div className="cliente-datos">
+                                                                        <strong>{p.cliente}</strong>
+                                                                        <p><i className="fa-solid fa-location-dot"></i> {p.direccion_historica || p.direccion || 'No registrada'}</p>
+                                                                        <p><i className="fa-solid fa-phone"></i> {p.telefono || 'Sin teléfono'}</p>
+                                                                        <p><i className="fa-solid fa-envelope"></i> {p.correo}</p>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td className="col-fecha">
+                                                                {new Date(p.fecha).toLocaleDateString()}<br/>
+                                                                <small>{new Date(p.fecha).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
+                                                            </td>
+                                                            <td className="col-productos-lista">
+                                                                {p.productos?.map((item, idx) => (
+                                                                    <div key={idx} className="prod-mini-item">
+                                                                        <div className="img-placeholder-mini">
+                                                                            <img src={item.imagen} alt="" />
+                                                                        </div>
+                                                                        <div className="prod-mini-info">
+                                                                            <strong>{item.nombre}</strong>
+                                                                            <span>Cant: {item.cantidad}</span>
+                                                                        </div>
+                                                                    </div>
+                                                                ))}
+                                                            </td>
+                                                            <td className="col-status-final">
+                                                                <div className="status-box">
+                                                                    <select 
+                                                                        value={p.estado?.toLowerCase()} 
+                                                                        onChange={(e) => handleCambiarEstado(p.id, e.target.value)}
+                                                                        className="select-gestion"
+                                                                    >
+                                                                        <option value="pagado">Pagado</option>
+                                                                        <option value="en proceso">En proceso</option>
+                                                                        <option value="enviado">Enviado</option>
+                                                                        <option value="entregado">Entregado</option>
+                                                                    </select>
+                                                                    <div className="total-destacado">${Number(p.total).toLocaleString()}</div>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    ) : (
+                                        <div className="pedidos-list-aqua">
+                                            {pedidos.map(p => (
+                                                <div className="pedido-row-item" key={p.id}>
+                                                    <div className="pedido-info-left">
+                                                        <span className="pedido-id">Folio: {p.id}</span>
+                                                        <span className="pedido-date">{new Date(p.fecha).toLocaleDateString()}</span>
+                                                        <span className={`badge-status ${p.estado?.toLowerCase()}`}>{p.estado?.toUpperCase()}</span>
+                                                    </div>
+                                                    <div className="pedido-info-right">
+                                                        <span className="pedido-price-tag">${Number(p.total).toLocaleString()}</span>
+                                                        <button className="btn-ver-detalles" onClick={() => setPedidoSeleccionado(p)}>Ver Detalles</button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                            {pedidoSeleccionado && (
+                                                <div className="detalle-pedido-container view-fade-in">
+                                                    <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '15px'}}>
+                                                        <button onClick={() => setPedidoSeleccionado(null)} className="btn-back-link">Cerrar detalle</button>
+                                                        
+                                                        {/* BOTÓN PARA ACTUALIZAR DIRECCIÓN DEL PEDIDO */}
+                                                        {['pagado', 'pendiente', 'en proceso'].includes(pedidoSeleccionado.estado?.toLowerCase()) && (
+                                                            <button 
+                                                                className="btn-update-address-order"
+                                                                onClick={() => handleActualizarDireccionPedido(pedidoSeleccionado.id)}
+                                                                style={{background: '#24a0ed', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem'}}
+                                                            >
+                                                                <i className="fa-solid fa-truck-ramp-box"></i> Usar mi dirección actual
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                    
+                                                    <div className="ML-mini-list-container">
+                                                        {pedidoSeleccionado.productos?.map((item, idx) => (
+                                                            <div key={idx} className="ML-mini-item" onClick={() => abrirDetalleConVerificacion(item)} style={{cursor:'pointer'}}>
+                                                                <img src={item.imagen} alt="" width="60" />
+                                                                <div className="ML-mini-info">
+                                                                    <span className="ML-mini-name">{item.nombre}</span>
+                                                                    <span className="ML-link-detail">Calificar compra</span>
+                                                                </div>
+                                                                <div className="ML-mini-meta">
+                                                                    <strong>${Number(item.precio || item.total_linea).toLocaleString()}</strong>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </>
+                            )}
+
+                            {tabActivo === 'inventario' && esAdmin && (
+                                <div className="inventory-list-container view-fade-in">
+                                    <div className="inventory-header-flex">
+                                        <h3 className="view-title">Gestión de Stock</h3>
+                                        <Link to="/admin" className="btn-agregar-nuevo">+ Agregar Nuevo</Link>
+                                    </div>
+                                    {productos.map(prod => (
+                                        <div className="inventory-row-item" key={prod.id}>
+                                            <div className="inventory-col-main">
+                                                <div className="inventory-img-box"><img src={prod.imagen} alt="" /></div>
+                                                <div className="inventory-info-text">
+                                                    <h4>{prod.nombre}</h4>
+                                                    <div className="inventory-meta">
+                                                        <span>${Number(prod.precio).toLocaleString()}</span>
+                                                        <span className={`meta-stock ${prod.stock <= 0 ? 'agotado' : ''}`}>Stock: {prod.stock}</span>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div className="producto-item-info">
-                                                <h6 className="producto-item-nombre">{prod.nombre}</h6>
-                                                <span className="producto-item-precio">${prod.precio}</span>
-                                                <span className={`producto-item-stock ${getStockClass(prod.stock)}`}>
-                                                    {!prod.stock || prod.stock <= 0 ? 'AGOTADO' : `Stock: ${prod.stock}`}
-                                                </span>
-                                            </div>
-                                            <div className="producto-item-acciones">
-                                                <button className="btn-icon-edit" onClick={() => navigate(`/admin/editar/${prod.id}`)} title="Editar"><i className="fa-solid fa-pen"></i></button>
-                                                <button className="btn-icon-delete" onClick={() => { setIdAEliminar(prod.id); setModal({ abierto: true, tipo: 'pregunta', titulo: '¿Eliminar?', texto: 'Esta acción quitará el producto de la base de datos.' }); }} title="Eliminar"><i className="fa-solid fa-trash-can"></i></button>
+                                            <div className="inventory-actions">
+                                                <button className="btn-action-edit" onClick={() => navigate(`/admin/editar/${prod.id}`)}><i className="fa-regular fa-pen-to-square"></i></button>
+                                                <button className="btn-action-delete" onClick={() => setModal({ abierto: true, tipo: "pregunta", titulo: "¿Eliminar?", texto: `¿Borrar ${prod.nombre}?` })}><i className="fa-regular fa-trash-can"></i></button>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
                             )}
+
+                            {tabActivo === 'direccion' && (
+                                <form onSubmit={handleSubmitDireccion} className="fancy-form">
+                                    <div className="form-group-fancy">
+                                        <label>Calle y Número</label>
+                                        <input name="calle" className="input-aqua" defaultValue={usuario.direccion?.split(',')[0]} required />
+                                    </div>
+                                    <div className="form-row-fancy">
+                                        <div className="form-group-fancy"><label>Colonia</label><input name="colonia" className="input-aqua" required /></div>
+                                        <div className="form-group-fancy"><label>Ciudad</label><input name="ciudad" className="input-aqua" required /></div>
+                                    </div>
+                                    <div className="form-row-fancy">
+                                        <div className="form-group-fancy"><label>CP</label><input name="cp" className="input-aqua" required /></div>
+                                        <div className="form-group-fancy"><label>Teléfono</label><input name="telefono" className="input-aqua" required /></div>
+                                    </div>
+                                    <button type="submit" className="confirm-btn-fancy" disabled={cargandoEnvio}>Actualizar Dirección</button>
+                                </form>
+                            )}
                         </div>
                     )}
-                    {tabActivo === 'pedidos' && <div className="pedidos-content"><p className="pedidos-empty">Próximamente: listado de pedidos.</p></div>}
-                </div>
-            )}
-
-            <div className="account-menu-card">
-                {esAdmin ? (
-                    <ul className="menu-list">
-                        <li className="menu-item logout-item" onClick={onCerrarSesion}>
-                            <i className="fa-solid fa-arrow-right-from-bracket"></i> Cerrar sesión
-                        </li>
-                    </ul>
-                ) : (
-                    <>
-                        <h4>Mi cuenta</h4>
-                        <ul className="menu-list">
-                            <li className="menu-item"><i className="fa-solid fa-box"></i> Mis Pedidos</li>
-                            <li className="menu-item"><i className="fa-regular fa-clock"></i> Historial de compras</li>
-                            <li className="menu-item logout-item" onClick={onCerrarSesion}>
-                                <i className="fa-solid fa-arrow-right-from-bracket"></i> Cerrar sesión
-                            </li>
-                        </ul>
-                    </>
-                )}
+                </section>
             </div>
-
-            {modal.abierto && <MensajeModal info={modal} cerrar={() => setModal(m => ({ ...m, abierto: false }))} onConfirmar={ejecutarEliminado} />}
+            {modal.abierto && <MensajeModal info={modal} cerrar={() => setModal({ ...modal, abierto: false })} />}
         </div>
     );
 };

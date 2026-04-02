@@ -41,7 +41,6 @@ function Nosotros() {
 
         </div>
       </div>
-
       {/* --- NUEVA SECCIÓN: Misión, Visión y Valores --- */}
       <div className="nosotros-mvv-grid">
         <div className="mvv-card">
@@ -68,7 +67,6 @@ function Nosotros() {
           <p>Calidad Garantizada: No negociamos con el estándar de nuestros productos; si es Macro, funciona y es seguro.</p>
         </div>
       </div>
-
     </section>
   );
 }

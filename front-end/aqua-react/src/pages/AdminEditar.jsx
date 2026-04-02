@@ -12,7 +12,8 @@ const EditarProducto = () => {
     precio: '',
     categoria_id: 1,
     stock: 0,
-    descripcion: ''
+    descripcion: '',
+    descuento: 0 // <--- NUEVO: Propiedad de descuento
   });
 
   const [archivo, setArchivo] = useState(null);
@@ -26,7 +27,10 @@ const EditarProducto = () => {
         const res = await fetch(`https://macrowatersolutions.com/api/productos/${id}`);
         if (res.ok) {
           const data = await res.json();
-          setProducto(data);
+          setProducto({
+            ...data,
+            descuento: data.descuento || 0 // Asegurar que tenga un valor
+          });
           setPreview(data.imagen);
         } else {
           setModal({
@@ -79,12 +83,12 @@ const EditarProducto = () => {
     });
   };
 
-  // 3. MANEJADOR DE CAMBIOS (CORREGIDO)
+  // 3. MANEJADOR DE CAMBIOS
   const handleChange = (e) => {
     const { name, value, type } = e.target;
     let valorFinal = value;
     
-    if (type === 'number' || name === 'categoria_id' || name === 'stock') {
+    if (type === 'number' || name === 'categoria_id' || name === 'stock' || name === 'descuento') {
       valorFinal = value === '' ? 0 : Number(value);
     }
     
@@ -108,6 +112,7 @@ const EditarProducto = () => {
     formData.append("descripcion", producto.descripcion);
     formData.append("stock", producto.stock);
     formData.append("categoria_id", producto.categoria_id);
+    formData.append("descuento", producto.descuento); // <--- NUEVO: Enviar descuento
     
     if (archivo) {
       formData.append("imagen", archivo);
@@ -147,16 +152,18 @@ const EditarProducto = () => {
     }
   };
 
+  // Lógica para calcular precio con descuento en vista previa
+  const precioFinal = producto.descuento > 0 
+    ? (producto.precio * (1 - producto.descuento / 100)).toFixed(2)
+    : producto.precio;
+
   return (
     <div className="admin-page">
       <main className="admin-layout">
         <section className="formulario-col">
           <div className="header-admin" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <nav className="breadcrumb">Admin ▸ <span>ID: {id}</span></nav>
-            <div style={{ display: 'flex', gap: '10px' }}>
-                <h1>Editar Producto</h1>
-                
-            </div>
+            <h1>Editar Producto</h1>
           </div>
 
           <form className="caja-formulario" onSubmit={handleSubmit}>
@@ -170,6 +177,27 @@ const EditarProducto = () => {
                 <label>Precio ($)</label>
                 <input type="number" name="precio" value={producto.precio} onChange={handleChange} required />
               </div>
+              
+              {/* --- NUEVO CAMPO DE DESCUENTO --- */}
+              <div className="campo">
+                <label>Descuento (%)</label>
+                <input 
+                  type="number" 
+                  name="descuento" 
+                  min="0" 
+                  max="100" 
+                  value={producto.descuento} 
+                  onChange={handleChange} 
+                />
+              </div>
+
+              <div className="campo">
+                <label>Stock</label>
+                <input type="number" name="stock" value={producto.stock} onChange={handleChange} required />
+              </div>
+            </div>
+
+            <div className="fila-campos">
               <div className="campo">
                 <label>Categoría</label>
                 <select name="categoria_id" value={producto.categoria_id} onChange={handleChange}>
@@ -177,10 +205,6 @@ const EditarProducto = () => {
                   <option value="2">Piscinas</option>
                   <option value="3">Accesorios</option>
                 </select>
-              </div>
-              <div className="campo">
-                <label>Stock</label>
-                <input type="number" name="stock" value={producto.stock} onChange={handleChange} required />
               </div>
             </div>
 
@@ -207,6 +231,9 @@ const EditarProducto = () => {
             <h3>VISTA PREVIA</h3>
             <div className="card-preview">
                 <div className="img-container">
+                    {producto.descuento > 0 && (
+                      <span className="badge-promo">-{producto.descuento}%</span>
+                    )}
                     <img 
                         src={preview || "https://placehold.co/300x300?text=Sin+Imagen"} 
                         alt="Preview" 
@@ -214,7 +241,17 @@ const EditarProducto = () => {
                 </div>
                 <div className="preview-content">
                     <h2>{producto.nombre || "Nombre"}</h2>
-                    <span className="precio-tag">${producto.precio || "0.00"}</span>
+                    
+                    <div className="precio-container">
+                      {producto.descuento > 0 ? (
+                        <>
+                          <span className="precio-original-tachado">${producto.precio}</span>
+                          <span className="precio-tag-oferta">${precioFinal}</span>
+                        </>
+                      ) : (
+                        <span className="precio-tag">${producto.precio || "0.00"}</span>
+                      )}
+                    </div>
                 </div>
             </div>
           </div>
