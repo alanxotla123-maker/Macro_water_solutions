@@ -1285,3 +1285,24 @@
     color: #007cc3 !important; /* Aquí forzamos el azul */
     letter-spacing: -0.02em;
 }
+/* =========================
+   FONDO GLOBAL FULL PAGE
+   ========================= */
+
+/* Reset básico para asegurar que ocupe toda la pantalla */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+/* Fondo con imagen en toda la página */
+body {
+    position: relative;
+    z-index: 0;
+}
+
+
+/* =========================
+   AJUSTE DE SECCIÓN PRODUCTOS
+   ========================= */

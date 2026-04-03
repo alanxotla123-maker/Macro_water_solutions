@@ -14,29 +14,25 @@ function Contacto() {
   const [enviado, setEnviado] = useState(false);
   const [emailError, setEmailError] = useState("");
 
+  // Validación de formato de email
   const isValidEmail = (email) => {
-    const trimmed = (email || "").trim();
-    if (!trimmed) return false;
     const regex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
-    return regex.test(trimmed) && trimmed.length >= 6;
+    return regex.test((email || "").trim());
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    let finalValue = value;
-    if (name === "telefono") {
-      finalValue = value.replace(/\D/g, "").slice(0, 10);
-    }
-    setFormData({
-      ...formData,
-      [name]: finalValue
-    });
+    let val = value;
+    // Solo números para el teléfono
+    if (name === "telefono") val = value.replace(/\D/g, "").slice(0, 10);
+    
+    setFormData({ ...formData, [name]: val });
     if (name === "email") setEmailError("");
   };
 
   const handleEmailBlur = () => {
     if (formData.email && !isValidEmail(formData.email)) {
-      setEmailError("Introduce un email válido con dominio (.com, .es, .org, etc.)");
+      setEmailError("Introduce un email válido");
     } else {
       setEmailError("");
     }
@@ -44,174 +40,128 @@ function Contacto() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    // Validación de email
     if (!isValidEmail(formData.email)) {
-      setEmailError("Introduce un email válido con dominio (.com, .es, .org, etc.)");
+      setEmailError("Email no válido");
       return;
     }
-    setEmailError("");
 
-    // --- LÓGICA DE WHATSAPP ---
-    const numeroTelefono = "4422752025"; // <-- CAMBIA ESTO por tu número real
-    
-    // Formateamos el mensaje con negritas (*) y saltos de línea (%0A)
+    // --- CONFIGURACIÓN DE WHATSAPP ---
+    const numeroTelefono = "4422752025"; 
     const textoWhatsApp = 
-      `*Nuevo mensaje de Macro Water Solutions*%0A%0A` +
-      `*Nombre:* ${formData.nombre} ${formData.apellido}%0A` +
+      `*Macro Water Solutions - Nuevo Mensaje*%0A%0A` +
+      `*Cliente:* ${formData.nombre} ${formData.apellido}%0A` +
       `*Email:* ${formData.email}%0A` +
-      `*Teléfono:* ${formData.telefono}%0A` +
+      `*WhatsApp:* ${formData.telefono}%0A` +
       `*Asunto:* ${formData.asunto}%0A` +
       `*Mensaje:* ${formData.mensaje}`;
 
-    const url = `https://wa.me/${numeroTelefono}?text=${textoWhatsApp}`;
-    
-    // Abrir WhatsApp en pestaña nueva
-    window.open(url, "_blank");
-    // ---------------------------
+    // Abrir link de WhatsApp en nueva pestaña
+    window.open(`https://wa.me/${numeroTelefono}?text=${textoWhatsApp}`, "_blank");
 
     setEnviado(true);
     
+    // Resetear formulario después de 3 segundos
     setTimeout(() => {
-      setFormData({
-        nombre: "",
-        apellido: "",
-        email: "",
-        telefono: "",
-        asunto: "",
-        mensaje: ""
-      });
+      setFormData({ nombre: "", apellido: "", email: "", telefono: "", asunto: "", mensaje: "" });
       setEnviado(false);
-    }, 2000);
+    }, 3000);
   };
 
   return (
     <section className="contacto-section">
       <div className="contacto-container">
-        <h1 className="contacto-title">¿Necesitas Ayuda?</h1>
-        <h2 className="contacto-subtitle">Contacta a un Asesor</h2>
+        <div className="contacto-header view-fade-in">
+            <span className="contacto-tag">Expertos en Piscinas</span>
+            <h2 className="contacto-subtitle">¿Listo para mejorar tu agua?</h2>
+        </div>
 
         <div className="contacto-content">
-          {/* LADO IZQUIERDO: INFORMACIÓN */}
+          {/* LADO IZQUIERDO: INFORMACIÓN DE LA EMPRESA */}
           <div className="contacto-info">
-            <h3>Información de Contacto</h3>
-            <p>Completa el formulario y nuestro equipo de expertos te responderá en menos de 24 horas. ¡Estamos listos para transformar tu piscina!</p>
+            <div className="info-content-wrap">
+                <h3>Hablemos.</h3>
+                <p>Soluciones técnicas y equipos de alta gama para el mantenimiento de albercas industriales y residenciales.</p>
 
-            <div className="info-item">
-              <i className="fa-solid fa-location-dot"></i>
-              <div>
-                <h4>Oficina Central</h4>
-                <p>Av. del Agua 123, Ciudad Paraíso, CP 90210</p>
-              </div>
-            </div>
+                <div className="info-item">
+                    <i className="fa-solid fa-map-location-dot"></i>
+                    <div>
+                        <h4>Ubicación</h4>
+                        <p>Av. del Agua 123, Qro, MX</p>
+                    </div>
+                </div>
 
-            <div className="info-item">
-              <i className="fa-solid fa-phone"></i>
-              <div>
-                <h4>Llámanos</h4>
-                <p>+52 (555) 123-4567</p>
-              </div>
-            </div>
+                <div className="info-item">
+                    <i className="fa-solid fa-headset"></i>
+                    <div>
+                        <h4>Soporte Técnico</h4>
+                        <p>+52 442 275 2025</p>
+                    </div>
+                </div>
 
-            <div className="info-item">
-              <i className="fa-solid fa-envelope"></i>
-              <div>
-                <h4>Email</h4>
-                <p>ventas@aquapro.com</p>
-              </div>
+                <div className="info-item">
+                    <i className="fa-solid fa-shield-halved"></i>
+                    <div>
+                        <h4>Garantía de Calidad</h4>
+                        <p>ventas@macrowater.com</p>
+                    </div>
+                </div>
             </div>
           </div>
 
-          {/* LADO DERECHO: FORMULARIO */}
+          {/* LADO DERECHO: FORMULARIO DE CONTACTO */}
           <div className="contacto-form-container">
             {enviado ? (
-              <div className="mensaje-exito">
-                <i className="fa-solid fa-check-circle"></i>
-                <h4>¡Mensaje enviado!</h4>
-                <p>Se ha abierto WhatsApp para completar el envío.</p>
+              <div className="mensaje-exito view-fade-in">
+                <i className="fa-solid fa-circle-check"></i>
+                <h4>¡Todo listo!</h4>
+                <p>Se ha preparado tu mensaje para enviarlo por WhatsApp. En breve un asesor te atenderá.</p>
               </div>
             ) : (
-              <form className="contacto-form" onSubmit={handleSubmit}>
+              <form className="contacto-form" onSubmit={handleSubmit} autoComplete="off">
                 <div className="form-row">
                   <div className="form-group">
-                    <label htmlFor="nombre">Nombre</label>
-                    <input
-                      type="text"
-                      id="nombre"
-                      name="nombre"
-                      value={formData.nombre}
-                      onChange={handleChange}
-                      required
-                    />
+                    <label>Nombre</label>
+                    <input type="text" name="nombre" placeholder="Tu nombre" value={formData.nombre} onChange={handleChange} required />
                   </div>
                   <div className="form-group">
-                    <label htmlFor="apellido">Apellido</label>
-                    <input
-                      type="text"
-                      id="apellido"
-                      name="apellido"
-                      value={formData.apellido}
-                      onChange={handleChange}
-                      required
-                    />
+                    <label>Apellido</label>
+                    <input type="text" name="apellido" placeholder="Tu apellido" value={formData.apellido} onChange={handleChange} required />
                   </div>
                 </div>
 
                 <div className="form-row">
                   <div className="form-group">
-                    <label htmlFor="email">Email</label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      onBlur={handleEmailBlur}
-                      required
-                      className={emailError ? "input-error" : ""}
+                    <label>Email Corporativo</label>
+                    <input 
+                        type="email" 
+                        name="email" 
+                        placeholder="ejemplo@correo.com" 
+                        value={formData.email} 
+                        onChange={handleChange} 
+                        onBlur={handleEmailBlur}
+                        className={emailError ? "input-error" : ""}
+                        required 
                     />
                     {emailError && <span className="email-error-msg">{emailError}</span>}
                   </div>
                   <div className="form-group">
-                    <label htmlFor="telefono">Teléfono</label>
-                    <input
-                      type="tel"
-                      id="telefono"
-                      name="telefono"
-                      value={formData.telefono}
-                      onChange={handleChange}
-                      inputMode="numeric"
-                      maxLength={10}
-                    />
+                    <label>WhatsApp / Teléfono</label>
+                    <input type="tel" name="telefono" placeholder="10 dígitos" value={formData.telefono} onChange={handleChange} inputMode="numeric" maxLength={10} />
                   </div>
                 </div>
 
-                <div className="form-group full-width">
-                  <label htmlFor="asunto">Asunto</label>
-                  <input
-                    type="text"
-                    id="asunto"
-                    name="asunto"
-                    value={formData.asunto}
-                    onChange={handleChange}
-                    required
-                  />
+                <div className="form-group">
+                  <label>¿En qué podemos ayudarte?</label>
+                  <input type="text" name="asunto" placeholder="Ej: Cotización de filtros" value={formData.asunto} onChange={handleChange} required />
                 </div>
 
-                <div className="form-group full-width">
-                  <label htmlFor="mensaje">Mensaje</label>
-                  <textarea
-                    id="mensaje"
-                    name="mensaje"
-                    value={formData.mensaje}
-                    onChange={handleChange}
-                    required
-                    rows="5"
-                  ></textarea>
+                <div className="form-group">
+                  <label>Mensaje detallado</label>
+                  <textarea name="mensaje" placeholder="Cuéntanos más sobre tus necesidades..." value={formData.mensaje} onChange={handleChange} required rows="4"></textarea>
                 </div>
 
                 <button type="submit" className="btn-enviar">
-                  Enviar Mensaje
+                  Hablar con un asesor <i className="fa-brands fa-whatsapp"></i>
                 </button>
               </form>
             )}

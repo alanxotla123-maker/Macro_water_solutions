@@ -15,11 +15,12 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
     const [cargandoData, setCargandoData] = useState(false);
     const [cargandoEnvio, setCargandoEnvio] = useState(false);
     const [modal, setModal] = useState({ abierto: false, tipo: "", titulo: "", texto: "" });
+    
+    const [guiasTemporales, setGuiasTemporales] = useState({});
 
     const navigate = useNavigate();
     const esAdmin = usuario && (usuario.rol == 1 || usuario.rol === 'admin' || usuario.rol_id == 1);
 
-    // 1. CARGA DE DATOS
     const fetchData = useCallback(async (signal) => {
         if (!usuario?.id) return;
         setCargandoData(true);
@@ -54,7 +55,6 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
         return () => controller.abort();
     }, [fetchData]);
 
-    // FILTROS DE PEDIDOS
     const pedidosActivos = pedidos.filter(p => 
         ['pagado', 'en proceso', 'enviado', 'pendiente'].includes(p.estado?.toLowerCase())
     );
@@ -84,15 +84,35 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
             });
             if (res.ok) {
                 setPedidos(prev => prev.map(p => p.id === idPedidoAgrupado ? { ...p, estado: nuevoEstado } : p));
-                setModal({
-                    abierto: true,
-                    tipo: "exito",
-                    titulo: "Estado actualizado",
-                    texto: "El estado del pedido se ha actualizado correctamente."
-                });
+                setModal({ abierto: true, tipo: "exito", titulo: "Estado actualizado", texto: "El estado del pedido se ha actualizado correctamente." });
             }
         } catch (error) { 
             setModal({ abierto: true, tipo: "error", titulo: "Error", texto: "Sin conexión." });
+        }
+    };
+
+    const handleActualizarGuia = async (idPedidoAgrupado) => {
+        const numero_guia = guiasTemporales[idPedidoAgrupado];
+        if (!numero_guia) {
+            setModal({ abierto: true, tipo: "error", titulo: "Atención", texto: "Ingresa un número de guía válido." });
+            return;
+        }
+        try {
+            const res = await fetch(`https://macrowatersolutions.com/api/pedidos/actualizar-guia/${idPedidoAgrupado}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ numero_guia })
+            });
+            if (res.ok) {
+                setPedidos(prev => prev.map(p => (p.id === idPedidoAgrupado || p.id_pedidos === idPedidoAgrupado) ? { ...p, numero_guia } : p));
+                setModal({ abierto: true, tipo: "exito", titulo: "¡Guía Guardada!", texto: `Se ha registrado el número: ${numero_guia}` });
+            } else {
+                const errorData = await res.json();
+                setModal({ abierto: true, tipo: "error", titulo: "Error", texto: errorData.error || "Fallo en el servidor" });
+            }
+        } catch (error) {
+            console.error(error);
+            setModal({ abierto: true, tipo: "error", titulo: "Error", texto: "No se pudo conectar con el servidor." });
         }
     };
 
@@ -106,9 +126,7 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
             const res = await fetch(`https://macrowatersolutions.com/api/productos/comentario`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    producto_id: pId, usuario_id: usuario.id, comentario: nuevoComentario, calificacion: estrellasSeleccionadas
-                })
+                body: JSON.stringify({ producto_id: pId, usuario_id: usuario.id, comentario: nuevoComentario, calificacion: estrellasSeleccionadas })
             });
             if (res.ok) {
                 setModal({ abierto: true, tipo: "exito", titulo: "¡Gracias!", texto: "Comentario publicado." });
@@ -161,6 +179,7 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
                             <th>CLIENTE</th>
                             <th>FECHA</th>
                             <th>PRODUCTOS</th>
+                            <th>GUÍA ACTUAL / GESTIÓN</th>
                             <th>ESTADO / TOTAL</th>
                         </tr>
                     </thead>
@@ -190,6 +209,25 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
                                         </div>
                                     ))}
                                 </td>
+                                <td className="col-guia">
+                                    <div className="guia-admin-flex" style={{display: 'flex', flexDirection: 'column', gap: '5px', minWidth: '150px'}}>
+                                        {p.numero_guia ? (
+                                            <span style={{fontSize: '0.75rem', color: '#27ae60', fontWeight: 'bold'}}>Actual: {p.numero_guia}</span>
+                                        ) : (
+                                            <span style={{fontSize: '0.7rem', color: '#e67e22'}}>Sin guía asignada</span>
+                                        )}
+                                        <input 
+                                            type="text" 
+                                            placeholder={p.numero_guia ? "Cambiar guía" : "Ingresar guía"} 
+                                            defaultValue={p.numero_guia || ""}
+                                            onChange={(e) => setGuiasTemporales({...guiasTemporales, [p.id]: e.target.value})}
+                                            style={{padding: '4px', fontSize: '0.8rem', borderRadius: '4px', border: '1px solid #ddd'}}
+                                        />
+                                        <button onClick={() => handleActualizarGuia(p.id)} style={{fontSize: '0.7rem', background: p.numero_guia ? '#f39c12' : '#00c2cb', color: 'white', border: 'none', padding: '5px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold'}}>
+                                            {p.numero_guia ? "Actualizar" : "Guardar"}
+                                        </button>
+                                    </div>
+                                </td>
                                 <td className="col-status-final">
                                     <div className="status-box">
                                         <select value={p.estado?.toLowerCase()} onChange={(e) => handleCambiarEstado(p.id, e.target.value)} className="select-gestion">
@@ -209,23 +247,70 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
         </div>
     );
 
-    const renderListaCliente = (lista, mostrarCalificar = false) => (
-        <div className="pedidos-list-aqua">
+    const renderListaCliente = (lista, esHistorial = false) => (
+        <div className="pedidos-list-complete-view view-fade-in">
             {lista.length === 0 ? (
-                <p className="empty-msg">No hay registros para mostrar.</p>
+                <p className="empty-msg">No hay pedidos para mostrar.</p>
             ) : (
                 lista.map(p => (
-                    <div className="pedido-row-item" key={p.id}>
-                        <div className="pedido-info-left">
-                            <span className="pedido-id">Folio: {p.id}</span>
-                            <span className="pedido-date">{new Date(p.fecha).toLocaleDateString()}</span>
-                            <span className={`badge-status ${p.estado?.toLowerCase()}`}>{p.estado?.toUpperCase()}</span>
+                    <div className="pedido-card-full" key={p.id} style={{background: 'white', borderRadius: '12px', padding: '20px', marginBottom: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', border: '1px solid #f0f0f0'}}>
+                        <div className="pedido-header-top" style={{display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #eee', paddingBottom: '12px', marginBottom: '15px'}}>
+                            <div>
+                                <span style={{display: 'block', fontSize: '0.8rem', color: '#888', fontWeight: 'bold'}}>FOLIO</span>
+                                <strong style={{color: '#007cc3'}}>#ORD-{p.id}</strong>
+                            </div>
+                            <div style={{textAlign: 'center'}}>
+                                <span style={{display: 'block', fontSize: '0.8rem', color: '#888', fontWeight: 'bold'}}>FECHA</span>
+                                <strong>{new Date(p.fecha).toLocaleDateString()}</strong>
+                            </div>
+                            <div style={{textAlign: 'right'}}>
+                                <span style={{display: 'block', fontSize: '0.8rem', color: '#888', fontWeight: 'bold'}}>ESTATUS</span>
+                                <span className={`badge-status ${p.estado?.toLowerCase()}`} style={{padding: '4px 10px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 'bold', textTransform: 'uppercase'}}>{p.estado}</span>
+                            </div>
                         </div>
-                        <div className="pedido-info-right">
-                            <span className="pedido-price-tag">${Number(p.total).toLocaleString()}</span>
-                            <button className="btn-ver-detalles" onClick={() => setPedidoSeleccionado(p)}>
-                                {mostrarCalificar ? "Calificar" : "Detalles"}
-                            </button>
+
+                        <div className="pedido-body-products">
+                            <span style={{display: 'block', fontSize: '0.8rem', color: '#888', fontWeight: 'bold', marginBottom: '10px'}}>PRODUCTOS</span>
+                            <div className="products-mini-grid" style={{display: 'grid', gap: '10px'}}>
+                                {p.productos?.map((item, idx) => (
+                                    <div key={idx} className="product-item-row" style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
+                                        <img src={item.imagen} alt="" style={{width: '50px', height: '50px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #eee'}} />
+                                        <div style={{flex: 1}}>
+                                            <span style={{display: 'block', fontSize: '0.9rem', fontWeight: '500'}}>{item.nombre}</span>
+                                            <small style={{color: '#666'}}>Cantidad: {item.cantidad}</small>
+                                        </div>
+                                        {esHistorial && (
+                                            <button onClick={() => abrirDetalleConVerificacion(item)} style={{background: '#f1c40f', color: '#000', border: 'none', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.75rem'}}>
+                                                <i className="fa-solid fa-star"></i> Escribir Reseña
+                                            </button>
+                                        )}
+                                        <div style={{fontWeight: 'bold', color: '#333'}}>
+                                            ${Number(item.precio || item.total_linea).toLocaleString()}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="pedido-footer-info" style={{marginTop: '20px', paddingTop: '15px', borderTop: '1px dotted #eee', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '15px'}}>
+                            <div className="guia-display-area" style={{flex: '1', minWidth: '250px'}}>
+                                <span style={{display: 'block', fontSize: '0.8rem', color: '#888', fontWeight: 'bold'}}>NÚMERO DE GUÍA</span>
+                                {p.numero_guia ? (
+                                    <div style={{display: 'flex', alignItems: 'center', gap: '8px', color: '#00a650', fontWeight: 'bold'}}>
+                                        <i className="fa-solid fa-truck-fast"></i>
+                                        <span>{p.numero_guia}</span>
+                                    </div>
+                                ) : (
+                                    <div style={{color: '#e67e22', fontSize: '0.9rem', fontStyle: 'italic'}}>
+                                        <i className="fa-solid fa-circle-info"></i> El vendedor aún no ha proporcionado el número de guía.
+                                    </div>
+                                )}
+                            </div>
+                            
+                            <div style={{textAlign: 'right'}}>
+                                <span style={{display: 'block', fontSize: '0.8rem', color: '#888', fontWeight: 'bold'}}>TOTAL PAGADO</span>
+                                <strong style={{fontSize: '1.4rem', color: '#1a1a1a'}}>${Number(p.total).toLocaleString()}</strong>
+                            </div>
                         </div>
                     </div>
                 ))
@@ -266,14 +351,12 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
                                 <i className="fa-solid fa-boxes-stacked"></i> Inventario
                             </button>
                         )}
-                        
                         {!esAdmin && (
                             <button className={`nav-link ${tabActivo === 'direccion' ? 'active' : ''}`} 
                                     onClick={() => {setTabActivo('direccion'); setProductoDetalle(null);}}>
                                 <i className="fa-solid fa-location-dot"></i> Mi Dirección
                             </button>
                         )}
-
                         <button className="nav-link logout-item" onClick={onCerrarSesion}>
                             <i className="fa-solid fa-arrow-right-from-bracket"></i> Salir
                         </button>
@@ -317,36 +400,10 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
                                     <h3 className="view-title">
                                         {tabActivo === 'pedidos' ? (esAdmin ? "Gestión de Ventas Activas" : "Mis Pedidos Activos") : "Historial de Finalizados"}
                                     </h3>
-                                    
                                     {esAdmin ? (
                                         renderTablaAdmin(tabActivo === 'pedidos' ? pedidosActivos : historialPedidos)
                                     ) : (
                                         renderListaCliente(tabActivo === 'pedidos' ? pedidosActivos : historialPedidos, tabActivo === 'historial')
-                                    )}
-
-                                    {pedidoSeleccionado && (
-                                        <div className="detalle-pedido-container view-fade-in">
-                                            <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '15px'}}>
-                                                <button onClick={() => setPedidoSeleccionado(null)} className="btn-back-link">Cerrar detalle</button>
-                                                {tabActivo === 'pedidos' && !esAdmin && (
-                                                    <button className="btn-update-address-order" onClick={() => handleActualizarDireccionPedido(pedidoSeleccionado.id)} style={{background: '#24a0ed', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem'}}>
-                                                        Usar dirección actual
-                                                    </button>
-                                                )}
-                                            </div>
-                                            <div className="ML-mini-list-container">
-                                                {pedidoSeleccionado.productos?.map((item, idx) => (
-                                                    <div key={idx} className="ML-mini-item" onClick={() => tabActivo === 'historial' && abrirDetalleConVerificacion(item)} style={{cursor: tabActivo === 'historial' ? 'pointer' : 'default'}}>
-                                                        <img src={item.imagen} alt="" width="60" />
-                                                        <div className="ML-mini-info">
-                                                            <span className="ML-mini-name">{item.nombre}</span>
-                                                            {tabActivo === 'historial' && <span className="ML-link-detail">Escribir reseña</span>}
-                                                        </div>
-                                                        <div className="ML-mini-meta"><strong>${Number(item.precio || item.total_linea).toLocaleString()}</strong></div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
                                     )}
                                 </>
                             )}
@@ -358,20 +415,13 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
                                         <Link to="/admin" className="btn-agregar-nuevo">+ Agregar Nuevo</Link>
                                     </div>
                                     {productos.map(prod => (
-                                        <div className="inventory-row-item" key={prod.id}>
-                                            <div className="inventory-col-main">
-                                                <div className="inventory-img-box"><img src={prod.imagen} alt="" /></div>
-                                                <div className="inventory-info-text">
-                                                    <h4>{prod.nombre}</h4>
-                                                    <div className="inventory-meta">
-                                                        <span>${Number(prod.precio).toLocaleString()}</span>
-                                                        <span className={`meta-stock ${prod.stock <= 0 ? 'agotado' : ''}`}>Stock: {prod.stock}</span>
-                                                    </div>
-                                                </div>
+                                        <div className="inventory-row-item" key={prod.id} style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px', background: 'white', marginBottom: '8px', borderRadius: '8px', boxShadow: '0 2px 5px rgba(0,0,0,0.05)'}}>
+                                            <div style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
+                                                <img src={prod.imagen} width="45" style={{borderRadius: '5px'}} alt=""/>
+                                                <div><strong>{prod.nombre}</strong><br/><small>Stock: {prod.stock} - ${Number(prod.precio).toLocaleString()}</small></div>
                                             </div>
                                             <div className="inventory-actions">
                                                 <button className="btn-action-edit" onClick={() => navigate(`/admin/editar/${prod.id}`)}><i className="fa-regular fa-pen-to-square"></i></button>
-                                                <button className="btn-action-delete" onClick={() => setModal({ abierto: true, tipo: "pregunta", titulo: "¿Eliminar?", texto: `¿Borrar ${prod.nombre}?` })}><i className="fa-regular fa-trash-can"></i></button>
                                             </div>
                                         </div>
                                     ))}
@@ -380,63 +430,16 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
 
                             {tabActivo === 'direccion' && !esAdmin && (
                                 <form onSubmit={handleSubmitDireccion} className="fancy-form" autoComplete="off">
-                                    <div className="form-group-fancy">
-                                        <label>Calle y Número</label>
-                                        <input 
-                                            name="calle" 
-                                            className="input-aqua" 
-                                            defaultValue={usuario.direccion?.split(',')[0] || ""} 
-                                            placeholder="Ej. Av. Reforma 123"
-                                            required 
-                                        />
+                                    <div className="form-group-fancy"><label>Calle y Número</label><input name="calle" className="input-aqua" defaultValue={usuario.direccion?.split(',')[0] || ""} placeholder="Ej. Av. Reforma 123" required /></div>
+                                    <div className="form-row-fancy">
+                                        <div className="form-group-fancy"><label>Colonia</label><input name="colonia" className="input-aqua" defaultValue={usuario.direccion?.split('Col. ')[1]?.split(',')[0] || ""} placeholder="Tu colonia" required /></div>
+                                        <div className="form-group-fancy"><label>Ciudad</label><input name="ciudad" className="input-aqua" defaultValue={usuario.direccion?.split(', ')[2]?.split(',')[0] || ""} placeholder="Ciudad" required /></div>
                                     </div>
                                     <div className="form-row-fancy">
-                                        <div className="form-group-fancy">
-                                            <label>Colonia</label>
-                                            <input 
-                                                name="colonia" 
-                                                className="input-aqua" 
-                                                defaultValue={usuario.direccion?.split('Col. ')[1]?.split(',')[0] || ""}
-                                                placeholder="Tu colonia"
-                                                required 
-                                            />
-                                        </div>
-                                        <div className="form-group-fancy">
-                                            <label>Ciudad</label>
-                                            <input 
-                                                name="ciudad" 
-                                                className="input-aqua" 
-                                                defaultValue={usuario.direccion?.split(', ')[2]?.split(',')[0] || ""}
-                                                placeholder="Ciudad"
-                                                required 
-                                            />
-                                        </div>
+                                        <div className="form-group-fancy"><label>CP</label><input name="cp" className="input-aqua" defaultValue={usuario.direccion?.split('CP: ')[1]?.split(' ')[0] || ""} required inputMode="numeric" maxLength={5} minLength={5} pattern="\d{5}" onInput={(e) => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 5); }} /></div>
+                                        <div className="form-group-fancy"><label>Teléfono</label><input name="telefono" className="input-aqua" defaultValue={usuario.direccion?.split('Tel: ')[1] || ""} required inputMode="tel" maxLength={10} minLength={10} pattern="\d{10}" onInput={(e) => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10); }} /></div>
                                     </div>
-                                    <div className="form-row-fancy">
-                                        <div className="form-group-fancy">
-                                            <label>CP</label>
-                                            <input 
-                                                name="cp" 
-                                                className="input-aqua" 
-                                                defaultValue={usuario.direccion?.split('CP: ')[1]?.split(' ')[0] || ""}
-                                                required inputMode="numeric" maxLength={5} minLength={5} pattern="\d{5}" 
-                                                onInput={(e) => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 5); }} 
-                                            />
-                                        </div>
-                                        <div className="form-group-fancy">
-                                            <label>Teléfono</label>
-                                            <input 
-                                                name="telefono" 
-                                                className="input-aqua" 
-                                                defaultValue={usuario.direccion?.split('Tel: ')[1] || ""}
-                                                required inputMode="tel" maxLength={10} minLength={10} pattern="\d{10}" 
-                                                onInput={(e) => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10); }} 
-                                            />
-                                        </div>
-                                    </div>
-                                    <button type="submit" className="confirm-btn-fancy" disabled={cargandoEnvio}>
-                                        {cargandoEnvio ? "Guardando..." : "Actualizar Dirección"}
-                                    </button>
+                                    <button type="submit" className="confirm-btn-fancy" disabled={cargandoEnvio}>{cargandoEnvio ? "Guardando..." : "Actualizar Dirección"}</button>
                                 </form>
                             )}
                         </div>

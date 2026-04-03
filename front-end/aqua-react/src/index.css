@@ -465,7 +465,6 @@ body { background-color: #f5f5f5; }
 .producto-card img { width: 100%; height: 250px; object-fit: cover; }
 .producto-info { padding: 25px; }
 .precio { color: #2a9fd6; font-weight: 800; font-size: 22px; }
-
 /* ================================================= */
 /* 6. MODALES Y MENSAJES (RESTABLECIDO)             */
 /* ================================================= */
@@ -595,14 +594,6 @@ body { background-color: #f5f5f5; }
 /* ================================================= */
 /* 4. SECCIONES RESTANTES (HERO, NOSOTROS, ETC.)     */
 /* ================================================= */
-.hero {
-    position: relative;
-    min-height: 100vh;
-    background: url('/imagenes/umbrella-chair.jpg') center/cover no-repeat;
-    display: flex;
-    align-items: center;
-    padding: 0 8%;
-}
 
 .hero-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.45); }
 .hero-content { position: relative; color: white; }
@@ -1509,4 +1500,120 @@ body { background-color: #f5f5f5; }
     .icons { gap: 15px !important; }
     .user-name-title { font-size: 18px !important; }
     .precio-oferta-final { font-size: 1.2rem !important; }
+}
+/* ================================================= */
+/* NOSOTROS - FONDO VISUAL PRO (IGUAL QUE PRODUCTOS) */
+/* ================================================= */
+
+.nosotros {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+  
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+
+    padding: 100px 20px;
+}
+
+/* CONTENEDOR PRINCIPAL */
+.nosotros-container {
+    width: 100%;
+    max-width: 1200px;
+    display: flex;
+    align-items: center;
+    gap: 60px;
+    margin-bottom: 60px;
+}
+
+/* IMAGEN */
+.nosotros-img img {
+    max-width: 450px;
+    width: 100%;
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    transition: transform 0.4s;
+}
+
+.nosotros-img img:hover {
+    transform: scale(1.05);
+}
+
+/* TEXTO */
+.nosotros-texto {
+    background: rgba(255,255,255,0.9);
+    padding: 40px;
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+}
+
+.nosotros-texto h2 {
+    font-size: 40px;
+}
+
+.nosotros-texto p {
+    font-size: 17px;
+}
+
+/* ================================================= */
+/* TARJETAS MVV (CON MÁS PRESENCIA)                  */
+/* ================================================= */
+
+.nosotros-mvv-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    width: 100%;
+    max-width: 1200px;
+}
+
+/* Tarjetas con efecto glass + hover fuerte */
+.mvv-card {
+    background: rgba(255,255,255,0.9);
+    backdrop-filter: blur(12px);
+    border-radius: 24px;
+    padding: 40px 30px;
+    text-align: center;
+    border: 1px solid rgba(0,0,0,0.05);
+
+    transition: all 0.35s ease;
+}
+
+.mvv-card:hover {
+    transform: translateY(-15px) scale(1.02);
+    box-shadow: 0 25px 50px rgba(0, 119, 204, 0.15);
+}
+
+/* ICONO */
+.mvv-icon-wrapper {
+    width: 75px;
+    height: 75px;
+    font-size: 30px;
+}
+
+/* ================================================= */
+/* RESPONSIVE NOSOTROS                               */
+/* ================================================= */
+
+@media (max-width: 992px) {
+    .nosotros-container {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .nosotros-img img {
+        max-width: 300px;
+    }
+
+    .nosotros-mvv-grid {
+        grid-template-columns: 1fr;
+    }
 }
