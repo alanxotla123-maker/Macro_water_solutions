@@ -108,7 +108,16 @@ function ProductosPage({ agregarAlCarrito, usuario }) {
         ));
     };
 
-    if (cargando) return <div className="loader">Cargando productos...</div>;
+    if (cargando) return (
+        <div className="loader-container">
+            <div className="loader-spinner">
+                <div className="spinner-ring"></div>
+                <div className="spinner-ring"></div>
+                <div className="spinner-ring"></div>
+            </div>
+            <p className="loader-texto">Cargando productos...</p>
+        </div>
+    );
 
     return (
         <section className="productos-section">
@@ -296,12 +305,31 @@ function ProductosPage({ agregarAlCarrito, usuario }) {
                                         onClick={() => agregarAlCarrito(prod, (ok, msg) => mostrarToast(msg, !ok))}
                                         disabled={prod.stock <= 0}
                                     >
-                                        {prod.stock > 0 ? "🛒 Agregar" : "Agotado"}
+                                        {prod.stock > 0 ? (
+                                            <>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                    <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                                                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                                                </svg>
+                                                Agregar al carrito
+                                            </>
+                                        ) : "Agotado"}
                                     </button>
                                     {esAdmin && (
                                         <div className="acciones-admin">
-                                            <button className="btn-edit" onClick={() => navigate(`/admin/editar/${prod.id}`)}>✏️</button>
-                                            <button className="btn-delete" onClick={() => { setIdAEliminar(prod.id); setModal({ abierto: true, tipo: "pregunta", titulo: "¿Eliminar?", texto: "Se borrará de la base." }); }}>🗑️</button>
+                                            <button className="btn-edit" title="Editar producto" onClick={() => navigate(`/admin/editar/${prod.id}`)}>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/>
+                                                    <path d="M20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                                </svg>
+                                            </button>
+                                            <button className="btn-delete" title="Eliminar producto" onClick={() => { setIdAEliminar(prod.id); setModal({ abierto: true, tipo: "pregunta", titulo: "¿Eliminar?", texto: "Se borrará de la base." }); }}>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                    <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                                                    <path d="M10 11v6"/><path d="M14 11v6"/>
+                                                    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                                                </svg>
+                                            </button>
                                         </div>
                                     )}
                                 </div>

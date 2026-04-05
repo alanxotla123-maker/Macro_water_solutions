@@ -335,33 +335,73 @@ const UserPerfil = ({ usuario, onCerrarSesion, onActualizarDireccion }) => {
 
             <div className="perfil-main-content-static">
                 <aside className="perfil-sidebar-fixed">
-                    <h4 className="sidebar-title">PANEL</h4>
-                    <nav className="sidebar-nav">
-                        <button className={`nav-link ${tabActivo === 'pedidos' ? 'active' : ''}`} 
-                                onClick={() => {setTabActivo('pedidos'); setPedidoSeleccionado(null); setProductoDetalle(null);}}>
-                            <i className="fa-solid fa-box"></i> {esAdmin ? 'Ventas Activas' : 'Mis Pedidos'}
-                        </button>
-                        <button className={`nav-link ${tabActivo === 'historial' ? 'active' : ''}`} 
-                                onClick={() => {setTabActivo('historial'); setPedidoSeleccionado(null); setProductoDetalle(null);}}>
-                            <i className="fa-solid fa-clock-rotate-left"></i> Historial
-                        </button>
-                        {esAdmin && (
-                            <button className={`nav-link ${tabActivo === 'inventario' ? 'active' : ''}`} 
-                                    onClick={() => {setTabActivo('inventario'); setProductoDetalle(null);}}>
-                                <i className="fa-solid fa-boxes-stacked"></i> Inventario
-                            </button>
-                        )}
-                        {!esAdmin && (
-                            <button className={`nav-link ${tabActivo === 'direccion' ? 'active' : ''}`} 
-                                    onClick={() => {setTabActivo('direccion'); setProductoDetalle(null);}}>
-                                <i className="fa-solid fa-location-dot"></i> Mi Dirección
-                            </button>
-                        )}
-                        <button className="nav-link logout-item" onClick={onCerrarSesion}>
-                            <i className="fa-solid fa-arrow-right-from-bracket"></i> Salir
-                        </button>
-                    </nav>
-                </aside>
+    <div className="sidebar-header">
+        <div className="sidebar-brand">Panel</div>
+    </div>
+
+    <nav className="sidebar-nav">
+        <button className={`nav-link ${tabActivo === 'pedidos' ? 'active' : ''}`}
+                onClick={() => { setTabActivo('pedidos'); setPedidoSeleccionado(null); setProductoDetalle(null); }}>
+            <div className="nav-link-left">
+                <div className="nav-link-icon">
+                    <i className="fa-solid fa-box"></i>
+                </div>
+                <span>{esAdmin ? 'Ventas activas' : 'Mis pedidos'}</span>
+            </div>
+            {tabActivo === 'pedidos' && <i className="fa-solid fa-chevron-right nav-chevron"></i>}
+        </button>
+
+        <button className={`nav-link ${tabActivo === 'historial' ? 'active' : ''}`}
+                onClick={() => { setTabActivo('historial'); setPedidoSeleccionado(null); setProductoDetalle(null); }}>
+            <div className="nav-link-left">
+                <div className="nav-link-icon">
+                    <i className="fa-solid fa-clock-rotate-left"></i>
+                </div>
+                <span>Historial</span>
+            </div>
+            {tabActivo === 'historial' && <i className="fa-solid fa-chevron-right nav-chevron"></i>}
+        </button>
+
+        {esAdmin && (
+            <button className={`nav-link ${tabActivo === 'inventario' ? 'active' : ''}`}
+                    onClick={() => { setTabActivo('inventario'); setProductoDetalle(null); }}>
+                <div className="nav-link-left">
+                    <div className="nav-link-icon">
+                        <i className="fa-solid fa-boxes-stacked"></i>
+                    </div>
+                    <span>Inventario</span>
+                </div>
+                {tabActivo === 'inventario' && <i className="fa-solid fa-chevron-right nav-chevron"></i>}
+            </button>
+        )}
+
+        {!esAdmin && (
+            <button className={`nav-link ${tabActivo === 'direccion' ? 'active' : ''}`}
+                    onClick={() => { setTabActivo('direccion'); setProductoDetalle(null); }}>
+                <div className="nav-link-left">
+                    <div className="nav-link-icon">
+                        <i className="fa-solid fa-location-dot"></i>
+                    </div>
+                    <span>Mi dirección</span>
+                </div>
+                {tabActivo === 'direccion' && <i className="fa-solid fa-chevron-right nav-chevron"></i>}
+            </button>
+        )}
+    </nav>
+
+    <div className="sidebar-divider"></div>
+
+    <div className="sidebar-nav" style={{ paddingTop: '8px' }}>
+        <button className="nav-link logout-item" onClick={onCerrarSesion}>
+            <div className="nav-link-left">
+                <div className="nav-link-icon">
+                    <i className="fa-solid fa-arrow-right-from-bracket"></i>
+                </div>
+                <span>Cerrar sesión</span>
+            </div>
+        </button>
+    </div>
+</aside>
 
                 <section className="perfil-view-area-scrollable">
                     {productoDetalle ? (

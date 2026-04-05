@@ -318,7 +318,3 @@ input:focus, select:focus, textarea:focus {
   font-weight: bold;
   z-index: 2;
 }
-.formulario-col h1 {
-    color: #ffffff !important;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.3); /* Opcional: para que se lea mejor sobre el fondo */
-}
