@@ -20,6 +20,7 @@ import Nosotros from "./pages/Nosotros";
 import UserProfile from "./pages/UserPerfil";
 import EditarProducto from './pages/AdminEditar';
 import Contacto from "./pages/Contacto";
+import ManualUsuario from "./pages/ManualUsuario";
 
 function App() {
   const [mostrarAvisoCierre, setMostrarAvisoCierre] = useState(false);
@@ -139,6 +140,7 @@ function App() {
             
             <Route path="/nosotros" element={<Nosotros />} />
             <Route path="/contacto" element={<Contacto />} />
+            <Route path="/manual" element={<ManualUsuario />} />
             
             <Route path="/perfil" element={usuario ? <UserProfile usuario={usuario} onCerrarSesion={cerrarSesion} /> : <Navigate to="/" />} />
 

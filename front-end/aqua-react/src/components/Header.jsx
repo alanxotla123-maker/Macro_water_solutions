@@ -122,6 +122,10 @@ function Header({ abrirCarrito, abrirLogin, usuario, cerrarSesion, conteo }) {
         </div>
  
         <div className="icons">
+          <Link to="/manual" title="Ayuda / Manual de Usuario" style={{ marginRight: '15px', color: 'inherit' }}>
+            <i className="fa-solid fa-circle-question" style={{ fontSize: '1.3rem' }}></i>
+          </Link>
+
           {esAdmin && (
             <Link to="/admin" title="Agregar Producto">
               <i className="fa-solid fa-circle-plus icon-add"></i>
